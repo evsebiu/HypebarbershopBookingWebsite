@@ -40,8 +40,8 @@ public class Appointment {
     @Future(message = "Programarea trebuie sa fie in viitor.")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
-    @Column(name = "local_date_time", nullable = false)
-    private LocalDateTime localDateTime;
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime;
 
     @Column(name = "additional_info", nullable = true)
     private String additionalInfo;

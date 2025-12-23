@@ -30,7 +30,7 @@ public class AppointmentDTO {
     @Future(message = "Programarea trebuie sa fie in viitor.")
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
-    private LocalDateTime localDateTime;
+    private LocalDateTime startTime;
 
 
     private String additionalInfo;

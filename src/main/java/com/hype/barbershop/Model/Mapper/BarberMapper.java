@@ -12,7 +12,7 @@ public class BarberMapper {
 
         BarberDTO dto = new BarberDTO();
         dto.setId(barber.getId());
-        dto.setActive(barber.isActive());
+        dto.setIsActive(barber.getIsActive());
         dto.setEmail(barber.getEmail());
         dto.setLastName(barber.getLastName());
         dto.setFirstName(barber.getFirstName());
@@ -24,7 +24,7 @@ public class BarberMapper {
 
         Barber barber = new Barber();
 
-        barber.setActive(barberDTO.isActive());
+        barber.setIsActive(barberDTO.getIsActive());
         barber.setEmail(barberDTO.getEmail());
         barber.setFirstName(barberDTO.getFirstName());
         barber.setLastName(barberDTO.getLastName());
