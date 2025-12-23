@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -29,6 +31,9 @@ public class ServiceDetails {
     @NotNull(message = "Durata trebuie sa fie introdusa pentru serviciu")
     @Column(name = "duration")
     private int duration;
+
+    @OneToMany(mappedBy = "service")
+    private List<Appointment> appointments;
 
 
 }

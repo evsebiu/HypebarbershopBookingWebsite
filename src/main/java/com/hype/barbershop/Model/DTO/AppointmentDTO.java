@@ -35,4 +35,6 @@ public class AppointmentDTO {
 
     private String additionalInfo;
 
+    private Long barberId;
+    private Long serviceId;
 }

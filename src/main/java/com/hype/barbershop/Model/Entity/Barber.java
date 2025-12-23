@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -32,5 +34,8 @@ public class Barber {
     private String email;
 
     private boolean isActive;
+
+    @OneToMany(mappedBy = "barber", cascade = CascadeType.ALL)
+    private List<Appointment> appointments;
 
 }

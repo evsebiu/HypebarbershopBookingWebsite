@@ -46,4 +46,12 @@ public class Appointment {
     @Column(name = "additional_info", nullable = false)
     private String additionalInfo;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "barber_id", nullable = false)
+    private Barber barber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id", nullable = false)
+    private ServiceDetails serviceDetails;
 }

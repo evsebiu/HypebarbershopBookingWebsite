@@ -10,13 +10,20 @@ public class AppointmentMapper {
     public AppointmentDTO toDTO(Appointment appointment){
 
         if (appointment == null) return null;
-
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(appointment.getId());
         dto.setClientName(appointment.getClientName());
         dto.setPhoneNumber(appointment.getPhoneNumber());
         dto.setClientEmail(appointment.getClientEmail());
         dto.setLocalDateTime(appointment.getLocalDateTime());
+
+        //mapping ID from object relationships
+        if (appointment.getBarber() != null){
+            dto.setBarberId(appointment.getBarber().getId());
+        }
+        if (appointment.getServiceDetails() !=null){
+            dto.setServiceId(appointment.getServiceDetails().getId());
+        }
 
         return dto;
     }
