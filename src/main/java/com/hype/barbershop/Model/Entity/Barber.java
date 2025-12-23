@@ -33,7 +33,7 @@ public class Barber {
     @Column(name = "email", nullable = false)
     private String email;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "barber", cascade = CascadeType.ALL)
     private List<Appointment> appointments;

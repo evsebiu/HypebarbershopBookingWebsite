@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BarberMapper {
 
-    BarberDTO toDTO(Barber barber){
+    public BarberDTO toDTO(Barber barber){
         if (barber == null) return null;
 
         BarberDTO dto = new BarberDTO();
@@ -19,7 +19,7 @@ public class BarberMapper {
         return dto;
     }
 
-    Barber toEntity(BarberDTO barberDTO){
+    public Barber toEntity(BarberDTO barberDTO){
         if (barberDTO == null) return null;
 
         Barber barber = new Barber();

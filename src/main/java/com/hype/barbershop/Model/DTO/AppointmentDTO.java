@@ -24,7 +24,7 @@ public class AppointmentDTO {
     private String phoneNumber;
 
     @Email
-    @NotNull(message = "E-mailul este necesar. Introdu unul valid.")
+    @NotBlank(message = "E-mailul este necesar. Introdu unul valid.")
     private String clientEmail;
 
     @Future(message = "Programarea trebuie sa fie in viitor.")

@@ -43,7 +43,7 @@ public class Appointment {
     @Column(name = "local_date_time", nullable = false)
     private LocalDateTime localDateTime;
 
-    @Column(name = "additional_info", nullable = false)
+    @Column(name = "additional_info", nullable = true)
     private String additionalInfo;
 
 

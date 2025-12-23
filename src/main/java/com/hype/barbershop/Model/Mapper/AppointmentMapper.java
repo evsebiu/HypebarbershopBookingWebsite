@@ -16,6 +16,7 @@ public class AppointmentMapper {
         dto.setPhoneNumber(appointment.getPhoneNumber());
         dto.setClientEmail(appointment.getClientEmail());
         dto.setLocalDateTime(appointment.getLocalDateTime());
+        dto.setAdditionalInfo(appointment.getAdditionalInfo());
 
         //mapping ID from object relationships
         if (appointment.getBarber() != null){
@@ -37,6 +38,7 @@ public class AppointmentMapper {
         appointment.setPhoneNumber(dto.getPhoneNumber());
         appointment.setClientName(dto.getClientName());
         appointment.setLocalDateTime(dto.getLocalDateTime());
+        appointment.setAdditionalInfo(dto.getAdditionalInfo());
 
         return appointment;
     }

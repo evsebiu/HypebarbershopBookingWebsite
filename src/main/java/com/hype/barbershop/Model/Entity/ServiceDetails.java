@@ -26,13 +26,13 @@ public class ServiceDetails {
 
     @NotNull(message = "Serviciul trebuie sa contina un pret")
     @Column(name = "price")
-    private double price;
+    private Double price;
 
     @NotNull(message = "Durata trebuie sa fie introdusa pentru serviciu")
     @Column(name = "duration")
-    private int duration;
+    private Integer duration;
 
-    @OneToMany(mappedBy = "service")
+    @OneToMany(mappedBy = "serviceDetails")
     private List<Appointment> appointments;
 
 

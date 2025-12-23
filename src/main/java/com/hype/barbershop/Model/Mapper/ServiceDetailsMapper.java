@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceDetailsMapper {
 
-    ServiceDetailsDTO toDTO(ServiceDetails serviceDetails){
+    public ServiceDetailsDTO toDTO(ServiceDetails serviceDetails){
         if (serviceDetails == null ) return null;
 
         ServiceDetailsDTO dto = new ServiceDetailsDTO();
@@ -19,7 +19,7 @@ public class ServiceDetailsMapper {
         return dto;
     }
 
-    ServiceDetails toEntity(ServiceDetailsDTO serviceDetailsDTO){
+    public ServiceDetails toEntity(ServiceDetailsDTO serviceDetailsDTO){
         if (serviceDetailsDTO == null) return null;
 
         ServiceDetails entity = new ServiceDetails();

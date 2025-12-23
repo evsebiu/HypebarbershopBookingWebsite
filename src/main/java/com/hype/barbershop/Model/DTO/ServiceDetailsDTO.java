@@ -16,9 +16,9 @@ public class ServiceDetailsDTO {
     @NotBlank(message = "Serviciul ce urmeaza a fi adaugat are nevoie de un nume.")
     private String serviceName;
 
-    @NotBlank(message = "Pretul este necesar pentru adaugarea serviciului.")
-    private double price;
+    @NotNull(message = "Pretul este necesar pentru adaugarea serviciului.")
+    private Double price;
 
     @NotNull(message = "Serviciul adaugat are nevoie de o durata.")
-    private int duration;
+    private Integer duration;
 }
