@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Table(name = "services")
 public class ServiceDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,7 @@ public class ServiceDetails {
     @Column(name = "service_name")
     private String serviceName;
 
-    @NotBlank(message = "Serviciul trebuie sa contina un pret")
+    @NotNull(message = "Serviciul trebuie sa contina un pret")
     @Column(name = "price")
     private double price;
 

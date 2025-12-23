@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "appointments")
 
 public class Appointment {
 
@@ -22,7 +23,7 @@ public class Appointment {
     private Long id;
 
     @NotBlank(message = "Numele este necesar.")
-    @Column(name = "patient_name", nullable = false)
+    @Column(name = "client_name", nullable = false)
     private String clientName;
 
     @NotBlank(message = "Numarul de telefon este necesar.")
@@ -32,7 +33,7 @@ public class Appointment {
     private String phoneNumber;
 
     @Email
-    @NotNull(message = "E-mailul este necesar. Introdu unul valid.")
+    @NotBlank(message = "E-mailul este necesar. Introdu unul valid.")
     @Column(name = "client_email", nullable = false)
     private String clientEmail;
 
