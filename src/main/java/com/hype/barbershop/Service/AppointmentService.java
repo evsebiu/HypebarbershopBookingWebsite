@@ -1,6 +1,7 @@
 package com.hype.barbershop.Service;
 
 
+import com.hype.barbershop.Exceptions.RuntimeException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Mapper.AppointmentMapper;
@@ -128,10 +129,10 @@ public class AppointmentService {
 
         // 1. first step check if barber and service exists in database.
         var barber = barberRepository.findById(appointmentDTO.getBarberId())
-                .orElseThrow(()-> new RuntimeException("Frizerul cu id: " + appointmentDTO.getBarberId() + " nu exista."));
+                .orElseThrow(()-> new java.lang.RuntimeException("Frizerul cu id: " + appointmentDTO.getBarberId() + " nu exista."));
 
         var service  = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new RuntimeException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
+                .orElseThrow(()-> new java.lang.RuntimeException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
 
         // 2. calculate when appointment begins and when it finishes.
         // we got the start from the client and duration from service table
@@ -152,7 +153,7 @@ public class AppointmentService {
 
             if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
                 log.warn("Conflict de programare pentru frizerul cu id  " + barber.getId());
-                throw new RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
+                throw new java.lang.RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
             }
         }
 
@@ -170,6 +171,67 @@ public class AppointmentService {
     }
 
 
+    //update method available only for administrator / barber
+    public AppointmentDTO updateAppointment  (Long id, AppointmentDTO appointmentDTO){
+
+        log.info("Incercare de actualizare a programarii cu id: {} ", id);
+
+        //check if appointment exists
+        Appointment existingAppointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new java.lang.RuntimeException("Programarea cautata nu exista " + id));
+
+        //validate if barber and service exists
+
+        var barber = barberRepository.findById(appointmentDTO.getBarberId())
+                .orElseThrow(()-> new java.lang.RuntimeException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
+
+        var service = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
+                .orElseThrow(()-> new java.lang.RuntimeException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
+
+        //calculate next time window
+        LocalDateTime newStart = appointmentDTO.getStartTime();
+        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+
+
+        //check for appointment conflicts. filter by the target barber and ensure we don't compare appointments with itself
+        List<Appointment> barberAppointment  = appointmentRepository.findAll()
+                .stream()
+                .filter(a-> a.getBarber().getAppointments().equals(barber.getId()))
+                .filter(a -> !a.getId().equals(id))
+                .collect(Collectors.toList());
+
+        for (Appointment existing : barberAppointment){
+            LocalDateTime existingStart = existing.getStartTime();
+            LocalDateTime existingEnd = existingStart.plusMinutes(service.getDuration());
+
+
+            //Overlap logic if Start A < End B && Start B < End A
+            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
+                log.warn("Conflict la actualizarea programarii pentru frizerul cu ID {} " + appointmentDTO.getBarberId());
+
+                throw new RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
+            }
+        }
+
+
+        // Update fields
+
+        existingAppointment.setClientName(appointmentDTO.getClientName());
+        existingAppointment.setClientEmail(appointmentDTO.getClientEmail());
+        existingAppointment.setPhoneNumber(appointmentDTO.getPhoneNumber());
+        existingAppointment.setAdditionalInfo(appointmentDTO.getAdditionalInfo());
+        existingAppointment.setStartTime(newStart);
+        existingAppointment.setBarber(barber);
+        existingAppointment.setServiceDetails(service);
+
+        //save
+
+        Appointment savedAppointment = appointmentRepository.save(existingAppointment);
+        log.info("S-a actualizat programarea cu ID {} " + updateAppointment().getId());
+
+        return appointmentMapper.toDTO(savedAppointment);
+
+    }
 
 
 }
