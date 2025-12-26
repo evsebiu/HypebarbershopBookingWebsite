@@ -117,7 +117,7 @@ public class AppointmentService {
         log.debug("Se solicita clientul cu emailul {} ", clientEmail);
 
 
-       List<AppointmentDTO> appointments = appointmentRepository.findByEmail(clientEmail)
+       List<AppointmentDTO> appointments = appointmentRepository.findByClientEmail(clientEmail)
                .stream()
                .map(appointmentMapper::toDTO)
                .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class AppointmentService {
         LocalDateTime newStart = appointmentDTO.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
 
-        // 3. chcck for conflicts (optimized : only fetch appointments for this barber)
+        // 3. check for conflicts (optimized : only fetch appointments for this barber)
         List<Appointment> barberAppointments = appointmentRepository.findByBarberId(barber.getId());
 
         checkForOverlaps(barberAppointments, newStart, newEnd, null);
@@ -191,7 +191,7 @@ public class AppointmentService {
         //check for appointment conflicts. filter by the target barber and ensure we don't compare appointments with itself
         List<Appointment> barberAppointment  = appointmentRepository.findByBarberId(barber.getId());
 
-        checkForOverlaps(barberAppointment, newStart, newEnd, null);
+        checkForOverlaps(barberAppointment, newStart, newEnd, id);
 
 
         // Update fields
