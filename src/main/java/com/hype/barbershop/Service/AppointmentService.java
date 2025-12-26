@@ -4,13 +4,17 @@ package com.hype.barbershop.Service;
 import com.hype.barbershop.Exceptions.RuntimeException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
+import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Mapper.AppointmentMapper;
 import com.hype.barbershop.Repository.AppointmentRepository;
 import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,7 @@ public class AppointmentService {
 
 
     //GET
+    @Transactional(readOnly = true)
     public List<AppointmentDTO> getAllAppointments(){
 
         log.debug("Se cer toate programarile....");
@@ -53,6 +58,8 @@ public class AppointmentService {
 
     }
 
+
+    @Transactional(readOnly = true)
     public Optional<AppointmentDTO> getById(Long id){
 
         log.debug("Se cauta programarea cu ID: {} ", id);
@@ -65,6 +72,7 @@ public class AppointmentService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public List<AppointmentDTO> getByClientName(String clientName){
 
         log.debug("Se cere programare cu numele clientului {} ", clientName);
@@ -85,6 +93,7 @@ public class AppointmentService {
     }
 
 
+    @Transactional(readOnly = true)
     public List<AppointmentDTO> getByPhoneNumber(String phoneNumber){
 
         log.debug("Se cauta clientul cu numarul de telefon {}", phoneNumber);
@@ -103,6 +112,7 @@ public class AppointmentService {
         return appointments;
     }
 
+    @Transactional(readOnly = true)
     public List<AppointmentDTO> getByEmail(String clientEmail){
 
         log.debug("Se solicita clientul cu emailul {} ", clientEmail);
@@ -123,44 +133,30 @@ public class AppointmentService {
     }
 
 
-
+    @Transactional
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO){
         log.info("Incercare de creare de programare: {} ", appointmentDTO.getClientName());
 
         // 1. first step check if barber and service exists in database.
-        var barber = barberRepository.findById(appointmentDTO.getBarberId())
-                .orElseThrow(()-> new java.lang.RuntimeException("Frizerul cu id: " + appointmentDTO.getBarberId() + " nu exista."));
-
-        var service  = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new java.lang.RuntimeException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
+       Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
+               .orElseThrow(()-> new RuntimeException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
+        ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
+                .orElseThrow(()-> new RuntimeException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
 
         // 2. calculate when appointment begins and when it finishes.
         // we got the start from the client and duration from service table
         LocalDateTime newStart = appointmentDTO.getStartTime();
-        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+        LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
 
-        // 3. check if barber is free
+        // 3. checck for conflicts (optimized : only fetch appointments for this barber)
+        List<Appointment> barberAppointments = appointmentRepository.findByBarberId(barber.getId());
 
-        List<Appointment> existingAppointments = appointmentRepository.findAll()
-                .stream()
-                .filter( a -> a.getBarber().getId().equals(barber.getId()))
-                .collect(Collectors.toList());
+        checkForOverlaps(barberAppointments, newStart, newEnd, null);
 
-        for (Appointment existing : existingAppointments){
-            //we need to know when appointment its finishing
-            LocalDateTime existingStart =existing.getStartTime();
-            LocalDateTime existingEnd = existingStart.plusMinutes(existing.getServiceDetails().getDuration());
-
-            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
-                log.warn("Conflict de programare pentru frizerul cu id  " + barber.getId());
-                throw new java.lang.RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
-            }
-        }
-
-        Appointment appointment =appointmentMapper.toEntity(appointmentDTO);
-
+        //save
+        Appointment appointment = appointmentMapper.toEntity(appointmentDTO);
         appointment.setBarber(barber);
-        appointment.setServiceDetails(service);
+        appointment.setServiceDetails(serviceDetails);
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
@@ -178,40 +174,25 @@ public class AppointmentService {
 
         //check if appointment exists
         Appointment existingAppointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new java.lang.RuntimeException("Programarea cautata nu exista " + id));
+                .orElseThrow(()-> new RuntimeException("Programarea cautata nu exista " + id));
 
         //validate if barber and service exists
 
-        var barber = barberRepository.findById(appointmentDTO.getBarberId())
-                .orElseThrow(()-> new java.lang.RuntimeException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
+        Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
+                .orElseThrow(()-> new RuntimeException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
 
-        var service = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new java.lang.RuntimeException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
+        ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
+                .orElseThrow(()-> new RuntimeException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
 
         //calculate next time window
         LocalDateTime newStart = appointmentDTO.getStartTime();
-        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+        LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
 
 
         //check for appointment conflicts. filter by the target barber and ensure we don't compare appointments with itself
-        List<Appointment> barberAppointment  = appointmentRepository.findAll()
-                .stream()
-                .filter(a-> a.getBarber().getAppointments().equals(barber.getId()))
-                .filter(a -> !a.getId().equals(id))
-                .collect(Collectors.toList());
+        List<Appointment> barberAppointment  = appointmentRepository.findByBarberId(barber.getId());
 
-        for (Appointment existing : barberAppointment){
-            LocalDateTime existingStart = existing.getStartTime();
-            LocalDateTime existingEnd = existingStart.plusMinutes(service.getDuration());
-
-
-            //Overlap logic if Start A < End B && Start B < End A
-            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
-                log.warn("Conflict la actualizarea programarii pentru frizerul cu ID {} " + appointmentDTO.getBarberId());
-
-                throw new RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
-            }
-        }
+        checkForOverlaps(barberAppointment, newStart, newEnd, null);
 
 
         // Update fields
@@ -222,16 +203,46 @@ public class AppointmentService {
         existingAppointment.setAdditionalInfo(appointmentDTO.getAdditionalInfo());
         existingAppointment.setStartTime(newStart);
         existingAppointment.setBarber(barber);
-        existingAppointment.setServiceDetails(service);
+        existingAppointment.setServiceDetails(serviceDetails);
 
         //save
 
         Appointment savedAppointment = appointmentRepository.save(existingAppointment);
-        log.info("S-a actualizat programarea cu ID {} " + updateAppointment().getId());
+        log.info("S-a actualizat programarea cu ID {} ", savedAppointment.getId());
 
         return appointmentMapper.toDTO(savedAppointment);
 
     }
 
 
+    public void deleteAppointment (Long id){
+        log.info("Se solicita stergerea programarii cu ID {} ", id);
+
+        if (!appointmentRepository.existsById(id)){
+            throw new RuntimeException("Programarea solicitata nu exista.");
+        }
+
+        appointmentRepository.deleteById(id);
+
+    }
+
+
+    //helper method to check for overlaps ( changed initial createAppointment & updateAppointment to make them better)
+    private void checkForOverlaps(List<Appointment> appointments, LocalDateTime newStart, LocalDateTime newEnd,
+                                  Long excludeId){
+        for (Appointment existing : appointments){
+            if (excludeId != null && existing.getId().equals(excludeId)){
+                continue;
+            }
+
+            LocalDateTime existingStart = existing.getStartTime();
+            LocalDateTime existingEnd = existingStart.plusMinutes(existing.getServiceDetails().getDuration());
+
+            // Overlap logic : Start A < End B & Start B < End A
+            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
+                log.warn("Conflict de programari pentru frizerul cu ID {} ", existing.getBarber().getId());
+                throw new RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
+            }
+        }
+    }
 }
