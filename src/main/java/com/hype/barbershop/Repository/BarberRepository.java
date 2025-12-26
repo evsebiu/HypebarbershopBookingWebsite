@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface BarberRepository extends JpaRepository<Barber, Long> {
 
-    Optional<Barber> findById(Long id);
-    Optional<Barber> findIfActive(Boolean isActive);
+
+    List<Barber> findByIsActiveTrue();
     Optional<Barber> findByEmail(String email);
     List<Barber> findByFirstName(String firstName);
     List<Barber> findByLastName(String lastName);

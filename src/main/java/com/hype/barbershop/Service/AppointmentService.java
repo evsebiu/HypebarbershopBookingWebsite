@@ -10,6 +10,7 @@ import com.hype.barbershop.Model.Mapper.AppointmentMapper;
 import com.hype.barbershop.Repository.AppointmentRepository;
 import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-
+@RequiredArgsConstructor
 
 public class AppointmentService {
 
@@ -148,7 +149,7 @@ public class AppointmentService {
         LocalDateTime newStart = appointmentDTO.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
 
-        // 3. checck for conflicts (optimized : only fetch appointments for this barber)
+        // 3. chcck for conflicts (optimized : only fetch appointments for this barber)
         List<Appointment> barberAppointments = appointmentRepository.findByBarberId(barber.getId());
 
         checkForOverlaps(barberAppointments, newStart, newEnd, null);
