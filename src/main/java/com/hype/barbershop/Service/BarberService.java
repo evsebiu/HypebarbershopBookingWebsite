@@ -3,6 +3,7 @@ package com.hype.barbershop.Service;
 
 import com.hype.barbershop.Exceptions.DuplicateResourceException;
 import com.hype.barbershop.Exceptions.IllegalArgumentException;
+import com.hype.barbershop.Exceptions.ResourceNotFoundException;
 import com.hype.barbershop.Exceptions.RuntimeException;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Barber;
@@ -106,7 +107,49 @@ public class BarberService {
     }
 
     @Transactional
-    public BarberDTO updateBarber (BarberDTO barberDTO)
+    public BarberDTO updateBarber (Long id, BarberDTO barberDTO){
+
+        // find existing barber
+        Barber existingBarber = barberRepo.findById(id)
+                .orElseThrow(()->  new ResourceNotFoundException("Frizerul cautat nu a fost gasit. ID: " + id ));
+
+        //validate input
+
+        if (barberDTO == null){
+            throw new IllegalArgumentException("Detaiile frizerului nu pot fi nulle");
+        }
+
+        // check if email is already taken by another barber
+
+        if (!existingBarber.getEmail().equals(barberDTO.getEmail())){
+            boolean emailExists = barberRepo.existsEmailAndIdNot(barberDTO.getEmail(), existingBarber.getId());
+            if (emailExists){
+                throw new IllegalArgumentException("Emailul este deja luat de un alt frizer.");
+            }
+        }
+
+        //update fields
+        existingBarber.setEmail(barberDTO.getEmail());
+        existingBarber.setIsActive(barberDTO.getIsActive());
+        existingBarber.setFirstName(barberDTO.getFirstName());
+        existingBarber.setLastName(barberDTO.getLastName());
+
+        //save
+        Barber barber = barberMapper.toEntity(barberDTO);
+        Barber savedBarber = barberRepo.save(barber);
+
+        return barberMapper.toDTO(savedBarber);
+    }
+
+    public void deleteBarber(Long id){
+        if (id == null){
+            throw new IllegalArgumentException("ID-ul nu poate fi null");
+        }
+
+        Barber barberToDelete = barberRepo.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("ID-ul frizerului nu a fost gasit"));
+        barberRepo.delete(barberToDelete);
+    }
 }
 
 

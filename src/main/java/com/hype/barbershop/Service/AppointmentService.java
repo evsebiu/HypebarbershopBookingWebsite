@@ -10,12 +10,11 @@ import com.hype.barbershop.Model.Mapper.AppointmentMapper;
 import com.hype.barbershop.Repository.AppointmentRepository;
 import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 
 public class AppointmentService {
 
@@ -227,6 +225,23 @@ public class AppointmentService {
 
     }
 
+    /**
+     * Checks if an appointment overlaps with an existing one for a specific barber.
+     * * Logic: Two time intervals (StartA, EndA) and (StartB, EndB) overlap if:
+     * StartA < EndB AND EndA > StartB
+     * * @param barberId The ID of the barber
+     * @param newStart The requested start time
+     * @param newEnd   The requested end time (calculated as start + duration)
+     * @param excludeId The ID of the appointment to ignore (used for updates). Pass -1 or null for creation.
+     * @return true if an overlap exists
+     */
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
+            "FROM Appointment a " +
+            "JOIN a.serviceDetails s " +
+            "WHERE a.barber.id = :barberId " +
+            "AND (:excludeId IS NULL OR a.id <> :excludeId) " +
+            "AND (a.startTime < :newEnd " +
+            "AND FUNCTION('TIMESTAMPADD', MINUTE, s.duration, a.startTime) > :newStart)")
 
     //helper method to check for overlaps ( changed initial createAppointment & updateAppointment to make them better)
     private void checkForOverlaps(List<Appointment> appointments, LocalDateTime newStart, LocalDateTime newEnd,

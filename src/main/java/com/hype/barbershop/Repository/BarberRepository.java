@@ -15,4 +15,5 @@ public interface BarberRepository extends JpaRepository<Barber, Long> {
     Optional<Barber> findByEmail(String email);
     List<Barber> findByFirstName(String firstName);
     List<Barber> findByLastName(String lastName);
+    boolean existsEmailAndIdNot(String email, Long id);
 }
