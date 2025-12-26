@@ -1,7 +1,7 @@
 package com.hype.barbershop.Service;
 
 
-import com.hype.barbershop.Exceptions.RuntimeException;
+import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
@@ -138,9 +138,9 @@ public class AppointmentService {
 
         // 1. first step check if barber and service exists in database.
        Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
-               .orElseThrow(()-> new RuntimeException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
+               .orElseThrow(()-> new BarbershopException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
         ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new RuntimeException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
+                .orElseThrow(()-> new BarbershopException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
 
         // 2. calculate when appointment begins and when it finishes.
         // we got the start from the client and duration from service table
@@ -173,15 +173,15 @@ public class AppointmentService {
 
         //check if appointment exists
         Appointment existingAppointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Programarea cautata nu exista " + id));
+                .orElseThrow(()-> new BarbershopException("Programarea cautata nu exista " + id));
 
         //validate if barber and service exists
 
         Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
-                .orElseThrow(()-> new RuntimeException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
+                .orElseThrow(()-> new BarbershopException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
 
         ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new RuntimeException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
+                .orElseThrow(()-> new BarbershopException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
 
         //calculate next time window
         LocalDateTime newStart = appointmentDTO.getStartTime();
@@ -218,7 +218,7 @@ public class AppointmentService {
         log.info("Se solicita stergerea programarii cu ID {} ", id);
 
         if (!appointmentRepository.existsById(id)){
-            throw new RuntimeException("Programarea solicitata nu exista.");
+            throw new BarbershopException("Programarea solicitata nu exista.");
         }
 
         appointmentRepository.deleteById(id);
@@ -257,7 +257,7 @@ public class AppointmentService {
             // Overlap logic : Start A < End B & Start B < End A
             if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
                 log.warn("Conflict de programari pentru frizerul cu ID {} ", existing.getBarber().getId());
-                throw new RuntimeException("Intervalul orar este deja ocupat pentru acest frizer.");
+                throw new BarbershopException("Intervalul orar este deja ocupat pentru acest frizer.");
             }
         }
     }

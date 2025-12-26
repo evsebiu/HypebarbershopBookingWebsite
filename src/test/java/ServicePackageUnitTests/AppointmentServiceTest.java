@@ -10,7 +10,7 @@ import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
 import com.hype.barbershop.Service.AppointmentService;
 // Import your custom exception so the test knows what to catch
-import com.hype.barbershop.Exceptions.RuntimeException;
+import com.hype.barbershop.Exceptions.BarbershopException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,7 +111,7 @@ public class AppointmentServiceTest {
         when(appointmentRepository.findByBarberId(barberId)).thenReturn(List.of(existing));
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        BarbershopException exception = assertThrows(BarbershopException.class, () -> {
             appointmentService.createAppointment(inputDto);
         });
 

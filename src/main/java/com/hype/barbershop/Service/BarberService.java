@@ -1,10 +1,9 @@
 package com.hype.barbershop.Service;
 
 
-import com.hype.barbershop.Exceptions.DuplicateResourceException;
-import com.hype.barbershop.Exceptions.IllegalArgumentException;
-import com.hype.barbershop.Exceptions.ResourceNotFoundException;
-import com.hype.barbershop.Exceptions.RuntimeException;
+import com.hype.barbershop.Exceptions.BarbershopDuplicateResource;
+import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
+import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Model.Mapper.BarberMapper;
@@ -90,13 +89,13 @@ public class BarberService {
 
         // null exception
         if (barberDTO == null){
-            throw new IllegalArgumentException("Detaliile frizerului sunt necesare.");
+            throw new IllegalBarbershopArgument("Detaliile frizerului sunt necesare.");
         }
 
         //check if barber email exists in database because it's unique
 
         if (barberDTO.getEmail() !=null && barberRepo.findByEmail(barberDTO.getEmail()).isPresent()){
-            throw new DuplicateResourceException("Un frizer cu acest email exista deja in baza de date");
+            throw new BarbershopDuplicateResource("Un frizer cu acest email exista deja in baza de date");
         }
 
         //save
@@ -111,12 +110,12 @@ public class BarberService {
 
         // find existing barber
         Barber existingBarber = barberRepo.findById(id)
-                .orElseThrow(()->  new ResourceNotFoundException("Frizerul cautat nu a fost gasit. ID: " + id ));
+                .orElseThrow(()->  new BarbershopResourceNotFound("Frizerul cautat nu a fost gasit. ID: " + id ));
 
         //validate input
 
         if (barberDTO == null){
-            throw new IllegalArgumentException("Detaiile frizerului nu pot fi nulle");
+            throw new IllegalBarbershopArgument("Detaiile frizerului nu pot fi nulle");
         }
 
         // check if email is already taken by another barber
@@ -124,7 +123,7 @@ public class BarberService {
         if (!existingBarber.getEmail().equals(barberDTO.getEmail())){
             boolean emailExists = barberRepo.existsEmailAndIdNot(barberDTO.getEmail(), existingBarber.getId());
             if (emailExists){
-                throw new IllegalArgumentException("Emailul este deja luat de un alt frizer.");
+                throw new IllegalBarbershopArgument("Emailul este deja luat de un alt frizer.");
             }
         }
 
@@ -143,11 +142,11 @@ public class BarberService {
 
     public void deleteBarber(Long id){
         if (id == null){
-            throw new IllegalArgumentException("ID-ul nu poate fi null");
+            throw new IllegalBarbershopArgument("ID-ul nu poate fi null");
         }
 
         Barber barberToDelete = barberRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("ID-ul frizerului nu a fost gasit"));
+                .orElseThrow(()-> new BarbershopResourceNotFound("ID-ul frizerului nu a fost gasit"));
         barberRepo.delete(barberToDelete);
     }
 }
