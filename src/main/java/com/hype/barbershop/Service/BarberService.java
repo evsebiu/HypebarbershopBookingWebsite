@@ -5,12 +5,16 @@ import com.hype.barbershop.Exceptions.BarbershopDuplicateResource;
 import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.BarberDTO;
+import com.hype.barbershop.Model.DTO.BarberRegistrationDTO;
 import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Enums.Role;
 import com.hype.barbershop.Model.Mapper.BarberMapper;
 import com.hype.barbershop.Repository.AppointmentRepository;
 import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 
 public class BarberService {
 
@@ -27,16 +32,8 @@ public class BarberService {
     private final AppointmentRepository appointmentRepo;
     private final BarberRepository barberRepo;
     private final ServiceDetailsRepository serviceDetailsRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public BarberService (AppointmentRepository appointmentRepo,
-                          BarberRepository barberRepo,
-                          ServiceDetailsRepository serviceDetailsRepo,
-                          BarberMapper barberMapper){
-        this.appointmentRepo=appointmentRepo;
-        this.barberRepo=barberRepo;
-        this.serviceDetailsRepo=serviceDetailsRepo;
-        this.barberMapper=barberMapper;
-    }
 
     //GET methods
 
@@ -84,25 +81,38 @@ public class BarberService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public BarberDTO createBarber(BarberDTO barberDTO){
 
+    @Transactional
+    public BarberDTO createBarber(BarberRegistrationDTO regDTO){
         // null exception
-        if (barberDTO == null){
+        if (regDTO == null){
             throw new IllegalBarbershopArgument("Detaliile frizerului sunt necesare.");
         }
 
         //check if barber email exists in database because it's unique
 
-        if (barberDTO.getEmail() !=null && barberRepo.findByEmail(barberDTO.getEmail()).isPresent()){
+        if (regDTO.getEmail() !=null && barberRepo.findByEmail(regDTO.getEmail()).isPresent()){
             throw new BarbershopDuplicateResource("Un frizer cu acest email exista deja in baza de date");
         }
 
-        //save
-        Barber barber = barberMapper.toEntity(barberDTO);
-        Barber savedBarber = barberRepo.save(barber);
+        Barber barber = new Barber();
+        barber.setFirstName(regDTO.getFirstName());
+        barber.setLastName(regDTO.getLastName());
+        barber.setEmail(regDTO.getEmail());
+        barber.setIsActive(true);
 
-        return barberMapper.toDTO(savedBarber);
+        // encrypt password before saving
+        barber.setPassword(passwordEncoder.encode(regDTO.getRawPassword()));
+
+        //set role
+        if (Boolean.TRUE.equals(regDTO.getIsAdmin())){
+            barber.setRole(Role.ROLE_ADMIN);
+        } else {
+            barber.setRole(Role.ROLE_BARBER);
+        }
+
+        Barber saveBarber = barberRepo.save(barber);
+        return barberMapper.toDTO(saveBarber);
     }
 
     @Transactional
@@ -134,12 +144,13 @@ public class BarberService {
         existingBarber.setLastName(barberDTO.getLastName());
 
         //save
-        Barber barber = barberMapper.toEntity(barberDTO);
-        Barber savedBarber = barberRepo.save(barber);
+        Barber savedBarber = barberRepo.save(existingBarber);
 
         return barberMapper.toDTO(savedBarber);
     }
 
+
+    @Transactional
     public void deleteBarber(Long id){
         if (id == null){
             throw new IllegalBarbershopArgument("ID-ul nu poate fi null");

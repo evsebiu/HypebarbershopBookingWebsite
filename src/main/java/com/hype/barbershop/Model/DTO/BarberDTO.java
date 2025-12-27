@@ -1,5 +1,9 @@
 package com.hype.barbershop.Model.DTO;
 
+import com.hype.barbershop.Model.Enums.Role;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -22,6 +26,9 @@ public class BarberDTO {
     @Email
     @NotBlank(message = "Emailul este necesar.")
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private Boolean isActive;
 

@@ -16,6 +16,7 @@ public class BarberMapper {
         dto.setEmail(barber.getEmail());
         dto.setLastName(barber.getLastName());
         dto.setFirstName(barber.getFirstName());
+        dto.setRole(barber.getRole());
         return dto;
     }
 
@@ -29,6 +30,7 @@ public class BarberMapper {
         barber.setFirstName(barberDTO.getFirstName());
         barber.setLastName(barberDTO.getLastName());
         barber.setId(barberDTO.getId());
+        barber.setRole(barberDTO.getRole());
         return barber;
     }
 }

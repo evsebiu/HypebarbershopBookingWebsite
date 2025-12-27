@@ -1,5 +1,6 @@
 package com.hype.barbershop.Model.Entity;
 
+import com.hype.barbershop.Model.Enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +33,15 @@ public class Barber {
     @Email
     @Column(name = "email", nullable = false)
     private String email;
+
+
+    //security fields
+    @Column(name = "password" , nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     private Boolean isActive;
 
