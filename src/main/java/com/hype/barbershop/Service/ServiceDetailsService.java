@@ -3,8 +3,12 @@ package com.hype.barbershop.Service;
 
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
+import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
+import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Mapper.ServiceDetailsMapper;
+import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,5 +90,95 @@ public class ServiceDetailsService {
         return service;
     }
 
+
+    @Transactional
+    public ServiceDetailsDTO createService (ServiceDetailsDTO serviceDetailsDTO){
+        log.debug("Se creaza serviciul...");
+
+        //null validation
+        if (serviceDetailsDTO == null){
+            throw new IllegalBarbershopArgument("Detaliile serviciului sunt necesare.");
+        }
+
+        // check if barber exists
+
+        var existingService  =  serviceDetailsRepo.findByServiceNameContainingIgnoreCase(serviceDetailsDTO.getServiceName());
+
+        if (!existingService.isEmpty()){
+
+            for (ServiceDetails s : existingService){
+                if (s.getServiceName().equalsIgnoreCase(serviceDetailsDTO.getServiceName()))
+                throw new IllegalBarbershopArgument("Serviciul cu acest nume exista deja in baza de date.");
+            }
+        }
+
+        // data validations (optional but useful)
+
+        if (serviceDetailsDTO.getPrice() < 0 ){
+            throw new IllegalBarbershopArgument("Pretul trebuie sa fie unul pozitiv");
+        }
+
+        if (serviceDetailsDTO.getDuration() < 0 ){
+            throw new IllegalBarbershopArgument("Durata serviciului trebuie sa fie pozitiva");
+        }
+
+        // save
+
+        ServiceDetails serviceDetails = serviceDetailsMapper.toEntity(serviceDetailsDTO);
+        ServiceDetails savedService = serviceDetailsRepo.save(serviceDetails);
+
+        log.info("Serviciu creat cu succes, ID {} ", savedService.getId());
+
+        return serviceDetailsMapper.toDTO(savedService);
+
+    }
+
+
+    public ServiceDetailsDTO updateService (Long id, ServiceDetailsDTO serviceDetailsDTO){
+
+        log.info("Incercare de actualizare a serviciului cu ID {} ", id);
+
+        // check if service exists
+
+        ServiceDetails existingService  = serviceDetailsRepo.findById(id)
+                .orElseThrow(()-> new BarbershopException("Serviciul solicitat nu exista."));
+
+        // check if name is already taken
+
+        if (!existingService.getServiceName().equals(serviceDetailsDTO.getServiceName())){
+            boolean nameExists = serviceDetailsRepo.existsByServiceNameAndIdNot(serviceDetailsDTO.getServiceName(), existingService.getId());
+            if (nameExists){
+                throw new IllegalBarbershopArgument("Numele serviciului este deja activ pe website /  database");
+            }
+        }
+
+        //update fields
+        existingService.setServiceName(serviceDetailsDTO.getServiceName());
+        existingService.setDuration(serviceDetailsDTO.getDuration());
+        existingService.setPrice(serviceDetailsDTO.getPrice());
+
+
+        //save
+        ServiceDetails serviceDetails = serviceDetailsMapper.toEntity(serviceDetailsDTO);
+        ServiceDetails savedService = serviceDetailsRepo.save(serviceDetails);
+
+        log.info("S-a actualizat cu succes serviciul solicitat cu ID {} ", savedService.getId());
+
+        return serviceDetailsMapper.toDTO(savedService);
+    }
+
+    public void deleteService(Long id){
+        log.info("Se solicita stergerea serviciului cu ID {} ", id);
+        if (id == null ){
+            throw new IllegalBarbershopArgument("ID-ul serviciului nu poate fi null");
+        }
+
+        ServiceDetails serviceToDelete  = serviceDetailsRepo.findById(id)
+                .orElseThrow(()-> new BarbershopResourceNotFound("Serviciul solicitat nu exista"));
+
+        serviceDetailsRepo.delete(serviceToDelete);
+
+        log.info("S-a sters cu succes serviciul cu ID {} ", serviceToDelete.getId());
+    }
 
 }

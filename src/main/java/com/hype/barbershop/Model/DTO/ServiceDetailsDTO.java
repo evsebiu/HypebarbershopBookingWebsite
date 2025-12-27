@@ -21,4 +21,6 @@ public class ServiceDetailsDTO {
 
     @NotNull(message = "Serviciul adaugat are nevoie de o durata.")
     private Integer duration;
+
+
 }

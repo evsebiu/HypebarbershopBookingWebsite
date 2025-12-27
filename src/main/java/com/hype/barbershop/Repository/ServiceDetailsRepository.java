@@ -13,4 +13,5 @@ public interface ServiceDetailsRepository extends JpaRepository<ServiceDetails, 
     List<ServiceDetails> findByServiceNameContainingIgnoreCase(String serviceName);
     List<ServiceDetails> findByPrice(Double price);
     List<ServiceDetails> findByDuration(Integer duration);
+    boolean existsByServiceNameAndIdNot(String serviceName, Long id);
 }
