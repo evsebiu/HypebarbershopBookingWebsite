@@ -1,6 +1,7 @@
 package com.hype.barbershop.Service;
 
 
+import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Repository.BarberRepository;
@@ -17,7 +18,7 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 
-public class CustomUserDetailService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final BarberRepository barberRepository;
 
@@ -27,7 +28,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
         // search barber in database by email
         Barber barber = barberRepository.findByEmail(email)
-                .orElseThrow(()-> new BarbershopResourceNotFound("Utilizatorul nu a fost gasit in baza de date."));
+                .orElseThrow(()-> new BarbershopException("Utilizatorul nu a fost gasit in baza de date."));
 
         //convert ENUM ROLE to Spring format
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(barber.getRole().name());
