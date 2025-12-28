@@ -131,7 +131,7 @@ public class BarberService {
         // check if email is already taken by another barber
 
         if (!existingBarber.getEmail().equals(barberDTO.getEmail())){
-            boolean emailExists = barberRepo.existsEmailAndIdNot(barberDTO.getEmail(), existingBarber.getId());
+            boolean emailExists = barberRepo.existsByEmailAndIdNot(barberDTO.getEmail(), existingBarber.getId());
             if (emailExists){
                 throw new IllegalBarbershopArgument("Emailul este deja luat de un alt frizer.");
             }
