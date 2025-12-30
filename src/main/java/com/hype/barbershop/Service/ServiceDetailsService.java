@@ -138,6 +138,10 @@ public class ServiceDetailsService {
 
         log.info("Incercare de actualizare a serviciului cu ID {} ", id);
 
+        if (serviceDetailsDTO == null){
+            throw new IllegalBarbershopArgument("Detaliile serviciului sunt necesare pentru actualizare.");
+        }
+
         // check if service exists
 
         ServiceDetails existingService  = serviceDetailsRepo.findById(id)
