@@ -2,44 +2,223 @@
 <html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Alege Data și Ora</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Alege Data și Ora | Hype Barbershop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"> <style>
-    /* Stiluri pentru butoanele de ore */
-    #slots-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 10px;
-        margin-top: 15px;
-    }
-    .time-slot {
-        padding: 10px;
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: #fff;
-        border-radius: 4px;
-        cursor: pointer;
-        text-align: center;
-        transition: all 0.2s;
-    }
-    .time-slot:hover {
-        border-color: var(--accent-gold);
-        background: rgba(212, 175, 55, 0.1);
-    }
-    .time-slot.selected {
-        background: var(--accent-gold);
-        color: #000;
-        font-weight: bold;
-        border-color: var(--accent-gold);
-    }
-    /* Ascundem input-ul original de datetime-local pentru că folosim sistemul custom */
-    .hidden-input {
-        display: none;
-    }
-</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <style>
+        /* Stil pentru mesajele de eroare */
+.error-text {
+    color: #ff4444;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Dacă un input are eroare, îi colorăm bordura în roșu */
+.field-error {
+    border-color: #ff4444 !important;
+    background-color: rgba(255, 68, 68, 0.05) !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+        /* --- REPARARE STILURI GENERALE --- */
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-light: #f5f5f5;
+            --text-muted: #888;
+            --accent-gold: #D4AF37;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo-container {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Containerul Formularului - Centrat și Elegant */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(20, 20, 20, 0.6); /* Ușor transparent */
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-title span {
+            color: #fff;
+        }
+
+        /* --- STILIZARE INPUT-URI (Problema ta principală) --- */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Input-urile devine negre/transparente, nu albe */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box; /* Important ca să nu iasă din container */
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Calendar Input specific */
+        #date-picker {
+            cursor: pointer;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23D4AF37" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+
+        /* --- GRID-UL DE ORE (SLOTS) --- */
+        #slots-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 pe rând */
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .time-slot {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--input-border);
+            color: var(--text-muted);
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .time-slot:hover {
+            border-color: var(--accent-gold);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .time-slot.selected {
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: 700;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        /* --- BUTONUL DE SUBMIT --- */
+        .btn-cta {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 30px;
+            background-color: transparent;
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cta:hover:not(:disabled) {
+            background-color: var(--accent-gold);
+            color: #000;
+        }
+
+        .btn-cta:disabled {
+            border-color: #444;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Flatpickr Customization pentru a se potrivi cu tema */
+        .flatpickr-calendar {
+            background: #1a1a1a !important;
+            border: 1px solid #333 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+        .flatpickr-day.selected {
+            background: var(--accent-gold) !important;
+            border-color: var(--accent-gold) !important;
+            color: #000 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -48,7 +227,7 @@
 </header>
 
 <main>
-    <section>
+    <section style="width: 100%; display: flex; justify-content: center;">
         <div class="form-container">
             <h2 class="section-title">Programare la <span th:text="${barber.firstName}">Frizer</span></h2>
 
@@ -60,30 +239,48 @@
                 <input type="hidden" id="finalStartTime" th:field="*{startTime}" required />
 
                 <div class="form-group">
-                    <label>Nume</label>
-                    <input type="text" th:field="*{clientName}" required>
+                    <label>Nume Complet</label>
+                    <input type="text"
+                           th:field="*{clientName}"
+                           placeholder="Ex: Popescu Ion"
+                           th:classappend="${#fields.hasErrors('clientName')} ? 'field-error' : ''">
+                    <span class="error-text" th:if="${#fields.hasErrors('clientName')}" th:errors="*{clientName}"></span>
                 </div>
+
                 <div class="form-group">
                     <label>Telefon</label>
-                    <input type="text" th:field="*{phoneNumber}" required>
+                    <input type="text"
+                           th:field="*{phoneNumber}"
+                           placeholder="07xxxxxxxx"
+                           th:classappend="${#fields.hasErrors('phoneNumber')} ? 'field-error' : ''">
+                    <span class="error-text" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></span>
                 </div>
+
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" th:field="*{clientEmail}" required>
+                    <input type="email"
+                           th:field="*{clientEmail}"
+                           placeholder="exemplu@email.com"
+                           th:classappend="${#fields.hasErrors('clientEmail')} ? 'field-error' : ''">
+                    <span class="error-text" th:if="${#fields.hasErrors('clientEmail')}" th:errors="*{clientEmail}"></span>
                 </div>
 
                 <div class="form-group">
                     <label>Alege Ziua</label>
-                    <input type="text" id="date-picker" placeholder="Apasă pentru calendar..." style="cursor: pointer;">
+                    <input type="text" id="date-picker" placeholder="Selectează data..." readonly
+                           th:classappend="${#fields.hasErrors('startTime')} ? 'field-error' : ''">
+                    <span class="error-text" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></span>
                 </div>
 
                 <div class="form-group">
                     <label id="slots-label" style="display:none;">Ore Disponibile</label>
                     <div id="slots-container"></div>
-                    <p id="no-slots-msg" style="color: #ff4444; display: none; margin-top:10px;">Nu sunt locuri libere în această zi.</p>
+                    <p id="no-slots-msg" style="text-align: center; color: #ff6b6b; display: none; margin-top:15px; font-size: 0.9rem;">
+                        Nu există locuri libere în această zi. Te rugăm să alegi altă dată.
+                    </p>
                 </div>
 
-                <button type="submit" class="btn-cta" id="submitBtn" disabled style="opacity: 0.5; margin-top: 20px;">Confirmă Programarea</button>
+                <button type="submit" class="btn-cta" id="submitBtn" disabled>Confirmă Programarea</button>
             </form>
         </div>
     </section>
@@ -92,6 +289,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // 1. DEFINIRE VARIABILE
         const barberId = document.getElementById('barberId').value;
         const serviceId = document.getElementById('serviceId').value;
         const slotsContainer = document.getElementById('slots-container');
@@ -99,14 +297,17 @@
         const submitBtn = document.getElementById('submitBtn');
         let selectedDate = null;
 
-        // Inițializare Calendar Flatpickr
-        flatpickr("#date-picker", {
-            minDate: "today", // Nu lăsăm userul să aleagă trecutul
+        // 2. CONFIGURARE CALENDAR (FLATPICKR)
+        const fp = flatpickr("#date-picker", {
+            minDate: "today",
             dateFormat: "Y-m-d",
+            disableMobile: "true",
+            locale: {
+                firstDayOfWeek: 1 // Luni
+            },
             disable: [
                 function(date) {
-                    // Opțional: Dezactivăm duminica (0 este duminică)
-                    return (date.getDay() === 0);
+                    return (date.getDay() === 0); // Duminica închis
                 }
             ],
             onChange: function(selectedDates, dateStr, instance) {
@@ -115,16 +316,43 @@
             }
         });
 
-        // Funcția care cere orele de la server
+        // 3. LOGICA PENTRU RE-POPULARE (DACĂ EXISTĂ EROARE DE LA SERVER)
+        // Verificăm dacă inputul hidden are deja o valoare (ex: "2025-01-05T14:30")
+        if (finalInput.value && finalInput.value.includes('T')) {
+            const parts = finalInput.value.split('T');
+            const datePart = parts[0];          // "2025-01-05"
+            const timePart = parts[1].substring(0, 5); // "14:30" (fără secunde)
+
+            // 1. Setăm data în calendarul vizual
+            if (fp) {
+                fp.setDate(datePart);
+                selectedDate = datePart;
+            }
+
+            // 2. Cerem orele de la server și selectăm automat ora veche
+            fetchSlots(datePart).then(() => {
+                // Așteptăm puțin să se randeze butoanele
+                setTimeout(() => {
+                    const buttons = document.querySelectorAll('.time-slot');
+                    buttons.forEach(btn => {
+                        if (btn.innerText === timePart) {
+                            btn.click(); // Simulăm click pe ora care era selectată
+                        }
+                    });
+                }, 100);
+            });
+        }
+
+        // 4. FUNCȚIA CARE CERE ORELE DISPONIBILE
         function fetchSlots(dateStr) {
-            slotsContainer.innerHTML = '<p style="color:#888;">Se caută ore...</p>';
+            slotsContainer.innerHTML = '<p style="color:#888; text-align:center; width:100%;">Se caută ore...</p>';
             document.getElementById('slots-label').style.display = 'block';
             document.getElementById('no-slots-msg').style.display = 'none';
             submitBtn.disabled = true;
             submitBtn.style.opacity = '0.5';
 
-            // Apelăm endpoint-ul creat la Pasul 2
-            fetch(`/api/appointments/slots?barberId=${barberId}&serviceId=${serviceId}&date=${dateStr}`)
+            // Returnăm fetch-ul ca să putem folosi .then() la re-populare
+            return fetch(`/api/appointments/slots?barberId=${barberId}&serviceId=${serviceId}&date=${dateStr}`)
                 .then(response => response.json())
                 .then(data => {
                     slotsContainer.innerHTML = '';
@@ -134,7 +362,6 @@
                         return;
                     }
 
-                    // Creăm butoane pentru fiecare oră
                     data.forEach(time => {
                         const btn = document.createElement('div');
                         btn.className = 'time-slot';
@@ -145,19 +372,19 @@
                 })
                 .catch(err => {
                     console.error('Eroare:', err);
-                    slotsContainer.innerHTML = '<p style="color:red;">Eroare la încărcarea orelor.</p>';
+                    slotsContainer.innerHTML = '<p style="color:red; text-align:center;">Eroare conexiune.</p>';
                 });
         }
 
-        // Când utilizatorul apasă pe o oră
+        // 5. FUNCȚIA DE SELECTARE A OREI
         function selectTime(element, time) {
-            // Scoatem selecția de pe celelalte
+            // Scoatem selecția de pe celelalte butoane
             document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
 
             // Selectăm butonul curent
             element.classList.add('selected');
 
-            // Construim formatul final ISO pentru Java: 2025-12-31T14:30
+            // Setăm valoarea finală pentru server: YYYY-MM-DDTHH:mm
             const finalDateTime = `${selectedDate}T${time}`;
             finalInput.value = finalDateTime;
 

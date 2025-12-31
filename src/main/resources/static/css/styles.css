@@ -463,3 +463,13 @@ footer {
         top: 10px;
     }
 }
+/* Clasă specială pentru a repara emoji-urile pe mobil */
+.emoji-fix {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; /* Folosește setul nativ */
+    font-weight: 400 !important;   /* Anulează Bold-ul artificial care le distorsionează */
+    font-style: normal !important; /* Anulează Italic */
+    display: inline-block;         /* Previne strivirea în containere Flex/Grid */
+    font-variant-emoji: emoji;     /* Forțează randarea colorată (nu text alb-negru) */
+    text-decoration: none;         /* Scoate sublinierile */
+    vertical-align: middle;        /* Le aliniază frumos cu textul */
+}

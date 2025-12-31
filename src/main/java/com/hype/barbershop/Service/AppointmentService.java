@@ -279,12 +279,13 @@ public class AppointmentService {
 
         int durationMinutes = service.getDuration();
 
+
+        LocalDateTime startOfDay = date.atStartOfDay(); // 00:00:00
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59.9999
+
         // collect all barber's appointments for required day
         // for now we will use a simplified logic that filters in memory(it's not good for large databases)
-        List<Appointment> existingAppointment = appointmentRepository.findByBarberIdAndDate(barberId, date)
-                .stream()
-                .filter(a-> a.getStartTime().toLocalDate().equals(date))
-                .collect(Collectors.toList());
+        List<Appointment> existingAppointment = appointmentRepository.findByBarberIdAndStartTimeBetween(barberId, startOfDay, endOfDay);
 
         List<String> slots = new ArrayList<>();
         LocalTime currentSlot = workStart;

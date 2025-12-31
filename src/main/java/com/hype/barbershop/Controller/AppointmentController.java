@@ -1,5 +1,6 @@
 package com.hype.barbershop.Controller;
 
+import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+
 
 @Controller
 @RequestMapping("/appointment") // Atenție: verifica URL-ul din HTML (singular sau plural)
@@ -62,14 +66,41 @@ public class AppointmentController {
 
     // Am adăugat și metoda de salvare ca să fie controller-ul complet
     @PostMapping("/save")
-    public String saveAppointment(@ModelAttribute AppointmentDTO appointment) {
-        // Salvăm programarea și obținem obiectul salvat (care are acum ID generat)
-        AppointmentDTO savedAppointment = appointmentService.createAppointment(appointment);
-        // NOTĂ: Asigură-te că în Service ai o metodă care returnează entitatea salvată.
-        // Dacă metoda ta din service este void, schimb-o să returneze Appointment.
+    public String saveAppointment(@Valid @ModelAttribute("appointment") AppointmentDTO appointmentDTO,
+                                  BindingResult bindingResult,
+                                  Model model) {
+        // verify if exists validation errors
+        if (bindingResult.hasErrors()){
+            // reload barber and service details to rend page again
+            // get DTO's id which came from form
+            Long barberId = appointmentDTO.getBarberId();
+            Long serviceId = appointmentDTO.getServiceId();
 
-        // Redirecționăm către pagina de confirmare cu ID-ul programării
+            //find barber (from method @GetMapping("/new))
+            BarberDTO barberDTO = barberService.findById(barberId)
+                    .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit"));
+
+            // find service
+            ServiceDetails selectedService = barberDTO.getServiceDetails()
+                    .stream()
+                    .filter(s -> s.getId().equals(serviceId))
+                    .findFirst()
+                    .orElseThrow(()-> new BarbershopException("Serviciu inexistent"));
+
+            // gather data back in model to avoid display erros in HTML
+            model.addAttribute("barber", barberDTO);
+            model.addAttribute("service", selectedService);
+
+            //return form page, which now contains erorrs
+            return"appointment_form";
+
+        }
+
+        // if there are no erros we continue save
+
+        AppointmentDTO savedAppointment = appointmentService.createAppointment(appointmentDTO);
         return "redirect:/appointment/confirmed/" + savedAppointment.getId();
+
     }
 
     @GetMapping("/confirmed/{id}")

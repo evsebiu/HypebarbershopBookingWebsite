@@ -2,9 +2,53 @@
 <html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title th:text="'HypeBarbershop | ' + ${barber.firstName}">Barber Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        /* Aceste reguli se aplică DOAR pe ecrane mici (mobil/tabletă) */
+        @media (max-width: 768px) {
+
+            /* 1. Mărim spațiul dintre servicii pentru a nu fi înghesuite */
+            .service-item {
+                padding: 20px 10px !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+            }
+
+            /* 2. Mărim titlul serviciului (ex: Tuns Clasic) */
+            .service-meta h3 {
+                font-size: 1.3rem !important; /* aprox 21px */
+                margin-bottom: 5px !important;
+            }
+
+            /* 3. Mărim prețul și îl facem auriu să iasă în evidență */
+            .service-price {
+                font-size: 1.4rem !important; /* aprox 22px */
+                color: #D4AF37 !important;    /* Auriu */
+                font-weight: 700 !important;
+                margin-bottom: 8px !important;
+            }
+
+            /* 4. Facem butonul "Programează" mai mare și mai ușor de apăsat */
+            .btn-cta {
+                font-size: 1rem !important;       /* Text mai mare */
+                padding: 10px 25px !important;    /* Buton mai lat */
+                display: inline-block !important;
+                width: 100% !important;           /* Pe mobil arată bine full-width */
+                text-align: center !important;
+            }
+
+            /* 5. Mărim titlul principal cu numele frizerului */
+            h1 {
+                font-size: 2.5rem !important;
+            }
+        }
+    </style>
+
+
 </head>
 <body>
 
