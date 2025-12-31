@@ -1,69 +1,75 @@
 package com.hype.barbershop.Controller;
 
-import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.BarberDTO;
+import com.hype.barbershop.Model.Entity.Appointment;
+import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Entity.ServiceDetails;
+import com.hype.barbershop.Model.Mapper.BarberMapper;
 import com.hype.barbershop.Service.AppointmentService;
-import jakarta.validation.Valid;
+import com.hype.barbershop.Service.BarberService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/appointments")
+@Controller
+@RequestMapping("/appointment") // Atenție: verifica URL-ul din HTML (singular sau plural)
 @RequiredArgsConstructor
-@Slf4j
 public class AppointmentController {
 
+    private final BarberService barberService;
     private final AppointmentService appointmentService;
+    private final BarberMapper barberMapper;
 
-    // 1. CREATE (Public - Booking)
-    @PostMapping
-    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody @Valid AppointmentDTO appointmentDTO) {
-        return new ResponseEntity<>(appointmentService.createAppointment(appointmentDTO), HttpStatus.CREATED);
+    // Nu ai nevoie de ServiceDetailsMapper aici, pentru că BarberDTO conține deja lista de Entități ServiceDetails
+
+    @GetMapping("/new")
+    public String showAppointmentForm(
+            @RequestParam("barberId") Long barberId,
+            @RequestParam("serviceId") Long serviceId,
+            Model model
+    ) {
+        // 1. Găsim frizerul (care vine ca DTO din service)
+        BarberDTO barberDTO = barberService.findById(barberId)
+                .orElseThrow(() -> new RuntimeException("Frizer negăsit"));
+
+        // 2. Convertim Barber DTO -> Entity
+        // Avem nevoie de Entitate pentru a o seta pe obiectul Appointment
+        Barber barberEntity = barberMapper.toEntity(barberDTO);
+
+        // 3. Găsim serviciul
+        // În BarberDTO-ul tău, lista este List<ServiceDetails> (deci sunt deja Entități!)
+        ServiceDetails selectedService = barberDTO.getServiceDetails().stream()
+                .filter(s -> s.getId().equals(serviceId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Serviciu negăsit"));
+
+        // 4. Pregătim obiectul Appointment gol pentru formular
+        Appointment appointment = new Appointment();
+
+        // Aici setăm ENTITĂȚILE, nu DTO-urile. Acum funcționează corect.
+        appointment.setBarber(barberEntity);
+        appointment.setServiceDetails(selectedService);
+
+        // 5. Trimitem datele în HTML
+        model.addAttribute("appointment", appointment); // Obiectul care se va salva
+        model.addAttribute("barber", barberDTO);        // Pentru afișare text (Nume, etc)
+        model.addAttribute("service", selectedService); // Pentru afișare text (Preț, Nume)
+
+        return "appointment_form";
     }
 
-    // 2. GET ALL (Dashboard)
-    @GetMapping
-    public ResponseEntity<List<AppointmentDTO>> getAll() {
-        return ResponseEntity.ok(appointmentService.getAllAppointments());
-    }
+    // Am adăugat și metoda de salvare ca să fie controller-ul complet
+    @PostMapping("/save")
+    public String saveAppointment(@ModelAttribute Appointment appointment) {
+        // Aici ar trebui să apelezi serviciul de salvare
+        // appointmentService.save(appointment);
+        // Sau transformi în DTO dacă serviciul cere DTO
 
-    // 3. SEARCH (Admin Dashboard Search Bar)
-    // URL: /api/appointments/search?phone=0722...
-    @GetMapping("/search")
-    public ResponseEntity<List<AppointmentDTO>> searchAppointments(
-            @RequestParam(required = false) String phone,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String name) {
-
-        if (phone != null) return ResponseEntity.ok(appointmentService.getByPhoneNumber(phone));
-        if (email != null) return ResponseEntity.ok(appointmentService.getByEmail(email));
-        if (name != null) return ResponseEntity.ok(appointmentService.getByClientName(name));
-
-        return ResponseEntity.ok(appointmentService.getAllAppointments());
-    }
-
-    // 4. GET ONE
-    @GetMapping("/{id}")
-    public ResponseEntity<AppointmentDTO> getById(@PathVariable Long id) {
-        return appointmentService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // 5. UPDATE
-    @PutMapping("/{id}")
-    public ResponseEntity<AppointmentDTO> updateAppointment(@PathVariable Long id, @RequestBody @Valid AppointmentDTO dto) {
-        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
-    }
-
-    // 6. DELETE (Cancel)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
-        appointmentService.deleteAppointment(id);
-        return ResponseEntity.noContent().build();
+        return "redirect:/"; // Redirect după salvare
     }
 }

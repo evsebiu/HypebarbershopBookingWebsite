@@ -4,6 +4,8 @@ import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Barber;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 public class BarberMapper {
 
@@ -17,6 +19,13 @@ public class BarberMapper {
         dto.setLastName(barber.getLastName());
         dto.setFirstName(barber.getFirstName());
         dto.setRole(barber.getRole());
+
+        if (barber.getServiceDetails() != null){
+
+            dto.setServiceDetails(barber.getServiceDetails());
+        } else{
+            dto.setServiceDetails(new ArrayList<>());
+        }
         return dto;
     }
 

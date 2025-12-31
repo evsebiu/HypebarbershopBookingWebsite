@@ -1,6 +1,6 @@
 package com.hype.barbershop.ControllerUnitTests;
 
-import com.hype.barbershop.Controller.AppointmentController;
+import com.hype.barbershop.Controller.AppointmentControllerAPI;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Service.AppointmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +24,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AppointmentController.class)
-public class AppointmentControllerTest {
+@WebMvcTest(AppointmentControllerAPI.class)
+public class AppointmentControllerAPITest {
 
     @Autowired
     private MockMvc mockMvc;

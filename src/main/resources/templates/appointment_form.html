@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Finalizează Programarea</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        /* Stiluri extra specifice formularului */
+        .form-container {
+            background: var(--bg-card);
+            padding: 3rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: var(--accent-gold); font-size: 0.9rem; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent-gold); }
+        .summary-box {
+            background: rgba(212, 175, 55, 0.05);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-left: 3px solid var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <span class="logo-text">HYPE BARBERSHOP</span>
+    </div>
+</header>
+
+<main>
+    <section>
+        <h2 class="section-title">Finalizează Programarea</h2>
+
+        <div class="form-container">
+            <div class="summary-box">
+                <p style="color: #fff; margin-bottom: 5px;">Frizer: <strong th:text="${barber.firstName} + ' ' + ${barber.lastName}">Nume</strong></p>
+                <p style="color: #fff;">Serviciu: <strong th:text="${service.serviceName} + ' (' + ${service.price} + ' RON)'">Tuns</strong></p>
+            </div>
+
+            <form th:action="@{/appointment/save}" th:object="${appointment}" method="post">
+
+                <input type="hidden" name="barber" th:value="${barber.id}" />
+                <input type="hidden" name="serviceDetails" th:value="${service.id}" />
+
+                <div class="form-group">
+                    <label>Nume Complet</label>
+                    <input type="text" th:field="*{clientName}" placeholder="Ex: Popescu Ion" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="text" th:field="*{phoneNumber}" placeholder="07xx xxx xxx" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" th:field="*{clientEmail}" placeholder="email@exemplu.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Data și Ora (Momentan manual)</label>
+                    <input type="datetime-local" th:field="*{startTime}" required>
+                </div>
+
+                <button type="submit" class="btn-cta" style="width: 100%; text-align: center;">
+                    Confirmă Programarea
+                </button>
+            </form>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

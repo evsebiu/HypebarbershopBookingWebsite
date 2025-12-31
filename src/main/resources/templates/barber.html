@@ -1,10 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="'HypeBarbershop | ' + ${barber.firstName}">Barber Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+
+<header>
+    <div class="logo-container">
+        <a th:href="@{/}" class="logo-text">HYPE BARBERSHOP</a>
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Înapoi la Home</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section>
+        <div class="profile-header">
+            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=80&w=1925&auto=format&fit=crop"
+                 class="profile-img" alt="Barber Portrait">
+            <div>
+                <span class="badge" th:text="${barber.role}">ROLE</span>
+                <h1 style="font-family: var(--font-heading); font-size: 3rem; margin: 10px 0;"
+                    th:text="${barber.firstName} + ' ' + ${barber.lastName}">
+                    Nume Frizer
+                </h1>
+                <p style="color: var(--text-muted); max-width: 500px;">
+                    Selectează serviciul dorit pentru a începe procesul de programare.
+                </p>
+            </div>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h2 style="margin-bottom: 2rem; border-bottom: 1px solid var(--accent-gold); display: inline-block; padding-bottom: 5px;">
+                Lista Servicii
+            </h2>
+
+            <div th:if="${services.empty}" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                Acest frizer nu are servicii configurate momentan.
+            </div>
+
+            <div th:each="service : ${services}" class="service-item">
+                <div class="service-meta">
+                    <h3 th:text="${service.serviceName}">Tuns Clasic</h3>
+                    <p th:text="${service.duration} + ' minute'">30 minute</p>
+                </div>
+                <div style="text-align: right;">
+                    <div class="service-price" th:text="${service.price} + ' RON'">50 RON</div>
+                    <a th:href="@{/appointment/new(barberId=${barber.id}, serviceId=${service.id})}"
+                       class="btn-cta"
+                       style="margin-top: 10px; padding: 5px 15px; font-size: 0.7rem; border-color: rgba(255,255,255,0.2);">
+                        Programează
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>
 
 </body>
 </html>

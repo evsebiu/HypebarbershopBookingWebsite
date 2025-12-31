@@ -1,448 +1,93 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HYPE | Premium Grooming</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        hype: {
-                            black: '#050505',
-                            charcoal: '#0f0f0f',
-                            surface: '#18181b',
-                            gold: '#d4af37',
-                            goldHover: '#b5952f',
-                            text: '#e4e4e7',
-                            muted: '#a1a1aa'
-                        }
-                    },
-                    fontFamily: {
-                        serif: ['Cinzel', 'serif'],
-                        sans: ['Manrope', 'sans-serif'],
-                    },
-                    backgroundImage: {
-                        'hero-pattern': "linear-gradient(to bottom, rgba(5,5,5,0.3), rgba(5,5,5,1)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop')",
-                        'gold-gradient': 'linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #d4af37 100%)'
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .text-glow {
-                text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            }
-            .glass-panel {
-                @apply bg-hype-surface/60 backdrop-blur-xl border border-white/5 shadow-2xl;
-            }
-            .gold-border {
-                @apply border border-hype-gold/30;
-            }
-            .smooth-transition {
-                @apply transition-all duration-500 ease-out;
-            }
-            .input-field {
-                @apply w-full bg-hype-black/50 border border-zinc-800 text-hype-text px-4 py-3 focus:border-hype-gold focus:outline-none focus:ring-1 focus:ring-hype-gold/50 transition-colors;
-            }
-            /* Custom Scrollbar */
-            ::-webkit-scrollbar {
-                width: 6px;
-            }
-            ::-webkit-scrollbar-track {
-                background: #0f0f0f;
-            }
-            ::-webkit-scrollbar-thumb {
-                background: #333;
-                border-radius: 3px;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background: #d4af37;
-            }
-        }
-
-        /* Animation Keyframes */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-    </style>
+    <title>HypeBarbershop | Luxury Grooming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="bg-hype-black text-hype-text font-sans antialiased overflow-x-hidden selection:bg-hype-gold selection:text-hype-black">
+<body>
 
-<nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" class="text-2xl font-serif font-bold tracking-widest text-white">
-            HYPE<span class="text-hype-gold">.</span>
-        </a>
-
-        <div class="hidden md:flex space-x-8 items-center">
-            <a href="#masters" class="text-sm uppercase tracking-widest hover:text-hype-gold transition-colors">The Masters</a>
-            <a href="#services" class="text-sm uppercase tracking-widest hover:text-hype-gold transition-colors">Services</a>
-            <a href="#contact" class="text-sm uppercase tracking-widest hover:text-hype-gold transition-colors">Contact</a>
-            <a href="/admin" class="text-xs text-hype-muted hover:text-white border border-zinc-800 px-3 py-1 rounded-full">Barber Login</a>
-        </div>
-
-        <button class="md:hidden text-hype-gold text-2xl">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+<header>
+    <div class="logo-container">
+        <span class="logo-text">HYPE BARBERSHOP</span>
+        <span class="scissors-icon">✂</span>
     </div>
-</nav>
+    <nav>
+        <ul>
+            <li><a href="#about">Concept</a></li>
+            <li><a href="#barbers">Frizeri</a></li>
+            <li><a href="#location">Locație</a></li>
+        </ul>
+    </nav>
+</header>
 
-<section class="relative h-screen flex items-center justify-center bg-hero-pattern bg-cover bg-center bg-no-repeat bg-fixed">
-    <div class="absolute inset-0 bg-black/40"></div>
-
-    <div class="relative z-10 text-center max-w-4xl px-6">
-        <p class="text-hype-gold uppercase tracking-[0.3em] mb-4 text-sm animate-fade-in-up">Est. 2025 • Premium Grooming</p>
-        <h1 class="text-5xl md:text-8xl font-serif font-bold text-white mb-6 leading-tight text-glow">
-            Refine Your <br/> <span class="italic text-hype-gold">Legacy</span>
-        </h1>
-        <p class="text-hype-muted text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-            Experience the duality of precision. Two masters, two distinct styles, one uncompromising standard of excellence.
-        </p>
-
-        <div class="flex flex-col md:flex-row gap-6 justify-center">
-            <a href="#booking" class="bg-hype-gold text-hype-black px-8 py-4 uppercase tracking-widest font-bold hover:bg-white transition-colors duration-300">
-                Book Appointment
-            </a>
-            <a href="#masters" class="border border-white/20 text-white px-8 py-4 uppercase tracking-widest font-bold hover:border-hype-gold hover:text-hype-gold transition-colors duration-300 backdrop-blur-sm">
-                Meet the Barbers
-            </a>
+<main>
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>EXCLUSIV PENTRU BĂRBAȚI</h1>
+            <p class="hero-subtitle">Experimentează tunsul la nivel de artă.</p>
+            <a href="#barbers" class="btn-cta">Accesează Frizerii</a>
         </div>
-    </div>
+    </section>
 
-    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 animate-bounce">
-        <i class="fa-solid fa-chevron-down text-2xl"></i>
-    </div>
-</section>
+    <section id="barbers">
+        <h2 class="section-title">Echipa Noastră</h2>
 
-<section id="masters" class="py-24 bg-hype-black relative">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-5xl font-serif text-white mb-4">The Masters</h2>
-            <div class="h-1 w-24 bg-hype-gold mx-auto"></div>
-        </div>
+        <div class="barbers-grid">
+            <div class="barber-card" th:each="barber : ${barbers}">
+                <div class="card-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=2070&auto=format&fit=crop"
+                         alt="Barber Image">
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+                <div class="card-info">
+                    <span class="badge" th:text="${barber.role}">MASTER BARBER</span>
+                    <h3 class="barber-name" th:text="${barber.firstName} + ' ' + ${barber.lastName}">Nume Frizer</h3>
+                    <p class="barber-desc">Specialist în fade-uri precise și îngrijirea bărbii cu prosop cald.</p>
 
-            <div th:each="barber, iterStat : ${barbers}" class="group relative">
-
-                <div class="relative h-[600px] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out border-b-4 border-transparent group-hover:border-hype-gold">
-                    <img th:src="${iterStat.index == 0} ? 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?q=80&w=1944&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=2070&auto=format&fit=crop'"
-                         alt="Barber Portrait"
-                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-
-                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90"></div>
-
-                    <div class="absolute bottom-0 left-0 p-8 w-full">
-                        <p class="text-hype-gold text-sm tracking-widest uppercase mb-2" th:text="${barber.role} + ' • Level'">Master Barber</p>
-                        <h3 class="text-4xl font-serif text-white mb-2" th:text="${barber.firstName} + ' ' + ${barber.lastName}">Name</h3>
-
-                        <button th:onclick="'showServicesFor(' + ${barber.id} + ')'"
-                                class="mt-4 flex items-center gap-3 text-sm uppercase tracking-widest text-white group-hover:text-hype-gold transition-colors">
-                            View Pricing <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
+                    <a th:href="@{/barber/{id}(id=${barber.id})}" class="btn-cta" style="margin-top: 1rem; padding: 10px 20px; font-size: 0.8rem;">
+                        Vezi Servicii & Programare
+                    </a>
                 </div>
             </div>
 
-        </div>
-    </div>
-</section>
-
-<section id="services" class="py-24 bg-hype-charcoal relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-black/50 to-transparent pointer-events-none"></div>
-
-    <div class="max-w-5xl mx-auto px-6 relative z-10">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-serif text-white">Service Menu</h2>
-            <p class="text-hype-muted mt-2">Select a barber above to see their exclusive rates</p>
-        </div>
-
-        <div class="glass-panel p-8 md:p-12 rounded-sm min-h-[400px]">
-
-            <div th:each="barber : ${barbers}"
-                 th:id="'service-list-' + ${barber.id}"
-                 class="service-list-container hidden animate-fade-in">
-
-                <div class="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
-                    <div>
-                        <h3 class="text-2xl font-serif text-hype-gold" th:text="${barber.firstName} + '\'s Selection'"></h3>
-                        <p class="text-sm text-hype-muted">Precision cuts tailored to your profile.</p>
-                    </div>
-                    <div class="text-right">
-                             <span class="inline-block px-3 py-1 bg-green-900/30 text-green-400 text-xs tracking-wider border border-green-800 rounded-full"
-                                   th:if="${barber.isActive}">AVAILABLE</span>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div th:each="service : ${barber.serviceDetails}"
-                         class="group flex justify-between items-center hover:bg-white/5 p-4 rounded-lg transition-colors cursor-pointer"
-                         th:onclick="'openBookingModal(' + ${barber.id} + ', ' + ${service.id} + ', \'' + ${service.serviceName} + '\')'">
-
-                        <div class="flex-1">
-                            <h4 class="text-lg font-medium text-white group-hover:text-hype-gold transition-colors" th:text="${service.serviceName}">Signature Cut</h4>
-                            <p class="text-sm text-hype-muted mt-1">
-                                <i class="fa-regular fa-clock mr-1 text-xs"></i>
-                                <span th:text="${service.duration} + ' mins'">45 mins</span>
-                            </p>
-                        </div>
-
-                        <div class="flex items-center gap-6">
-                            <div class="text-2xl font-serif text-white" th:text="'$' + ${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')}">$45</div>
-                            <button class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-hype-gold hover:bg-hype-gold hover:text-black transition-all">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div th:each="service : ${#lists.sort(barber.serviceDetails, byPrice)}"
-                         class="group flex justify-between items-center hover:bg-white/5 p-4 rounded-lg transition-colors cursor-pointer"
-                         th:onclick="'openBookingModal(' + ${barber.id} + ', ' + ${service.id} + ', \'' + ${service.serviceName} + '\')'">
-
-                        <div class="flex-1">
-                            <h4 class="text-lg font-medium text-white group-hover:text-hype-gold transition-colors" th:text="${service.serviceName}">Signature Cut</h4>
-                            <p class="text-sm text-hype-muted mt-1">
-                                <i class="fa-regular fa-clock mr-1 text-xs"></i>
-                                <span th:text="${service.duration} + ' mins'">45 mins</span>
-                            </p>
-                        </div>
-
-                        <div class="flex items-center gap-6">
-                            <div class="text-2xl font-serif text-white" th:text="'$' + ${#numbers.formatDecimal(service.price, 0, 'COMMA', 0, 'POINT')}">$45</div>
-                            <button class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-hype-gold hover:bg-hype-gold hover:text-black transition-all">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div th:if="${#lists.isEmpty(barber.serviceDetails)}" class="text-center py-10 text-zinc-600">
-                        No services listed currently.
-                    </div>
-
-                </div>
-            </div>
-
-            <div id="default-service-msg" class="text-center py-20">
-                <i class="fa-solid fa-scissors text-4xl text-zinc-700 mb-4"></i>
-                <h3 class="text-xl text-zinc-500">Choose a Master Barber to view their specialized menu.</h3>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<div id="booking-modal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="closeBookingModal()"></div>
-
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
-        <div class="glass-panel p-8 relative">
-            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-
-            <h3 class="text-2xl font-serif text-white mb-2">Secure Your Spot</h3>
-            <p class="text-sm text-hype-muted mb-6">Booking: <span id="modal-service-name" class="text-hype-gold">Service</span></p>
-
-            <form th:action="@{/appointments/book}" method="post" class="space-y-4">
-                <input type="hidden" id="modal-barber-id" name="barberId" />
-                <input type="hidden" id="modal-service-id" name="serviceId" />
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs uppercase tracking-widest text-zinc-500 mb-2">Name</label>
-                        <input type="text" name="clientName" required class="input-field" placeholder="John Doe">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase tracking-widest text-zinc-500 mb-2">Phone</label>
-                        <input type="text" name="phoneNumber" required pattern="^(\+4|0)7[0-9]{8}$" class="input-field" placeholder="07...">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs uppercase tracking-widest text-zinc-500 mb-2">Email</label>
-                    <input type="email" name="clientEmail" required class="input-field" placeholder="john@example.com">
-                </div>
-
-                <div>
-                    <label class="block text-xs uppercase tracking-widest text-zinc-500 mb-2">Date & Time</label>
-                    <input type="datetime-local" name="startTime" required class="input-field text-zinc-400">
-                </div>
-
-                <div>
-                    <label class="block text-xs uppercase tracking-widest text-zinc-500 mb-2">Notes</label>
-                    <textarea name="additionalInfo" class="input-field h-24 resize-none" placeholder="Any allergies or specific requests?"></textarea>
-                </div>
-
-                <button type="submit" class="w-full bg-hype-gold text-hype-black font-bold uppercase tracking-widest py-4 hover:bg-white transition-colors mt-4">
-                    Confirm Appointment
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-<section class="py-24 bg-zinc-900 border-t border-zinc-800" id="admin-preview-section">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="mb-8 flex justify-between items-end">
-            <div>
-                <span class="text-xs font-bold text-red-500 uppercase border border-red-500 px-2 py-1">Admin Area Preview</span>
-                <h2 class="text-3xl font-serif text-white mt-4">Barber Dashboard</h2>
-            </div>
-            <div class="flex gap-4">
-                <button class="px-4 py-2 bg-zinc-800 text-white text-sm hover:bg-zinc-700">Manage Services</button>
-                <button class="px-4 py-2 bg-hype-gold text-black text-sm font-bold">New Appointment</button>
+            <div th:if="${barbers.empty}" style="text-align: center; width: 100%;">
+                <p>Momentan nu există frizeri disponibili.</p>
             </div>
         </div>
+    </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <div class="glass-panel p-6">
-                <h4 class="text-zinc-400 text-xs uppercase tracking-widest">Today's Revenue</h4>
-                <div class="text-4xl text-white font-serif mt-2">$450.00</div>
-                <div class="text-green-500 text-xs mt-2"><i class="fa-solid fa-arrow-trend-up"></i> +12% vs last week</div>
+    <section id="location" style="background: #000;">
+        <footer th:fragment="footer">
+            <div class="footer-col">
+                <h4>Program</h4>
+                <ul>
+                    <li>Luni - Vineri: 10:00 - 20:00</li>
+                    <li>Sâmbătă: 10:00 - 16:00</li>
+                    <li>Duminică: Închis</li>
+                </ul>
             </div>
-
-            <div class="lg:col-span-2 glass-panel p-6">
-                <h4 class="text-zinc-400 text-xs uppercase tracking-widest mb-6">Upcoming Schedule</h4>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="text-xs text-zinc-500 uppercase border-b border-zinc-800">
-                        <tr>
-                            <th class="pb-3">Time</th>
-                            <th class="pb-3">Client</th>
-                            <th class="pb-3">Service</th>
-                            <th class="pb-3">Status</th>
-                            <th class="pb-3 text-right">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody class="text-sm text-zinc-300">
-                        <tr class="border-b border-zinc-800/50 hover:bg-white/5 transition-colors">
-                            <td class="py-4 font-mono text-hype-gold">14:00</td>
-                            <td class="py-4">
-                                <div class="font-bold text-white">Alex Johnson</div>
-                                <div class="text-xs text-zinc-500">0722-123-456</div>
-                            </td>
-                            <td class="py-4">Fade & Beard Trim</td>
-                            <td class="py-4"><span class="bg-blue-900/30 text-blue-400 px-2 py-1 text-xs rounded">Confirmed</span></td>
-                            <td class="py-4 text-right">
-                                <button class="text-zinc-500 hover:text-white"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul>
+                    <li>Strada Exemplului Nr. 1, București</li>
+                    <li>+40 700 000 000</li>
+                    <li>contact@hypebarbershop.ro</li>
+                </ul>
             </div>
-
-            <div class="lg:col-span-3 glass-panel p-6">
-                <h4 class="text-zinc-400 text-xs uppercase tracking-widest mb-6">My Services & Pricing</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-                    <div class="bg-black/40 p-4 border border-zinc-800 hover:border-hype-gold transition-colors group">
-                        <div class="flex justify-between mb-2">
-                            <input type="text" value="Royal Shave" class="bg-transparent text-white font-bold border-none focus:ring-0 w-full p-0">
-                            <i class="fa-solid fa-pen text-zinc-600 text-xs group-hover:text-hype-gold"></i>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="relative w-1/2">
-                                <span class="absolute left-2 top-2 text-zinc-500 text-xs">$</span>
-                                <input type="number" value="35" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 pl-4 text-sm text-white focus:border-hype-gold outline-none">
-                            </div>
-                            <div class="relative w-1/2">
-                                <input type="number" value="30" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-white focus:border-hype-gold outline-none">
-                                <span class="absolute right-2 top-2 text-zinc-500 text-xs">min</span>
-                            </div>
-                        </div>
-                        <button class="w-full mt-3 bg-zinc-800 hover:bg-green-700 text-zinc-400 hover:text-white text-xs py-1 transition-colors">Save Changes</button>
-                    </div>
-
-                    <button class="border border-dashed border-zinc-700 flex flex-col items-center justify-center p-4 text-zinc-500 hover:text-hype-gold hover:border-hype-gold transition-colors">
-                        <i class="fa-solid fa-plus text-2xl mb-2"></i>
-                        <span class="text-xs uppercase">Add Service</span>
-                    </button>
-
-                </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a th:href="@{/gdpr.html}">GDPR</a></li>
+                    <li><a th:href="@{/terms}">Termeni și Condiții</a></li>
+                </ul>
             </div>
+        </footer>
+    </section>
+</main>
 
-        </div>
-    </div>
-</section>
-
-<footer class="bg-black py-12 border-t border-zinc-900 text-center">
-    <h2 class="text-2xl font-serif font-bold text-white mb-4">HYPE<span class="text-hype-gold">.</span></h2>
-    <div class="flex justify-center gap-6 mb-8">
-        <a href="#" class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:bg-hype-gold hover:text-black transition-all">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
-        <a href="#" class="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:bg-hype-gold hover:text-black transition-all">
-            <i class="fa-brands fa-tiktok"></i>
-        </a>
-    </div>
-    <p class="text-zinc-600 text-sm">© 2025 Hype Barbershop. All rights reserved.</p>
-</footer>
-
-<script>
-    // 1. Navigation Scroll Effect
-    window.addEventListener('scroll', () => {
-        const nav = document.getElementById('navbar');
-        if (window.scrollY > 50) {
-            nav.classList.add('bg-black/90', 'backdrop-blur-md', 'shadow-lg');
-        } else {
-            nav.classList.remove('bg-black/90', 'backdrop-blur-md', 'shadow-lg');
-        }
-    });
-
-    // 2. Service Toggle Logic (The "Duel" system)
-    function showServicesFor(barberId) {
-        // Hide default message
-        document.getElementById('default-service-msg').classList.add('hidden');
-
-        // Hide all lists
-        document.querySelectorAll('.service-list-container').forEach(el => {
-            el.classList.add('hidden');
-        });
-
-        // Show specific list
-        const selected = document.getElementById('service-list-' + barberId);
-        if(selected) {
-            selected.classList.remove('hidden');
-            // Scroll to services section smooth
-            document.getElementById('services').scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    // 3. Modal Logic
-    function openBookingModal(barberId, serviceId, serviceName) {
-        const modal = document.getElementById('booking-modal');
-        document.getElementById('modal-barber-id').value = barberId;
-        document.getElementById('modal-service-id').value = serviceId;
-        document.getElementById('modal-service-name').innerText = serviceName;
-
-        modal.classList.remove('hidden');
-        // Animation for modal
-        modal.children[1].classList.add('animate-float');
-    }
-
-    function closeBookingModal() {
-        document.getElementById('booking-modal').classList.add('hidden');
-    }
-</script>
 </body>
 </html>

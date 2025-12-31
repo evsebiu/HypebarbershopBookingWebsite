@@ -1,5 +1,7 @@
 package com.hype.barbershop.Model.DTO;
 
+import com.hype.barbershop.Model.Entity.Appointment;
+import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -31,6 +35,11 @@ public class BarberDTO {
     private Role role;
 
     private Boolean isActive;
+
+
+    private List<Appointment> appointments;
+
+    private List<ServiceDetails> serviceDetails;
 
 
 }

@@ -38,11 +38,10 @@ public class BarberService {
     //GET methods
 
     @Transactional(readOnly = true)
-    public Optional<BarberDTO> getById(Long id){
+    public Optional<BarberDTO> findById(Long id){
         return barberRepo.findById(id)
                 .map(barberMapper::toDTO)
                 .or(() -> {
-                    log.warn("Frizerul cu emailul solicitat nu a fost gasit");
                     return Optional.empty();
                 });
     }
