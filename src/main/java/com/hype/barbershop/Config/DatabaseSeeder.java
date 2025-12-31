@@ -22,8 +22,18 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception{
         // verify if already exists an admin to avoid duplicate create
+        if (barberRepo.findByEmail("admin@hype.ro").isEmpty()) {
+            Barber admin = new Barber();
+            admin.setFirstName("Admin");
+            admin.setLastName("Hype");
+            admin.setEmail("admin@hype.ro");
+            admin.setPassword(passwordEncoder.encode("admin123?"));
+            admin.setRole(Role.ROLE_ADMIN);
+            admin.setIsActive(true);
+            barberRepo.save(admin);
+            System.out.println("✅ Admin created");
+        }
 
-        if (barberRepo.findByEmail("admin@hype.ro").isEmpty()){
 // 2. FRIZER 1 - OVIDIU
             if (barberRepo.findByEmail("ovidiu@hype.ro").isEmpty()) {
                 Barber ovidiu = new Barber();
@@ -63,11 +73,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                 createService("Pachet VIP", 90.0, 75, savedCatalin);
 
                 System.out.println("✅ Frizerul Catalin si serviciile lui au fost create.");
+
+
             }
         }
 
-
-        }
     private void createService(String name, Double price, Integer duration, Barber barber) {
         ServiceDetails service = new ServiceDetails();
         service.setServiceName(name);
