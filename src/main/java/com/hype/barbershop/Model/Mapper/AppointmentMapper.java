@@ -21,10 +21,16 @@ public class AppointmentMapper {
         //mapping ID from object relationships
         if (appointment.getBarber() != null){
             dto.setBarberId(appointment.getBarber().getId());
+            dto.setBarberName(appointment.getBarber().getFirstName() + " " + appointment.getBarber().getLastName());
         }
         if (appointment.getServiceDetails() !=null){
             dto.setServiceId(appointment.getServiceDetails().getId());
+
+            dto.setServiceName(appointment.getServiceDetails().getServiceName());
+            dto.setPrice(appointment.getServiceDetails().getPrice());
+            dto.setDuration(appointment.getServiceDetails().getDuration());
         }
+
 
         return dto;
     }

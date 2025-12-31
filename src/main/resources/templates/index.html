@@ -33,26 +33,95 @@
         </div>
     </section>
 
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="about-image-wrapper">
+                <img th:src="@{/images/hero-bg.JPG}"
+                     alt="Descoperă experiența Hype">
+                <div class="image-border"></div>
+            </div>
+
+            <div class="about-content">
+                <h4 class="sub-heading">Filosofia Noastră</h4>
+                <h2 class="section-title" style="text-align: left; transform: none; left: 0;">Mai mult decât un tuns</h2>
+                <p class="about-text">
+                    La HypeBarbershop, am redefinit ritualul de îngrijire masculină. Nu vindem doar tunsori, ci oferim
+                    o oră de deconectare totală într-un spațiu unde tradiția întâlnește arta.
+                </p>
+
+                <ul class="features-list">
+                    <li>
+                        <span class="icon">🎵</span>
+                        <div>
+                            <strong>Playlsit-uri relaxante</strong>
+                            <p>Atmosferă setată de playlist-uri Hip-Hop & Lo-Fi, create special pentru vibe-ul locației.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">📐</span>
+                        <div>
+                            <strong>Consultanță de Stil</strong>
+                            <p>Analizăm fizionomia feței și tipul de păr pentru a-ți propune tunsoarea care te avantajează.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="icon">💎</span>
+                        <div>
+                            <strong>Produse Premium</strong>
+                            <p>Folosim exclusiv game de top pentru sănătatea părului tău.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
     <section id="barbers">
-        <h2 class="section-title">Echipa Noastră</h2>
+        <h2 class="section-title">Echipa Hype</h2>
 
         <div class="barbers-grid">
             <div class="barber-card" th:each="barber : ${barbers}">
+
                 <div class="card-img-wrapper">
-                    <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=2070&auto=format&fit=crop"
-                         alt="Barber Image">
+                    <img th:if="${barber.id == 1}"
+                         th:src="@{/images/ovidiu.jpg}"
+                         alt="Ovidiu Barber">
+
+                    <img th:if="${barber.id == 3}"
+                         th:src="@{/images/catalin.JPG}"
+                         alt="Catalin Barber">
+
+                    <img th:if="${barber.id != 1 and barber.id != 3}"
+                         src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=2070&auto=format&fit=crop"
+                         alt="Default Barber">
                 </div>
 
                 <div class="card-info">
-                    <span class="badge" th:text="${barber.role}">MASTER BARBER</span>
                     <h3 class="barber-name" th:text="${barber.firstName} + ' ' + ${barber.lastName}">Nume Frizer</h3>
-                    <p class="barber-desc">Specialist în fade-uri precise și îngrijirea bărbii cu prosop cald.</p>
+
+                    <p class="barber-desc" th:if="${barber.id == 1}">
+                        Specialist în tunsori clasice și "Old School". Peste 10 ani de experiență în arta bărbieritului tradițional.
+                    </p>
+
+                    <p class="barber-desc" th:if="${barber.id == 3}">
+                        Expert în design geometric și fade-uri moderne. Creator de stiluri urbane și nonconformiste.
+                    </p>
+
+                    <p class="barber-desc" th:if="${barber.id != 1 and barber.id != 3}">
+                        Specialist în fade-uri precise și îngrijirea bărbii cu prosop cald.
+                    </p>
 
                     <a th:href="@{/barber/{id}(id=${barber.id})}" class="btn-cta" style="margin-top: 1rem; padding: 10px 20px; font-size: 0.8rem;">
-                        Vezi Servicii & Programare
+                        Vezi Servicii & Programează-te!
                     </a>
                 </div>
             </div>
+
+            <div th:if="${barbers.empty}" style="text-align: center; width: 100%;">
+                <p>Momentan nu există frizeri disponibili.</p>
+            </div>
+        </div>
 
             <div th:if="${barbers.empty}" style="text-align: center; width: 100%;">
                 <p>Momentan nu există frizeri disponibili.</p>
@@ -65,15 +134,14 @@
             <div class="footer-col">
                 <h4>Program</h4>
                 <ul>
-                    <li>Luni - Vineri: 10:00 - 20:00</li>
-                    <li>Sâmbătă: 10:00 - 16:00</li>
-                    <li>Duminică: Închis</li>
+                    <li>Marti-Duminica: 10:00 - 20:00</li>
+                    <li>Luni: Închis</li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Contact</h4>
                 <ul>
-                    <li>Strada Exemplului Nr. 1, București</li>
+                    <li>Șoseaua Arcu 8, Iași 700259</li>
                     <li>+40 700 000 000</li>
                     <li>contact@hypebarbershop.ro</li>
                 </ul>

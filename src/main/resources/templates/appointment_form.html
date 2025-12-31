@@ -55,8 +55,8 @@
 
             <form th:action="@{/appointment/save}" th:object="${appointment}" method="post">
 
-                <input type="hidden" name="barber" th:value="${barber.id}" />
-                <input type="hidden" name="serviceDetails" th:value="${service.id}" />
+                <input type="hidden" name="barberId" th:value="${barber.id}" />
+                <input type="hidden" name="serviceId" th:value="${service.id}" />
 
                 <div class="form-group">
                     <label>Nume Complet</label>

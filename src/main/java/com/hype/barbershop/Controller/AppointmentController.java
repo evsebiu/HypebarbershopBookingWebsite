@@ -1,5 +1,6 @@
 package com.hype.barbershop.Controller;
 
+import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
@@ -10,11 +11,7 @@ import com.hype.barbershop.Service.BarberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/appointment") // Atenție: verifica URL-ul din HTML (singular sau plural)
@@ -65,11 +62,24 @@ public class AppointmentController {
 
     // Am adăugat și metoda de salvare ca să fie controller-ul complet
     @PostMapping("/save")
-    public String saveAppointment(@ModelAttribute Appointment appointment) {
-        // Aici ar trebui să apelezi serviciul de salvare
-        // appointmentService.save(appointment);
-        // Sau transformi în DTO dacă serviciul cere DTO
+    public String saveAppointment(@ModelAttribute AppointmentDTO appointment) {
+        // Salvăm programarea și obținem obiectul salvat (care are acum ID generat)
+        AppointmentDTO savedAppointment = appointmentService.createAppointment(appointment);
+        // NOTĂ: Asigură-te că în Service ai o metodă care returnează entitatea salvată.
+        // Dacă metoda ta din service este void, schimb-o să returneze Appointment.
 
-        return "redirect:/"; // Redirect după salvare
+        // Redirecționăm către pagina de confirmare cu ID-ul programării
+        return "redirect:/appointment/confirmed/" + savedAppointment.getId();
+    }
+
+    @GetMapping("/confirmed/{id}")
+    public String showConfirmationPage(@PathVariable Long id, Model model) {
+        // Căutăm programarea după ID pentru a afișa detaliile
+        // (Presupunând că ai o metodă findById în service sau repository)
+        AppointmentDTO appointment = appointmentService.getById(id)
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită"));
+
+        model.addAttribute("appointment", appointment);
+        return "appointment_confirmed";
     }
 }

@@ -36,7 +36,7 @@ public class SecurityConfig {
                         // 2. WEB Pages (Frontend Thymeleaf) - Public
                         // "/" este pagina de landing (PublicController)
                         // "/programare" va fi pagina de formular
-                        .requestMatchers("/", "/index", "/programare", "/barbers/**").permitAll()
+                        .requestMatchers("/", "/index","/appointment" ,"/programare", "/barbers/**").permitAll()
 
                         // 3. Static Resources (CSS, JS, Images)
                         // Este necesar dacă vei adăuga fișiere locale în src/main/resources/static

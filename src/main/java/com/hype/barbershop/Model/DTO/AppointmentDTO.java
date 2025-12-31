@@ -28,10 +28,15 @@ public class AppointmentDTO {
     private String clientEmail;
 
     @Future(message = "Programarea trebuie sa fie in viitor.")
-    @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime startTime;
 
+
+    private String barberName;
+    private String serviceName;
+    private Double price;
+    private Integer duration;
 
     private String additionalInfo;
 

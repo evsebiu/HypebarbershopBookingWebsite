@@ -18,6 +18,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: var(--bg-dark);
     color: var(--text-main);
@@ -348,4 +352,114 @@ footer {
     nav ul { gap: 1rem; font-size: 0.8rem; }
     .hero h1 { font-size: 2.5rem; }
     .profile-header { justify-content: center; text-align: center; }
+}
+
+```css
+/* --- ABOUT / CONCEPT SECTION --- */
+.about-section {
+    background-color: #0f0f0f; /* Puțin mai deschis decât fundalul general */
+    padding: 6rem 5%;
+}
+
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Imaginea */
+.about-image-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.about-image-wrapper img {
+    width: 100%;
+    border-radius: 4px;
+    filter: sepia(20%) contrast(1.1); /* Aspect vintage-modern */
+    position: relative;
+    z-index: 2;
+}
+
+.image-border {
+    position: absolute;
+    top: 20px;
+    left: -20px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--accent-gold);
+    z-index: 1;
+}
+
+/* Textul */
+.about-content {
+    flex: 1;
+}
+
+.sub-heading {
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.about-text {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+/* Lista de beneficii */
+.features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.features-list li {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.features-list .icon {
+    font-size: 1.5rem;
+    background: rgba(212, 175, 55, 0.1);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.features-list strong {
+    color: #fff;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.features-list p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive pentru mobil */
+@media (max-width: 900px) {
+    .about-container {
+        flex-direction: column;
+    }
+
+    .image-border {
+        left: 10px;
+        top: 10px;
+    }
 }
