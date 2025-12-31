@@ -77,4 +77,3 @@ public class DatabaseSeeder implements CommandLineRunner {
         serviceRepo.save(service);
     }
 }
-}
