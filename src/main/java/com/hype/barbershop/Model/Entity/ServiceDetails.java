@@ -35,5 +35,8 @@ public class ServiceDetails {
     @OneToMany(mappedBy = "serviceDetails")
     private List<Appointment> appointments;
 
+    @ManyToOne
+    @JoinColumn(name = "barber_id")
+    private Barber barber;
 
 }

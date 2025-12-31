@@ -48,4 +48,7 @@ public class Barber {
     @OneToMany(mappedBy = "barber", cascade = CascadeType.ALL)
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "barber", fetch = FetchType.LAZY)
+    private List<ServiceDetails> serviceDetails;
+
 }

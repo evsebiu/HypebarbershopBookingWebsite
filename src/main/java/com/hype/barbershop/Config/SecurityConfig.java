@@ -8,7 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService; // <--- IMPORTUL CRITIC
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,8 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // SCHIMBARE: Folosim Interfata, nu clasa ta specifica!
-    // Spring va gasi singur clasa ta CustomUserDetailsService pentru ca implementeaza aceasta interfata.
     private final UserDetailsService userDetailsService;
 
     @Bean
@@ -27,8 +25,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/appointments/**" , "/api/barbers/active",
-                                "/api/services/**", "/api/barbers/register").permitAll()
+                        // 1. API Endpoints (Backend) - Public
+                        .requestMatchers(
+                                "/api/appointments/**",
+                                "/api/barbers/active",
+                                "/api/services/**",
+                                "/api/barbers/register"
+                        ).permitAll()
+
+                        // 2. WEB Pages (Frontend Thymeleaf) - Public
+                        // "/" este pagina de landing (PublicController)
+                        // "/programare" va fi pagina de formular
+                        .requestMatchers("/", "/index", "/programare", "/barbers/**").permitAll()
+
+                        // 3. Static Resources (CSS, JS, Images)
+                        // Este necesar dacă vei adăuga fișiere locale în src/main/resources/static
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+
+                        // Orice altceva necesită autentificare
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> {});

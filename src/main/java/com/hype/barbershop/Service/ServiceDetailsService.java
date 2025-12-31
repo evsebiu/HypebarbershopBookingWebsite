@@ -28,6 +28,22 @@ public class ServiceDetailsService {
     private final ServiceDetailsMapper serviceDetailsMapper;
 
     // GET methods
+    @Transactional(readOnly = true)
+    public List<ServiceDetailsDTO> getByBarberId(Long barberId) {
+        // Va trebui să ai findByBarberId în repository
+        return serviceDetailsRepo.findByBarberId(barberId)
+                .stream()
+                .map(serviceDetailsMapper::toDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceDetailsDTO> getAllServices() {
+        return serviceDetailsRepo.findAll()
+                .stream()
+                .map(serviceDetailsMapper::toDTO) // sau conversia manuală
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<ServiceDetailsDTO> getByServiceName(String serviceName){
