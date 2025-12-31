@@ -2,7 +2,7 @@ package com.hype.barbershop.ControllerUnitTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.hype.barbershop.Controller.BarberController;
+import com.hype.barbershop.Controller.BarberControllerAPI;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.DTO.BarberRegistrationDTO;
 import com.hype.barbershop.Service.BarberService;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(BarberController.class)
+@WebMvcTest(BarberControllerAPI.class)
 public class BarberControllerTests {
 
     @Autowired
