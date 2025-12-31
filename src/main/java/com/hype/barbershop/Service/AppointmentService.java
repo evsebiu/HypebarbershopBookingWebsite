@@ -15,6 +15,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -260,5 +264,60 @@ public class AppointmentService {
                 throw new BarbershopException("Intervalul orar este deja ocupat pentru acest frizer.");
             }
         }
+    }
+
+
+    // CALENDAR BOOOKING AVAILABLE SLOTS
+
+    public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date){
+            LocalTime workStart = LocalTime.of(10, 0); // opens at 10am
+            LocalTime workEnd = LocalTime.of(18, 0); // closes at 18pm
+
+        // find service duration
+        ServiceDetails service = serviceDetailsRepository.findById(serviceId)
+                .orElseThrow(()-> new BarbershopException("Serviciu inexistent"));
+
+        int durationMinutes = service.getDuration();
+
+        // collect all barber's appointments for required day
+        // for now we will use a simplified logic that filters in memory(it's not good for large databases)
+        List<Appointment> existingAppointment = appointmentRepository.findByBarberIdAndDate(barberId, date)
+                .stream()
+                .filter(a-> a.getStartTime().toLocalDate().equals(date))
+                .collect(Collectors.toList());
+
+        List<String> slots = new ArrayList<>();
+        LocalTime currentSlot = workStart;
+
+        //generate slots every 30 minutes
+        while(currentSlot.plusMinutes(durationMinutes).isBefore(workEnd) || currentSlot.plusMinutes(durationMinutes).equals(workEnd)){
+            LocalTime slotEnd = currentSlot.plusMinutes(durationMinutes);
+            LocalDateTime slotStartDateTime = LocalDateTime.of(date, currentSlot);
+            LocalDateTime slotEndDateTime = LocalDateTime.of(date, slotEnd);
+
+            boolean isOccupied = false;
+
+            //verify overlapping with existing appointments
+
+            for (Appointment app : existingAppointment){
+                LocalDateTime appStart = app.getStartTime();
+                LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
+
+                if (slotStartDateTime.isBefore(appEnd) && slotEndDateTime.isAfter(appStart)){
+                    isOccupied = true;
+                    break;
+                }
+            }
+
+            if (!isOccupied){
+                slots.add(currentSlot.toString()); // format type : 10:00, 10:30, 11:00 etc
+            }
+
+            // skip every 30 mins
+
+            currentSlot = currentSlot.plusMinutes(30);
+        }
+
+        return slots;
     }
 }
