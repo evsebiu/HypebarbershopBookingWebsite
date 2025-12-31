@@ -5,7 +5,8 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Rulam aplicatia folosind Java
-FROM openjdk:17-jdk-slim
+# AM SCHIMBAT AICI: Folosim eclipse-temurin care este stabil și valid
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
