@@ -206,18 +206,40 @@
             color: #555;
             cursor: not-allowed;
         }
+.flatpickr-calendar.inline {
+        background: rgba(20, 20, 20, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(212, 175, 55, 0.2) !important;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.05) !important;
+        width: 100% !important;
+        border-radius: 12px !important;
+        margin-bottom: 20px;
+        padding: 10px;
+    }
 
-        /* Flatpickr Customization pentru a se potrivi cu tema */
-        .flatpickr-calendar {
-            background: #1a1a1a !important;
-            border: 1px solid #333 !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-        }
-        .flatpickr-day.selected {
-            background: var(--accent-gold) !important;
-            border-color: var(--accent-gold) !important;
-            color: #000 !important;
-        }
+    .flatpickr-current-month {
+        font-family: 'Playfair Display', serif !important;
+        font-size: 1.2rem !important;
+        color: var(--accent-gold) !important;
+    }
+
+    .flatpickr-day {
+        color: #fff !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .flatpickr-day:hover {
+        background: rgba(212, 175, 55, 0.1) !important;
+        border-color: var(--accent-gold) !important;
+        transform: scale(1.1);
+    }
+
+    .flatpickr-day.selected {
+        background: var(--accent-gold) !important;
+        color: #000 !important;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.4) !important;
+    }
     </style>
 </head>
 <body>

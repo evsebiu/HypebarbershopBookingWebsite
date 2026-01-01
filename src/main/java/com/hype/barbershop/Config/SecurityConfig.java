@@ -52,6 +52,8 @@ public class SecurityConfig {
                                 "/favicon.ico").permitAll()
 
                         // Orice altceva necesită autentificare
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("BARBER")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> {});

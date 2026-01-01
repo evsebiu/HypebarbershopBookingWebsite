@@ -432,11 +432,14 @@ footer {
     background: rgba(212, 175, 55, 0.1);
     width: 50px;
     height: 50px;
+    min-width: 50px; /* ADĂUGAT: Previne comprimarea pe orizontală */
+    min-height: 50px; /* ADĂUGAT */
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     border: 1px solid rgba(212, 175, 55, 0.3);
+    flex-shrink: 0; /* ADĂUGAT: Interzice Flexbox-ului să strivească cercul */
 }
 
 .features-list strong {
@@ -472,4 +475,8 @@ footer {
     font-variant-emoji: emoji;     /* Forțează randarea colorată (nu text alb-negru) */
     text-decoration: none;         /* Scoate sublinierile */
     vertical-align: middle;        /* Le aliniază frumos cu textul */
+    flex-shrink: 0;
+    line-height: 1;
+    width: auto;
+    height: auto;
 }
