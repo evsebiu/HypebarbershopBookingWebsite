@@ -26,6 +26,7 @@ public class ServiceDetailsService {
 
     private final ServiceDetailsRepository serviceDetailsRepo;
     private final ServiceDetailsMapper serviceDetailsMapper;
+    private final BarberRepository barberRepo;
 
     // GET methods
     @Transactional(readOnly = true)
@@ -199,6 +200,39 @@ public class ServiceDetailsService {
         serviceDetailsRepo.delete(serviceToDelete);
 
         log.info("S-a sters cu succes serviciul cu ID {} ", serviceToDelete.getId());
+    }
+    @Transactional
+    public void addServiceForBarber(String email, ServiceDetailsDTO dto) {
+        // 1. Găsim frizerul logat
+        Barber barber = barberRepo.findByEmail(email)
+                .orElseThrow(() -> new BarbershopResourceNotFound("Frizerul nu a fost găsit."));
+
+        // 2. Creăm entitatea
+        ServiceDetails service = new ServiceDetails();
+        service.setServiceName(dto.getServiceName());
+        service.setPrice(dto.getPrice());
+        service.setDuration(dto.getDuration());
+        service.setBarber(barber); // LEGAREA DE FRIZER ESTE CRITICĂ
+
+        // 3. Salvăm
+        serviceDetailsRepo.save(service);
+        log.info("Serviciu nou adăugat pentru {}: {}", email, dto.getServiceName());
+    }
+
+    @Transactional
+    public void deleteServiceForBarber(Long serviceId, String email) {
+        // 1. Găsim serviciul
+        ServiceDetails service = serviceDetailsRepo.findById(serviceId)
+                .orElseThrow(() -> new BarbershopResourceNotFound("Serviciul nu există."));
+
+        // 2. VERIFICARE DE SECURITATE: Serviciul aparține celui care vrea să îl șteargă?
+        if (!service.getBarber().getEmail().equals(email)) {
+            throw new IllegalBarbershopArgument("Nu ai permisiunea să ștergi acest serviciu.");
+        }
+
+        // 3. Ștergem
+        serviceDetailsRepo.delete(service);
+        log.info("Serviciu șters cu succes: {}", serviceId);
     }
 
 }

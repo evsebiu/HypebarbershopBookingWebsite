@@ -25,10 +25,8 @@ public class HomeController {
         // Luăm toți utilizatorii activi
         List<BarberDTO> activeUsers = barberService.getIfActive();
 
-        // Filtrăm lista: păstrăm DOAR pe cei care au rolul ROLE_BARBER
-        List<BarberDTO> onlyBarbers = activeUsers.stream()
-                .filter(b -> b.getRole() == Role.ROLE_BARBER)
-                .collect(Collectors.toList());
+        // show barbers active
+        List<BarberDTO> onlyBarbers = activeUsers;
 
         // Trimitem lista filtrată către HTML
         model.addAttribute("barbers", onlyBarbers);

@@ -177,6 +177,19 @@ public class BarberService {
                 .orElseThrow(()-> new BarbershopResourceNotFound("ID-ul frizerului nu a fost gasit"));
         barberRepo.delete(barberToDelete);
     }
+
+    @Transactional
+    public void toggleBarberStatus(Long id) {
+
+        // search barber
+        Barber barber = barberRepo.findById(id)
+                .orElseThrow(()-> new BarbershopResourceNotFound("Frizerul cu ID" + id + " nu a fost gasit"));
+
+        boolean currentStatus = Boolean.TRUE.equals(barber.getIsActive());
+        barber.setIsActive(!currentStatus);
+
+        barberRepo.save(barber);
+    }
 }
 
 

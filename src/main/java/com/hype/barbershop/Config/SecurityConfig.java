@@ -25,38 +25,42 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. API Endpoints (Backend) - Public
-                        .requestMatchers(
-                                "/api/appointments/**",
-                                "/api/barbers/active",
-                                "/api/services/**",
-                                "/api/barbers/register"
-                        ).permitAll()
+                        // 1. Resurse Statice (TREBUIE să fie publice ca să se încarce CSS-ul la login)
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
 
-                        // 2. WEB Pages (Frontend Thymeleaf) - Public
-                        // "/" este pagina de landing (PublicController)
-                        // "/programare" va fi pagina de formular
-                        .requestMatchers("/",
-                                "/index",
-                                "/appointment/**",
-                                "/programare",
-                                "/barber/**",
-                                "/error").permitAll()
+                        // 2. Pagini Publice (Site-ul principal)
+                        .requestMatchers("/", "/index", "/error").permitAll()
+                        .requestMatchers("/barber/**").permitAll() // Profiluri publice frizeri
+                        .requestMatchers("/api/barbers/active").permitAll() // API pentru lista de frizeri
 
-                        // 3. Static Resources (CSS, JS, Images)
-                        // Este necesar dacă vei adăuga fișiere locale în src/main/resources/static
-                        .requestMatchers("/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/webjars/**",
-                                "/favicon.ico").permitAll()
+                        // 3. Pagina de Login - Trebuie să fie publică
+                        .requestMatchers("/login").permitAll()
+
+                        // 4. ZONE SECURIZATE
+                        // Dashboard-ul comun (accesibil și Adminilor și Frizerilor)
+                        .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "BARBER")
+
+                        // Zone strict pentru Admin (dacă mai ai API-uri specifice)
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/barbers/register").hasRole("ADMIN")
 
                         // Orice altceva necesită autentificare
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("BARBER")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(basic -> {});
+                // AICI ESTE SCHIMBAREA MAJORĂ:
+                .formLogin(form -> form
+                        .loginPage("/login")              // Ruta controller-ului (vezi pasul 2)
+                        .loginProcessingUrl("/login")     // Unde trimite formularul datele (POST)
+                        .defaultSuccessUrl("/dashboard", true) // Redirecționare după succes
+                        .failureUrl("/login?error=true")  // Unde te duce dacă greșești parola
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")        // După logout te duce pe prima pagină
+                        .permitAll()
+                );
+
         return http.build();
     }
 

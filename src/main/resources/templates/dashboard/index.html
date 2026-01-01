@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | HypeBarbershop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <span class="logo-text">MY DASHBOARD</span>
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Înapoi la Site</a></li>
+            <li><a th:href="@{/logout}">Deconectare</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>
+            Salut, <span th:text="${currentUser}">User</span>!
+        </h1>
+        <div>
+            <span th:if="${isAdminView}" class="badge" style="background: var(--accent-red); color: white;">ADMIN</span>
+            <span th:unless="${isAdminView}" class="badge" style="border: 1px solid var(--accent-gold);">BARBER</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card" style="grid-column: 1 / -1;">
+            <h3 class="dashboard-card-title">Serviciile Mele</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Adaugă sau șterge serviciile pe care le oferi clienților.</p>
+
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+
+                <div style="flex: 2; min-width: 300px;">
+                    <div class="table-responsive">
+                        <table class="appointments-list"> <thead>
+                        <tr>
+                            <th>Denumire</th>
+                            <th>Preț (RON)</th>
+                            <th>Durată (min)</th>
+                            <th>Acțiune</th>
+                        </tr>
+                        </thead>
+                            <tbody>
+                            <tr th:each="service : ${myServices}">
+                                <td th:text="${service.serviceName}" style="color: white;">Tuns</td>
+                                <td th:text="${service.price}" style="color: var(--accent-gold);">50</td>
+                                <td th:text="${service.duration} + ' min'">30 min</td>
+                                <td>
+                                    <form th:action="@{/dashboard/services/delete/{id}(id=${service.id})}" method="post">
+                                        <button type="submit" class="btn-delete" style="padding: 5px 10px; font-size: 0.8rem;">Șterge</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(myServices)}">
+                                <td colspan="4" style="text-align: center; color: var(--text-muted);">Nu ai niciun serviciu configurat.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <h4 style="color: var(--accent-gold); margin-bottom: 1rem;">Adaugă Serviciu Nou</h4>
+
+                    <form th:action="@{/dashboard/services/add}" method="post">
+                        <label>Nume Serviciu</label>
+                        <input type="text" name="serviceName" placeholder="Ex: Tuns Barba" required>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="flex:1;">
+                                <label>Preț (RON)</label>
+                                <input type="number" step="0.1" name="price" placeholder="50" required>
+                            </div>
+                            <div style="flex:1;">
+                                <label>Durată (min)</label>
+                                <input type="number" name="duration" placeholder="30" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-cta btn-small" style="width: 100%; margin-top: 1rem;">Salvează Serviciu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${isAdminView}" class="dashboard-card" style="grid-column: 1 / -1; border-color: var(--accent-gold);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                <h3 class="dashboard-card-title" style="margin-bottom:0;">Gestionare Echipă (Admin Area)</h3>
+                <a href="#" class="btn-cta btn-small">Adaugă Frizer</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="barbers-table">
+                    <thead>
+                    <tr>
+                        <th>Nume</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Status</th>
+                        <th>Acțiuni</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="barber : ${allBarbers}" class="barber-row">
+                        <td class="barber-name" th:text="${barber.firstName + ' ' + barber.lastName}">Nume</td>
+                        <td th:text="${barber.email}">email</td>
+                        <td th:text="${barber.role}">ROL</td>
+                        <td>
+                                    <span th:class="${barber.isActive ? 'status-active' : 'status-inactive'}"
+                                          th:text="${barber.isActive ? 'Activ' : 'Inactiv'}"></span>
+                        </td>
+                        <td class="barber-actions">
+                            <form th:action="@{/admin/barbers/toggle/{id}(id=${barber.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-cta btn-small"
+                                        style="font-size: 0.7rem; padding: 5px 10px; cursor: pointer;">
+                                    <span th:text="${barber.isActive ? 'Dezactivează' : 'Activează'}">Switch</span>
+                                </button>
+                            </form>
+
+                            <form th:action="@{/admin/barbers/delete/{id}(id=${barber.id})}" method="post" style="display:inline; margin-left: 5px;">
+                                <button type="submit" class="btn-delete" style="padding: 5px 10px; font-size: 0.7rem;">Șterge</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

@@ -84,11 +84,11 @@
             <div class="barber-card" th:each="barber : ${barbers}">
 
                 <div class="card-img-wrapper">
-                    <img th:if="${barber.id == 1}"
+                    <img th:if="${barber.email == 'ovidiu@hype.ro'}"
                          th:src="@{/images/ovidiu.jpg}"
                          alt="Ovidiu Barber">
 
-                    <img th:if="${barber.id == 3}"
+                    <img th:if="${barber.email == 'catalin@hype.ro'}"
                          th:src="@{/images/catalin.JPG}"
                          alt="Catalin Barber">
 
