@@ -3,6 +3,7 @@ package com.hype.barbershop.Service;
 
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Model.Entity.ServiceDetails;
@@ -12,6 +13,7 @@ import com.hype.barbershop.Repository.BarberRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -321,4 +323,33 @@ public class AppointmentService {
 
         return slots;
     }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getAllAppointmentsForCurrentBarber(String email){
+        Barber barber =  barberRepository.findByEmail(email)
+                .orElseThrow(()-> new BarbershopException("Frizerul negasit."));
+
+
+        return appointmentRepository.findByBarberId(barber.getId())
+                .stream()
+                .map(appointmentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getAppointmentsForBarber(String email){
+
+        // find barber after email to get his ID
+
+        Barber barber = barberRepository.findByEmail(email)
+                .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit."));
+
+        // use method from repo that filters after id
+
+        return appointmentRepository.findByBarberId(barber.getId())
+                .stream()
+                .map(appointmentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }

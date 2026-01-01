@@ -1,14 +1,16 @@
 package com.hype.barbershop.Controller;
 
-import ch.qos.logback.core.model.Model;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.BarberService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/dashboard")
 public class AdminController {
 
     // Servicii necesare pentru dashboard
@@ -20,10 +22,25 @@ public class AdminController {
         this.barberService = barberService;
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        // Aici vei lua ID-ul frizerului logat din Security Context
-        // model.addAttribute("appointments", appointmentService.findAllForToday());
+    @GetMapping
+    public String dashboard(Authentication authentication, Model model) {
+        // extract email of logged-in user
+
+        String currentEmail = authentication.getName();
+
+        model.addAttribute("myAppointments", appointmentService.getByEmail(currentEmail));
+
+        // verify if user has admin role
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            // admin can see all barbers so ge can manage them
+            model.addAttribute("allBarbers", barberService.getIfActive());
+            model.addAttribute("isAdminView", true);
+        } else {
+            model.addAttribute("isAdminView", false);
+        }
+
         return "admin/dashboard";
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/services")
 @RequiredArgsConstructor
 @Slf4j
-public class ServiceDetailsController {
+public class ServiceDetailsControllerAPI {
 
     private final ServiceDetailsService serviceDetailsService;
 

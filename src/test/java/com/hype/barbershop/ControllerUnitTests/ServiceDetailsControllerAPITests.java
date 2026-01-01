@@ -1,7 +1,7 @@
 package com.hype.barbershop.ControllerUnitTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hype.barbershop.Controller.ServiceDetailsController;
+import com.hype.barbershop.Controller.ServiceDetailsControllerAPI;
 import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
 import com.hype.barbershop.Service.ServiceDetailsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +23,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ServiceDetailsController.class)
-public class ServiceDetailsControllerTests {
+@WebMvcTest(ServiceDetailsControllerAPI.class)
+public class ServiceDetailsControllerAPITests {
 
     @Autowired
     private MockMvc mockMvc;

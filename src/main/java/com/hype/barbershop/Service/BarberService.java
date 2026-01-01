@@ -38,6 +38,14 @@ public class BarberService {
     //GET methods
 
     @Transactional(readOnly = true)
+    public List<BarberDTO> getAll(){
+        return barberRepo.findAll()
+                .stream()
+                .map(barberMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public Optional<BarberDTO> findById(Long id){
         return barberRepo.findById(id)
                 .map(barberMapper::toDTO)
