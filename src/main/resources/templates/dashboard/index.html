@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | HypeBarbershop</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <link rel="stylesheet" th:href="@{/css/styles.css?v=3}">
 </head>
 <body>
 
@@ -22,14 +26,32 @@
 </header>
 
 <main class="dashboard-container">
-
     <div class="dashboard-header">
-        <h1>
-            Salut, <span th:text="${currentUser}">User</span>!
-        </h1>
+        <h1>Salut, <span th:text="${currentUser}">User</span>!</h1>
         <div>
             <span th:if="${isAdminView}" class="badge" style="background: var(--accent-red); color: white;">ADMIN</span>
             <span th:unless="${isAdminView}" class="badge" style="border: 1px solid var(--accent-gold);">BARBER</span>
+        </div>
+    </div>
+
+    <div class="dashboard-card" style="margin-bottom: 3rem;">
+        <h3 class="dashboard-card-title">Calendar Programări</h3>
+        <p style="color: var(--text-muted);">Selectează o dată pentru a vedea programările din ziua respectivă.</p>
+
+        <div class="calendar-section-wrapper">
+            <div class="calendar-wrapper">
+                <input type="text" id="dashboard-calendar" style="display: none;">
+            </div>
+
+            <div class="results-wrapper">
+                <h4 id="selected-date-title" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                    Programări pentru: <span style="color: var(--accent-gold);">Astăzi</span>
+                </h4>
+
+                <div id="appointments-container">
+                    <div class="empty-state">Se încarcă...</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -37,13 +59,12 @@
 
         <div class="dashboard-card" style="grid-column: 1 / -1;">
             <h3 class="dashboard-card-title">Serviciile Mele</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1rem;">Adaugă sau șterge serviciile pe care le oferi clienților.</p>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Gestionează lista de prețuri și durate.</p>
 
             <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-
                 <div style="flex: 2; min-width: 300px;">
                     <div class="table-responsive">
-                        <table class="appointments-list"> <thead>
+                        <table class="services-list"> <thead>
                         <tr>
                             <th>Denumire</th>
                             <th>Preț (RON)</th>
@@ -53,7 +74,7 @@
                         </thead>
                             <tbody>
                             <tr th:each="service : ${myServices}">
-                                <td th:text="${service.serviceName}" style="color: white;">Tuns</td>
+                                <td th:text="${service.serviceName}" style="color: white; font-weight:bold;">Tuns</td>
                                 <td th:text="${service.price}" style="color: var(--accent-gold);">50</td>
                                 <td th:text="${service.duration} + ' min'">30 min</td>
                                 <td>
@@ -72,11 +93,9 @@
 
                 <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
                     <h4 style="color: var(--accent-gold); margin-bottom: 1rem;">Adaugă Serviciu Nou</h4>
-
                     <form th:action="@{/dashboard/services/add}" method="post">
                         <label>Nume Serviciu</label>
                         <input type="text" name="serviceName" placeholder="Ex: Tuns Barba" required>
-
                         <div style="display: flex; gap: 1rem;">
                             <div style="flex:1;">
                                 <label>Preț (RON)</label>
@@ -87,19 +106,41 @@
                                 <input type="number" name="duration" placeholder="30" required>
                             </div>
                         </div>
-
                         <button type="submit" class="btn-cta btn-small" style="width: 100%; margin-top: 1rem;">Salvează Serviciu</button>
                     </form>
                 </div>
             </div>
         </div>
 
+        <div class="dashboard-card" style="grid-column: 1 / -1;">
+            <h3 class="dashboard-card-title">Toate Programările Viitoare</h3>
+            <div class="table-responsive">
+                <table class="appointments-list"> <thead>
+                <tr>
+                    <th>Data & Ora</th>
+                    <th>Client</th>
+                    <th>Telefon</th>
+                    <th>Serviciu</th>
+                    <th>Preț</th>
+                </tr>
+                </thead>
+                    <tbody>
+                    <tr th:each="app : ${myAppointments}" class="appointment-item">
+                        <td class="appointment-time" th:text="${#temporals.format(app.startTime, 'dd/MM/yyyy HH:mm')}">Data</td>
+                        <td class="appointment-client" th:text="${app.clientName}">Nume</td>
+                        <td><a th:href="'tel:' + ${app.phoneNumber}" style="color:inherit;" th:text="${app.phoneNumber}">Tel</a></td>
+                        <td th:text="${app.serviceName}">Serviciu</td>
+                        <td style="color: var(--accent-gold);" th:text="${app.price} + ' RON'">Preț</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div th:if="${isAdminView}" class="dashboard-card" style="grid-column: 1 / -1; border-color: var(--accent-gold);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
-                <h3 class="dashboard-card-title" style="margin-bottom:0;">Gestionare Echipă (Admin Area)</h3>
-                <a href="#" class="btn-cta btn-small">Adaugă Frizer</a>
+                <h3 class="dashboard-card-title" style="margin-bottom:0;">Gestionare Echipă (Admin)</h3>
             </div>
-
             <div class="table-responsive">
                 <table class="barbers-table">
                     <thead>
@@ -117,19 +158,12 @@
                         <td th:text="${barber.email}">email</td>
                         <td th:text="${barber.role}">ROL</td>
                         <td>
-                                    <span th:class="${barber.isActive ? 'status-active' : 'status-inactive'}"
-                                          th:text="${barber.isActive ? 'Activ' : 'Inactiv'}"></span>
+                                <span th:class="${barber.isActive ? 'status-active' : 'status-inactive'}"
+                                      th:text="${barber.isActive ? 'Activ' : 'Inactiv'}"></span>
                         </td>
                         <td class="barber-actions">
                             <form th:action="@{/admin/barbers/toggle/{id}(id=${barber.id})}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-cta btn-small"
-                                        style="font-size: 0.7rem; padding: 5px 10px; cursor: pointer;">
-                                    <span th:text="${barber.isActive ? 'Dezactivează' : 'Activează'}">Switch</span>
-                                </button>
-                            </form>
-
-                            <form th:action="@{/admin/barbers/delete/{id}(id=${barber.id})}" method="post" style="display:inline; margin-left: 5px;">
-                                <button type="submit" class="btn-delete" style="padding: 5px 10px; font-size: 0.7rem;">Șterge</button>
+                                <button type="submit" class="btn-cta btn-small" style="font-size: 0.7rem; padding: 5px 10px;">Switch</button>
                             </form>
                         </td>
                     </tr>
@@ -141,5 +175,73 @@
     </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('appointments-container');
+        const titleSpan = document.querySelector('#selected-date-title span');
+
+        flatpickr("#dashboard-calendar", {
+            inline: true,
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            locale: { firstDayOfWeek: 1 },
+            onChange: function(selectedDates, dateStr) {
+                fetchAppointments(dateStr);
+            }
+        });
+
+        const today = new Date().toISOString().split('T')[0];
+        fetchAppointments(today);
+
+        function fetchAppointments(dateStr) {
+            titleSpan.innerText = dateStr;
+            container.innerHTML = '<div class="empty-state">Se încarcă...</div>';
+
+            fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.json();
+                })
+                .then(data => {
+                    container.innerHTML = '';
+                    if (data.length === 0) {
+                        container.innerHTML = `<div class="empty-state"><span style="font-size: 2rem; display:block;">☕</span>Nu ai programări azi.</div>`;
+                        return;
+                    }
+                    data.forEach(app => {
+                        // FIX: Detectăm formatul datei (Custom vs ISO)
+                        // Dacă serverul trimite "05/01/2026 14:30", folosim split(' ')
+                        // Dacă serverul trimite "2026-01-05T14:30:00", folosim split('T')
+
+                        let time = "00:00";
+                        if (app.startTime.includes('T')) {
+                            time = app.startTime.split('T')[1].substring(0, 5);
+                        } else {
+                            // Cazul tău: formatul este dd/MM/yyyy HH:mm
+                            time = app.startTime.split(' ')[1];
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = 'app-card';
+                        card.innerHTML = `
+                            <div class="app-time">${time}</div>
+                            <div class="app-details">
+                                <h4>${app.clientName}</h4>
+                                <p>📱 <a href="tel:${app.phoneNumber}" style="color:inherit;">${app.phoneNumber}</a></p>
+                                <p>✂️ ${app.serviceName}</p>
+                            </div>
+                            <div class="app-price">${app.price} RON</div>
+                        `;
+                        container.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    container.innerHTML = '<div class="empty-state" style="color:red;">Eroare la încărcarea datelor (Vezi consola).</div>';
+                });
+        }
+    });
+</script>
 </body>
 </html>

@@ -1,19 +1,25 @@
 package com.hype.barbershop.Controller;
 
 
+import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.BarberService;
 import com.hype.barbershop.Service.ServiceDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -58,5 +64,18 @@ public class DashboardController {
         }
 
         return "dashboard/index";
+    }
+
+    @GetMapping("/appointments-by-date")
+    @ResponseBody // <- returns data for JSON not HTML
+    public List<AppointmentDTO> getAppointmentsByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Authentication authentication){
+
+        String email = authentication.getName();
+
+        // use method created in apppointment service class
+
+        return appointmentService.getAppointmentsForBarberByDate(email, date);
     }
 }

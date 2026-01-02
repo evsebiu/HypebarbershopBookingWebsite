@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BarberControllerAPI.class)
-public class BarberControllerTests {
+public class BarberControllerAPITests {
 
     @Autowired
     private MockMvc mockMvc;

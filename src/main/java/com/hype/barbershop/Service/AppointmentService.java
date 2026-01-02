@@ -2,6 +2,7 @@ package com.hype.barbershop.Service;
 
 
 import com.hype.barbershop.Exceptions.BarbershopException;
+import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -352,4 +354,29 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+
+    @Transactional(readOnly = true)
+    public List<AppointmentDTO> getAppointmentsForBarberByDate(String email, LocalDate date){
+
+        // identify logged-in barber
+
+        Barber barber = barberRepository.findByEmail(email)
+                .orElseThrow(()-> new BarbershopResourceNotFound("Frizerul nu a fost gasit"));
+
+        // calculate day time
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        // search in database
+        List<Appointment> appointments = appointmentRepository.findByBarberIdAndStartTimeBetween(
+                barber.getId(),
+                startOfDay,
+                endOfDay
+        );
+
+        return appointments.stream()
+                .sorted(Comparator.comparing(Appointment::getStartTime))
+                .map(appointmentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }
