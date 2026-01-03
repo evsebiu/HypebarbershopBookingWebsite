@@ -244,7 +244,7 @@ public class AppointmentServiceUnitTesting {
         when(appointmentRepository.save(any(Appointment.class))).thenReturn(appointment);
         when(appointmentMapper.toDTO(appointment)).thenReturn(appointmentDTO);
 
-        AppointmentDTO result = appointmentService.updateAppointment(100L, appointmentDTO);
+        AppointmentDTO result = appointmentService.updateAppointmentAPI(100L, appointmentDTO);
         assertNotNull(result);
         assertEquals("Eusebiu", result.getClientName());
     }
@@ -254,7 +254,7 @@ public class AppointmentServiceUnitTesting {
         when(appointmentRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(BarbershopException.class, () -> {
-            appointmentService.updateAppointment(100L, appointmentDTO);
+            appointmentService.updateAppointmentAPI(100L, appointmentDTO);
         });
     }
 

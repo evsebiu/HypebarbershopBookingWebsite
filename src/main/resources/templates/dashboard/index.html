@@ -131,6 +131,23 @@
                         <td><a th:href="'tel:' + ${app.phoneNumber}" style="color:inherit;" th:text="${app.phoneNumber}">Tel</a></td>
                         <td th:text="${app.serviceName}">Serviciu</td>
                         <td style="color: var(--accent-gold);" th:text="${app.price} + ' RON'">Preț</td>
+                        <td style="display: flex; gap: 15px; justify-content: center; align-items: center;">
+                            <a th:href="@{/dashboard/appointment/edit/{id}(id=${app.id})}"
+                               class="btn-edit"
+                               style="color: var(--accent-gold); text-decoration: none; font-size: 1.2rem;"
+                               title="Modifică Programarea">
+                                ✏️
+                            </a>
+
+                            <form th:action="@{/dashboard/appointment/delete/{id}(id=${app.id})}" method="post"
+                                  onsubmit="return confirm('Sigur vrei să anulezi această programare?');"
+                                  style="margin: 0;">
+                                <button type="submit" title="Anulează Programarea"
+                                        style="background: none; border: none; cursor: pointer; font-size: 1.2rem; filter: grayscale(100%); transition: transform 0.2s;">
+                                    ❌
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -195,7 +212,14 @@
         fetchAppointments(today);
 
         function fetchAppointments(dateStr) {
-            titleSpan.innerText = dateStr;
+            // 1. Formatare dată pentru titlu (dd/mm/yyyy)
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                titleSpan.innerText = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+                titleSpan.innerText = dateStr;
+            }
+
             container.innerHTML = '<div class="empty-state">Se încarcă...</div>';
 
             fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
@@ -205,40 +229,61 @@
                 })
                 .then(data => {
                     container.innerHTML = '';
+
                     if (data.length === 0) {
                         container.innerHTML = `<div class="empty-state"><span style="font-size: 2rem; display:block;">☕</span>Nu ai programări azi.</div>`;
                         return;
                     }
-                    data.forEach(app => {
-                        // FIX: Detectăm formatul datei (Custom vs ISO)
-                        // Dacă serverul trimite "05/01/2026 14:30", folosim split(' ')
-                        // Dacă serverul trimite "2026-01-05T14:30:00", folosim split('T')
 
+                    data.forEach(app => {
+                        // Extragem ora
                         let time = "00:00";
                         if (app.startTime.includes('T')) {
                             time = app.startTime.split('T')[1].substring(0, 5);
                         } else {
-                            // Cazul tău: formatul este dd/MM/yyyy HH:mm
                             time = app.startTime.split(' ')[1];
                         }
 
                         const card = document.createElement('div');
                         card.className = 'app-card';
+
+                        // --- MODIFICARE AICI: Am adăugat butonul de Editare în partea dreaptă ---
                         card.innerHTML = `
                             <div class="app-time">${time}</div>
+
                             <div class="app-details">
                                 <h4>${app.clientName}</h4>
                                 <p>📱 <a href="tel:${app.phoneNumber}" style="color:inherit;">${app.phoneNumber}</a></p>
                                 <p>✂️ ${app.serviceName}</p>
                             </div>
-                            <div class="app-price">${app.price} RON</div>
+
+                            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                                <div class="app-price">${app.price} RON</div>
+
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <a href="/dashboard/appointment/edit/${app.id}"
+                                       title="Modifică"
+                                       style="color: var(--accent-gold); text-decoration: none; font-size: 1.2rem;">
+                                       ✏️
+                                    </a>
+
+                                    <form action="/dashboard/appointment/delete/${app.id}" method="post"
+                                          onsubmit="return confirm('Sigur anulezi programarea lui ${app.clientName}?');"
+                                          style="margin:0;">
+                                        <button type="submit" title="Anulează"
+                                                style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                                            ❌
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         `;
                         container.appendChild(card);
                     });
                 })
                 .catch(err => {
                     console.error(err);
-                    container.innerHTML = '<div class="empty-state" style="color:red;">Eroare la încărcarea datelor (Vezi consola).</div>';
+                    container.innerHTML = '<div class="empty-state" style="color:red;">Eroare la încărcarea datelor.</div>';
                 });
         }
     });

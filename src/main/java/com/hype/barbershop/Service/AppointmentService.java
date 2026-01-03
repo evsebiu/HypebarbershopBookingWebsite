@@ -5,6 +5,7 @@ import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
+import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Model.Entity.ServiceDetails;
@@ -144,6 +145,11 @@ public class AppointmentService {
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO){
         log.info("Incercare de creare de programare: {} ", appointmentDTO.getClientName());
 
+
+        if (appointmentDTO.getStartTime().isBefore(LocalDateTime.now().minusMinutes(5))){
+            throw new BarbershopException("Nu se pot efectua programari in trecut! ");
+        }
+
         // 1. first step check if barber and service exists in database.
        Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
                .orElseThrow(()-> new BarbershopException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
@@ -175,7 +181,7 @@ public class AppointmentService {
 
 
     //update method available only for administrator / barber
-    public AppointmentDTO updateAppointment  (Long id, AppointmentDTO appointmentDTO){
+    public AppointmentDTO updateAppointmentAPI (Long id, AppointmentDTO appointmentDTO){
 
         log.info("Incercare de actualizare a programarii cu id: {} ", id);
 
@@ -384,4 +390,61 @@ public class AppointmentService {
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    // helper method for security check
+    @Transactional(readOnly = true)
+    public AppointmentDTO getAppointmentForEdit(Long id, String requesterEmail, boolean isAdmin){
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
+
+        // first version of this method is to check only for admin
+        if (!isAdmin && !appointment.getBarber().getEmail().equals(requesterEmail)){
+            throw new BarbershopException("Nu ai permisiunea sa modifici aceasta programare");
+        }
+
+        return appointmentMapper.toDTO(appointment);
+
+    }
+
+    @Transactional
+    public AppointmentDTO updateAppointment(Long id, AppointmentDTO appointmentDTO, String requesterEmail, boolean isAdmin){
+
+
+        // find original entity
+        Appointment existingApp = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
+
+        //permission check
+        if (!isAdmin && !existingApp.getBarber().getEmail().equals(requesterEmail)){
+            throw new BarbershopException("ACCEZ INTERZIS! Nu aveti permisiunea pentru a modifica aceasta programare");
+        }
+
+        // verify logic, if duration changed, we check overlapping by calculating new period
+        ServiceDetails service = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
+                .orElseThrow(()-> new BarbershopException("Serviciul solicitat nu exista"));
+
+        LocalDateTime newStart = appointmentDTO.getStartTime();
+        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+
+        // verify conflicts and we exclude current APPOINTMENT ID
+        List<Appointment> barberAppointments = appointmentRepository.findByBarberId(existingApp.getBarber().getId());
+        checkForOverlaps(barberAppointments, newStart, newEnd, id);
+
+        // update entity
+        existingApp.setClientEmail(appointmentDTO.getClientEmail());
+        existingApp.setClientName(appointmentDTO.getClientName());
+        existingApp.setPhoneNumber(appointmentDTO.getPhoneNumber());
+        existingApp.setStartTime(appointmentDTO.getStartTime());
+
+        // relations
+        existingApp.setServiceDetails(service);
+
+
+        Appointment saved = appointmentRepository.save(existingApp);
+
+        log.info("Programarea {} a fost actualizata de {}", id, requesterEmail);
+
+        return appointmentMapper.toDTO(saved);
+    }
+
 }

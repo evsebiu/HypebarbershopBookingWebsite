@@ -57,7 +57,7 @@ public class AppointmentControllerAPI {
     // 5. UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentDTO> updateAppointment(@PathVariable Long id, @RequestBody @Valid AppointmentDTO dto) {
-        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
+        return ResponseEntity.ok(appointmentService.updateAppointmentAPI(id, dto));
     }
 
     // 6. DELETE (Cancel)

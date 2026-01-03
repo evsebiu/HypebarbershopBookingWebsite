@@ -27,7 +27,7 @@ public class AppointmentDTO {
     @NotBlank(message = "E-mailul este necesar. Introdu unul valid.")
     private String clientEmail;
 
-    @Future(message = "Programarea trebuie sa fie in viitor.")
+    // @Future(message = "Programarea trebuie sa fie in viitor.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime startTime;

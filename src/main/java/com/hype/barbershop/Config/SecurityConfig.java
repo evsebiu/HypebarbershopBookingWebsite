@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/cookies/**").permitAll()
                         .requestMatchers("/terms/**").permitAll()
                         .requestMatchers("/gdpr/**").permitAll()
+                        .requestMatchers("/appointment/**").permitAll()
                         // 3. Pagina de Login - Trebuie să fie publică
                         .requestMatchers("/login").permitAll()
 

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modificare Programare | HypeBarbershop</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <style>
+        .field-error {
+            color: #ff4444;
+            font-size: 0.85rem;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        input.input-error, select.input-error {
+            border-color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container" style="max-width: 600px; margin-top: 5rem;">
+    <div class="dashboard-card">
+        <h2 class="dashboard-card-title">Modifică Programarea</h2>
+
+        <div th:if="${errorMessage}" style="background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; color: #ff4444; padding: 10px; border-radius: 4px; margin-bottom: 1rem;" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/dashboard/appointment/update/{id}(id=${appointment.id})}" th:object="${appointment}" method="post">
+
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{barberId}">
+
+            <label>Nume Client</label>
+            <input type="text" th:field="*{clientName}" th:classappend="${#fields.hasErrors('clientName')} ? 'input-error'" required>
+            <span class="field-error" th:if="${#fields.hasErrors('clientName')}" th:errors="*{clientName}"></span>
+
+            <label>Telefon</label>
+            <input type="text" th:field="*{phoneNumber}" th:classappend="${#fields.hasErrors('phoneNumber')} ? 'input-error'" required>
+            <span class="field-error" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></span>
+
+            <label>Email Client</label>
+            <input type="email" th:field="*{clientEmail}" th:classappend="${#fields.hasErrors('clientEmail')} ? 'input-error'" required>
+            <span class="field-error" th:if="${#fields.hasErrors('clientEmail')}" th:errors="*{clientEmail}"></span>
+
+            <label>Data și Ora</label>
+            <input type="text" id="edit-calendar" th:field="*{startTime}" th:classappend="${#fields.hasErrors('startTime')} ? 'input-error'" placeholder="Selectează data" required>
+            <span class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></span>
+
+            <label>Serviciu</label>
+            <select th:field="*{serviceId}" th:classappend="${#fields.hasErrors('serviceId')} ? 'input-error'" required>
+                <option th:each="srv : ${availableServices}"
+                        th:value="${srv.id}"
+                        th:text="${srv.serviceName + ' (' + srv.duration + ' min) - ' + srv.price + ' RON'}">
+                </option>
+            </select>
+            <span class="field-error" th:if="${#fields.hasErrors('serviceId')}" th:errors="*{serviceId}"></span>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a th:href="@{/dashboard}" class="btn-delete" style="text-align:center; text-decoration: none;">Anulează</a>
+                <button type="submit" class="btn-cta">Salvează Modificările</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#edit-calendar", {
+        enableTime: true,
+        dateFormat: "Y-m-dTH:i",
+        time_24hr: true,
+        minTime: "10:00",
+        maxTime: "20:00"
+        // Am scos minDate: "today" ca să poți edita și programări vechi dacă e nevoie
+    });
+</script>
+</body>
+</html>

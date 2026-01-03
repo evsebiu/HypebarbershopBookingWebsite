@@ -191,7 +191,7 @@ public class AppointmentControllerAPITest {
         updatedDTO.setClientName("Jane Updated");
         updatedDTO.setClientEmail("jane@example.com");
         updatedDTO.setPhoneNumber("0722123456");
-        when(appointmentService.updateAppointment(eq(1L), any(AppointmentDTO.class))).thenReturn(updatedDTO);
+        when(appointmentService.updateAppointmentAPI(eq(1L), any(AppointmentDTO.class))).thenReturn(updatedDTO);
 
         mockMvc.perform(put("/api/appointments/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
