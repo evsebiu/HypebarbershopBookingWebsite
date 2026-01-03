@@ -275,7 +275,7 @@ public class AppointmentService {
 
     public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date){
             LocalTime workStart = LocalTime.of(10, 0); // opens at 10am
-            LocalTime workEnd = LocalTime.of(18, 0); // closes at 18pm
+            LocalTime workEnd = LocalTime.of(20, 0); // closes at 20pm
 
         // find service duration
         ServiceDetails service = serviceDetailsRepository.findById(serviceId)
@@ -283,6 +283,7 @@ public class AppointmentService {
 
         int durationMinutes = service.getDuration();
 
+        int stepMinutes = 15;
 
         LocalDateTime startOfDay = date.atStartOfDay(); // 00:00:00
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59.9999
@@ -294,21 +295,25 @@ public class AppointmentService {
         List<String> slots = new ArrayList<>();
         LocalTime currentSlot = workStart;
 
-        //generate slots every 30 minutes
-        while(currentSlot.plusMinutes(durationMinutes).isBefore(workEnd) || currentSlot.plusMinutes(durationMinutes).equals(workEnd)){
+        //algorithm check
+        //how long start hour + durations doesn't exceed closing hour
+        while(!currentSlot.plusMinutes(durationMinutes).isAfter(workEnd)){
+
             LocalTime slotEnd = currentSlot.plusMinutes(durationMinutes);
-            LocalDateTime slotStartDateTime = LocalDateTime.of(date, currentSlot);
-            LocalDateTime slotEndDateTime = LocalDateTime.of(date, slotEnd);
+
+            // we build "Sliding Window" (every 15 mins to optimize barber program)
+            LocalDateTime proposedStart = LocalDateTime.of(date, currentSlot);
+            LocalDateTime proposedEnd = LocalDateTime.of(date, slotEnd);
 
             boolean isOccupied = false;
 
-            //verify overlapping with existing appointments
-
+            //verify collision with other existing appointment
             for (Appointment app : existingAppointment){
                 LocalDateTime appStart = app.getStartTime();
+                // calculate end of existing appointment based on service duration
                 LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
 
-                if (slotStartDateTime.isBefore(appEnd) && slotEndDateTime.isAfter(appStart)){
+                if (proposedStart.isBefore(appEnd) && proposedEnd.isAfter(appStart)){
                     isOccupied = true;
                     break;
                 }
@@ -320,7 +325,7 @@ public class AppointmentService {
 
             // skip every 30 mins
 
-            currentSlot = currentSlot.plusMinutes(30);
+            currentSlot = currentSlot.plusMinutes(stepMinutes);
         }
 
         return slots;
