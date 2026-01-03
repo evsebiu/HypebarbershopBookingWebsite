@@ -32,7 +32,9 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index", "/error").permitAll()
                         .requestMatchers("/barber/**").permitAll() // Profiluri publice frizeri
                         .requestMatchers("/api/barbers/active").permitAll() // API pentru lista de frizeri
-
+                        .requestMatchers("/cookies/**").permitAll()
+                        .requestMatchers("/terms/**").permitAll()
+                        .requestMatchers("/gdpr/**").permitAll()
                         // 3. Pagina de Login - Trebuie să fie publică
                         .requestMatchers("/login").permitAll()
 

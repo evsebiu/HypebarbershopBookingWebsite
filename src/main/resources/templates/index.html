@@ -7,6 +7,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
+<div id="cookie-banner" class="cookie-banner">
+    <div class="cookie-content">
+        <p>
+            Folosim cookie-uri pentru a asigura funcționarea corectă a site-ului.
+            Continuarea navigării reprezintă acordul tău.
+            Vezi <a th:href="@{/cookies}" style="color: var(--accent-gold); text-decoration: underline;">Politica de Cookies</a>.
+        </p>
+        <button id="accept-cookies" class="btn-cta btn-small">Am înțeles</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!localStorage.getItem("cookiesAccepted")) {
+            setTimeout(() => {
+                const banner = document.getElementById("cookie-banner");
+                if(banner) banner.classList.add("show");
+            }, 1000);
+        }
+
+        const acceptBtn = document.getElementById("accept-cookies");
+        if(acceptBtn){
+            acceptBtn.addEventListener("click", function() {
+                localStorage.setItem("cookiesAccepted", "true");
+                document.getElementById("cookie-banner").classList.remove("show");
+            });
+        }
+    });
+</script>
 <body>
 
 <header>
@@ -149,7 +178,7 @@
             <div class="footer-col">
                 <h4>Legal</h4>
                 <ul>
-                    <li><a th:href="@{/gdpr.html}">GDPR</a></li>
+                    <li><a th:href="@{/gdpr}">Regulamentul general privind protecția datelor / GDPR </a></li>
                     <li><a th:href="@{/terms}">Termeni și Condiții</a></li>
                     <li><a th:href="@{/cookies}"> Politica cookies</a></li>
                 </ul>
@@ -157,6 +186,10 @@
         </footer>
     </section>
 </main>
+
+<footer style="margin-top: auto; text-align: center; border-top: none; background: transparent; padding: 20px;">
+    <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 Hype Barbershop. Toate drepturile rezervate.</p>
+</footer>
 
 </body>
 </html>

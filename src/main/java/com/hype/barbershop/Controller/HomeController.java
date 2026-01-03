@@ -35,9 +35,9 @@ public class HomeController {
     }
 
     // 2. Pagini Statice / Legale
-    @GetMapping("/gdpr.html")
+    @GetMapping("/gdpr")
     public String gdprPage() {
-        return "legal/gdpr.html"; // Creezi un folder templates/legal/gdpr.html.html
+        return "legal/gdpr";
     }
 
     @GetMapping("/terms")

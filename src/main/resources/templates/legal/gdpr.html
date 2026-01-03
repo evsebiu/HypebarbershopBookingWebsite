@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Politica de Confidențialitate (GDPR) | HypeBarbershop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        /* --- STILURI SPECIFICE GDPR (Luxury Dark) --- */
+
+        /* 1. Layout & Fundal */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            margin: 0; padding: 0;
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, var(--bg-dark) 80%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. Header */
+        header {
+            width: 100% !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+        }
+
+        .legal-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        /* 3. Titlu Pagină */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-heading);
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-intro {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* 4. Cardul Principal */
+        .legal-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legal-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+        }
+
+        /* 5. Secțiuni */
+        .content-section {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 2rem;
+        }
+        .content-section:last-child { border: none; margin: 0; padding: 0; }
+
+        .content-section h2 {
+            font-family: var(--font-heading);
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Iconiță lângă titlu (Shield) */
+        .content-section h2::before {
+            content: '🛡️';
+            font-size: 1.2rem;
+            filter: grayscale(100%) brightness(1.5);
+        }
+
+        .content-section p {
+            color: var(--text-main);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Liste stilizate (Drepturi) */
+        .rights-list {
+            list-style: none;
+            padding-left: 10px;
+        }
+
+        .rights-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+
+        .rights-list li::before {
+            content: '•';
+            color: var(--accent-gold);
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+            top: -2px;
+        }
+
+        .rights-list strong { color: #fff; font-weight: 600; }
+
+        /* --- RESPONSIVE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; text-align: center; }
+            .page-header h1 { font-size: 1.8rem; word-wrap: break-word; }
+            .legal-card { padding: 1.5rem 1rem !important; }
+            .content-section h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">HYPE BARBERSHOP</div>
+    <nav><ul><li><a th:href="@{/}">Înapoi la Site</a></li></ul></nav>
+</header>
+
+<main class="legal-wrapper">
+
+    <div class="page-header">
+        <h1>Confidențialitate (GDPR)</h1>
+        <p class="page-intro">Datele tale sunt în siguranță. Iată cum le protejăm.</p>
+    </div>
+
+    <div class="legal-card">
+
+        <div class="content-section">
+            <h2>1. Cine suntem?</h2>
+            <p>Datele dumneavoastră sunt administrate de <strong>Hype Barbershop SRL</strong> (denumit în continuare "Operatorul"), cu sediul în Iași, Șoseaua Arcu 8. Ne angajăm să respectăm confidențialitatea datelor dumneavoastră personale conform Regulamentului UE 2016/679 (GDPR).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. Ce date colectăm și de ce?</h2>
+            <p>Colectăm doar datele strict necesare pentru a vă oferi serviciile noastre:</p>
+            <ul class="rights-list">
+                <li><strong>Nume și Prenume:</strong> Pentru a identifica rezervarea.</li>
+                <li><strong>Număr de Telefon:</strong> Pentru confirmarea programării și notificări SMS.</li>
+                <li><strong>Adresa de Email:</strong> Pentru a vă transmite un email de confirmare cu datele programării</li>
+            </ul>
+            <p>Nu colectăm date sensibile și nu vindem datele dumneavoastră către terți.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>3. Cât timp păstrăm datele?</h2>
+            <p>Datele necesare programărilor sunt păstrate pentru un timp limitat maxim <strong>1 an sau mai puțin</strong> de la ultima activitate, după care vor fi anonimizate sau șterse, cu excepția datelor necesare pentru facturare (păstrate conform legii fiscale).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Drepturile Dumneavoastră</h2>
+            <p>Conform GDPR, aveți următoarele drepturi:</p>
+            <ul class="rights-list">
+                <li><strong>Dreptul de acces:</strong> Puteți cere o copie a datelor pe care le deținem.</li>
+                <li><strong>Dreptul la rectificare:</strong> Puteți cere corectarea datelor greșite.</li>
+                <li><strong>Dreptul la ștergere ("Dreptul de a fi uitat"):</strong> Puteți cere ștergerea datelor asociate.</li>
+                <li><strong>Dreptul la portabilitate:</strong> Puteți primi datele într-un format structurat.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>5. Securitatea Datelor</h2>
+            <p>Site-ul nostru folosește criptare SSL (HTTPS) pentru toate transmisiile de date. </p>
+        </div>
+
+        <div class="content-section">
+            <h2>6. Contact pentru solicitări cu privire la datele dvs.</h2>
+            <p>Pentru orice solicitare legată de datele personale sau exercitarea drepturilor, vă rugăm să ne contactați la:</p>
+            <p style="color: var(--accent-gold); font-weight: 600;">contact@hypebarbershop.ro</p>
+        </div>
+
+    </div>
+
+</main>
+
+<footer style="margin-top: auto; text-align: center; border-top: none; background: transparent; padding: 20px;">
+    <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 Hype Barbershop. Toate drepturile rezervate.</p>
+</footer>
+
+</body>
+</html>

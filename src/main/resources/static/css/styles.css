@@ -928,22 +928,30 @@ label {
 /* --- COOKIE BANNER --- */
 .cookie-banner {
     position: fixed;
-    bottom: -100px; /* Ascuns inițial sub ecran */
+    bottom: 0;
     left: 0;
     width: 100%;
-    background: rgba(10, 10, 10, 0.95);
+    background: rgba(10, 10, 10, 0.98);
     border-top: 1px solid var(--accent-gold);
+
+    /* PADDING PENTRU IPHONE */
     padding: 1.5rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+
     z-index: 9999;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
     backdrop-filter: blur(10px);
-    transition: bottom 0.5s ease-in-out;
+
+    /* LOGICA NOUĂ DE ASCUNDERE */
+    transform: translateY(100%); /* Îl împinge 100% în jos (în afara ecranului) */
+    transition: transform 0.5s ease-in-out;
 }
 
 .cookie-banner.show {
-    bottom: 0; /* Apare pe ecran */
+    transform: translateY(0); /* Îl aduce înapoi la poziția normală */
 }
 
+/* ... restul CSS-ului pentru .cookie-content și media query rămâne la fel ... */
 .cookie-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -963,8 +971,17 @@ label {
     .cookie-content {
         flex-direction: column;
         text-align: center;
+        gap: 15px;
     }
+
     .cookie-content p {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    #accept-cookies {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 5px;
     }
 }
