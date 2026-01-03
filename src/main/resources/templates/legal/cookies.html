@@ -1,12 +1,253 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Politica Cookies | HypeBarbershop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        /* --- STILURI SPECIFICE PAGINA COOKIES (LUXURY) --- */
+
+        body {
+            /* Fundal elegant cu gradient subtil */
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, var(--bg-dark) 80%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .legal-wrapper {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 20px;
+            flex: 1; /* Împinge footerul jos */
+        }
+
+        /* HEADER PAGINĂ */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-heading);
+            color: var(--accent-gold);
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-intro {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        /* CARD PRINCIPAL */
+        .legal-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        /* Linie aurie decorativă sus */
+        .legal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+        }
+
+        /* SECȚIUNI */
+        .content-section {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 2rem;
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .content-section h2 {
+            font-family: var(--font-heading);
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Iconiță aurie lângă titlu */
+        .content-section h2::before {
+            content: '🍪';
+            font-size: 1.2rem;
+            filter: grayscale(100%) brightness(2); /* Îl facem discret */
+        }
+
+        .content-section p {
+            color: var(--text-main);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* TABEL PENTRU COOKIE-URI */
+        .cookie-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .cookie-table th {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent-gold);
+            text-align: left;
+            padding: 1rem;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .cookie-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .cookie-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* TIPURI DE COOKIE */
+        .badge-essential {
+            display: inline-block;
+            padding: 4px 8px;
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            font-size: 0.7rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-pref {
+            display: inline-block;
+            padding: 4px 8px;
+            border: 1px solid #aaa;
+            color: #aaa;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .legal-card { padding: 1.5rem; }
+            .page-header h1 { font-size: 2.2rem; }
+            .cookie-table { display: block; overflow-x: auto; }
+        }
+    </style>
 </head>
 <body>
 
+<header>
+    <div class="logo-container">
+        <span class="logo-text">HYPE BARBERSHOP</span>
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Înapoi la Site</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="legal-wrapper">
+
+    <div class="page-header">
+        <h1>Politica de Cookies</h1>
+        <p class="page-intro">Transparența este importantă pentru noi. Iată cum folosim tehnologia pentru a-ți îmbunătăți experiența.</p>
+    </div>
+
+    <div class="legal-card">
+
+        <div class="content-section">
+            <h2>1. Ce sunt cookie-urile?</h2>
+            <p>Cookie-urile sunt fișiere mici de text, formate din litere și numere, care sunt stocate pe computerul sau dispozitivul dumneavoastră mobil atunci când accesați site-ul nostru. Acestea ne permit să vă distingem de alți utilizatori ai site-ului, ceea ce ne ajută să vă oferim o experiență bună de navigare.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. Ce cookie-uri folosim?</h2>
+            <p>Folosim un număr minim de cookie-uri, strict necesare pentru funcționarea aplicației și pentru a vă ține minte preferințele.</p>
+
+            <table class="cookie-table">
+                <thead>
+                <tr>
+                    <th>Nume Cookie</th>
+                    <th>Tip</th>
+                    <th>Scop</th>
+                    <th>Durată</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td style="color: #fff; font-weight: 600;">JSESSIONID</td>
+                    <td><span class="badge-essential">Strict Necesar</span></td>
+                    <td>Gestionează sesiunea ta de logare securizată. Fără el, nu te poți autentifica.</td>
+                    <td>Sesiune (se șterge când închizi browserul)</td>
+                </tr>
+                <tr>
+                    <td style="color: #fff; font-weight: 600;">cookiesAccepted</td>
+                    <td><span class="badge-pref">Preferințe</span></td>
+                    <td>Ține minte că ai acceptat banner-ul de cookies, ca să nu ți-l mai arătăm data viitoare.</td>
+                    <td>1 An</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-section">
+            <h2>3. Cum puteți controla cookie-urile?</h2>
+            <p>Puteți controla și/sau șterge cookie-urile după cum doriți – pentru detalii, consultați site-ul <a href="https://www.aboutcookies.org" target="_blank" style="color: var(--accent-gold);">aboutcookies.org</a>. Puteți șterge toate cookie-urile care sunt deja pe computerul dumneavoastră și puteți seta majoritatea browserelor să împiedice plasarea lor.</p>
+            <p>Totuși, dacă faceți acest lucru, este posibil să fiți nevoit să ajustați manual anumite preferințe (precum logarea) de fiecare dată când vizitați site-ul.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Contact</h2>
+            <p>Dacă aveți întrebări suplimentare despre modul în care folosim cookie-urile, ne puteți contacta oricând la <a href="mailto:contact@hypebarbershop.ro" style="color: var(--accent-gold);">contact@hypebarbershop.ro</a>.</p>
+        </div>
+
+    </div>
+
+</main>
+
+<footer style="margin-top: auto; text-align: center; border-top: none; background: transparent;">
+    <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2026 Hype Barbershop. Toate drepturile rezervate.</p>
+</footer>
+
 </body>
 </html>
-
-

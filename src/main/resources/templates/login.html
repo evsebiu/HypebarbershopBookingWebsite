@@ -93,6 +93,38 @@
         }
     </style>
 </head>
+
+<div id="cookie-banner" class="cookie-banner">
+    <div class="cookie-content">
+        <p>
+            Folosim cookie-uri pentru a asigura funcționarea corectă a site-ului.
+            Continuarea navigării reprezintă acordul tău.
+            Vezi <a th:href="@{/cookies}" style="color: var(--accent-gold); text-decoration: underline;">Politica de Cookies</a>.
+        </p>
+        <button id="accept-cookies" class="btn-cta btn-small">Am înțeles</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Verificăm dacă utilizatorul a acceptat deja
+        if (!localStorage.getItem("cookiesAccepted")) {
+            // Dacă nu, afișăm bannerul (cu o mică întârziere pentru efect)
+            setTimeout(() => {
+                document.getElementById("cookie-banner").classList.add("show");
+            }, 1000);
+        }
+
+        // 2. Când dă click pe "Am înțeles"
+        document.getElementById("accept-cookies").addEventListener("click", function() {
+            // Salvăm decizia în browserul lui (localStorage)
+            localStorage.setItem("cookiesAccepted", "true");
+            // Ascundem bannerul
+            document.getElementById("cookie-banner").classList.remove("show");
+        });
+    });
+</script>
+
 <body>
 
 <header>

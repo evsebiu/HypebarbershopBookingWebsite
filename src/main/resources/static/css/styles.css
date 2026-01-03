@@ -924,3 +924,47 @@ label {
     .services-list td:nth-of-type(3)::before { content: "Durată:"; color: var(--text-muted); font-weight: 600; }
     .services-list td:nth-of-type(4)::before { content: "Acțiune:"; color: var(--text-muted); font-weight: 600; }
 }
+
+/* --- COOKIE BANNER --- */
+.cookie-banner {
+    position: fixed;
+    bottom: -100px; /* Ascuns inițial sub ecran */
+    left: 0;
+    width: 100%;
+    background: rgba(10, 10, 10, 0.95);
+    border-top: 1px solid var(--accent-gold);
+    padding: 1.5rem;
+    z-index: 9999;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    transition: bottom 0.5s ease-in-out;
+}
+
+.cookie-banner.show {
+    bottom: 0; /* Apare pe ecran */
+}
+
+.cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.cookie-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .cookie-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .cookie-content p {
+        font-size: 0.8rem;
+    }
+}

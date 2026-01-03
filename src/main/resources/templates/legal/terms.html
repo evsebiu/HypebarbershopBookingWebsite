@@ -1,10 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Termeni și Condiții | HypeBarbershop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        /* --- STILURI SPECIFICE PENTRU PAGINI LEGALE --- */
+
+        body {
+            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, var(--bg-dark) 70%);
+            min-height: 100vh;
+        }
+
+        .legal-wrapper {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 20px;
+        }
+
+        /* Titlul Paginii */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-heading);
+            color: var(--accent-gold);
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Cardul cu Text */
+        .legal-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* O linie aurie fină sus */
+        .legal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+        }
+
+        /* Tipografie Conținut */
+        .content-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .content-section h2 {
+            font-family: var(--font-heading);
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .content-section p, .content-section li {
+            color: var(--text-main);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .content-section ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .content-section ul li {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        /* Buline aurii la liste */
+        .content-section ul li::before {
+            content: '•';
+            color: var(--accent-gold);
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Link-uri în text */
+        .content-section a {
+            color: var(--accent-gold);
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 3px;
+            transition: all 0.3s;
+        }
+
+        .content-section a:hover {
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .legal-card { padding: 1.5rem; }
+            .page-header h1 { font-size: 2rem; }
+        }
+    </style>
 </head>
 <body>
+
+<header>
+    <div class="logo-container">
+        <span class="logo-text">HYPE BARBERSHOP</span>
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Înapoi la Site</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="legal-wrapper">
+
+    <div class="page-header">
+        <h1>Termeni și Condiții</h1>
+        <span class="last-updated">Actualizat: 03 Ianuarie 2026</span>
+    </div>
+
+    <div class="legal-card">
+
+        <div class="content-section">
+            <h2>1. Introducere</h2>
+            <p>Bine ați venit pe site-ul Hype Barbershop. Accesarea și utilizarea acestui website, precum și programarea serviciilor noastre, implică acceptarea automată a termenilor și condițiilor de mai jos.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. Programări și Anulări</h2>
+            <p>Pentru a asigura eficiența serviciilor noastre și respectul față de toți clienții, aplicăm următoarele reguli:</p>
+            <ul>
+                <li>Programările se pot face online sau telefonic.</li>
+                <li>Vă rugăm să ajungeți cu cel puțin <strong>5 minute</strong> înainte de ora stabilită.</li>
+                <li>Anulările trebuie făcute cu cel puțin <strong>2 ore</strong> înainte.</li>
+                <li>Întârzierea mai mare de 15 minute poate duce la anularea programării sau scurtarea serviciului, fără reducerea prețului.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>3. Drepturile și Obligațiile Clientului</h2>
+            <p>Clientul are obligația de a furniza date corecte (nume, telefon) în momentul programării. Ne rezervăm dreptul de a refuza serviciile clienților care au un comportament inadecvat sau care au istoric de neprezentări repetate (No-Show).</p>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Politica de Confidențialitate</h2>
+            <p>Datele dumneavoastră personale sunt procesate în siguranță conform GDPR. Pentru detalii complete, vă rugăm să consultați pagina noastră de <a th:href="@{/gdpr.html}">Politica de Confidențialitate</a>.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>5. Modificări ale Termenilor</h2>
+            <p>Hype Barbershop își rezervă dreptul de a modifica acești termeni oricând. Continuarea utilizării serviciilor noastre după modificări reprezintă acceptul dumneavoastră.</p>
+        </div>
+
+        <div class="content-section" style="margin-bottom: 0;">
+            <h2>6. Contact</h2>
+            <p>Pentru orice întrebări legate de acești termeni, ne puteți contacta la adresa de email: <a href="mailto:contact@hypebarbershop.ro">contact@hypebarbershop.ro</a>.</p>
+        </div>
+
+    </div>
+
+</main>
+
+<footer style="margin-top: auto; text-align: center;">
+    <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2026 Hype Barbershop. Toate drepturile rezervate.</p>
+</footer>
 
 </body>
 </html>
