@@ -394,6 +394,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // 1. DEFINIRE VARIABILE
@@ -402,13 +403,15 @@
         const slotsContainer = document.getElementById('slots-container');
         const finalInput = document.getElementById('finalStartTime');
         const submitBtn = document.getElementById('submitBtn');
+        const dateInput = document.getElementById("date-picker");
         let selectedDate = null;
 
-        // 2. CONFIGURARE CALENDAR (FLATPICKR)
-        const fp = flatpickr("#date-picker", {
+        // 2. CONFIGURARE CALENDAR (FLATPICKR) - FIXAT
+        const fp = flatpickr(dateInput, {
             minDate: "today",
             dateFormat: "Y-m-d",
-            disableMobile: "true",
+            disableMobile: true, // Fără ghilimele!
+            allowInput: true,    // Permite click pe input
             locale: {
                 firstDayOfWeek: 1 // Luni
             },
@@ -419,31 +422,33 @@
             ],
             onChange: function(selectedDates, dateStr, instance) {
                 selectedDate = dateStr;
+                console.log("Data selectată:", dateStr); // Debug
                 fetchSlots(dateStr);
             }
         });
 
-        // 3. LOGICA PENTRU RE-POPULARE (DACĂ EXISTĂ EROARE DE LA SERVER)
-        // Verificăm dacă inputul hidden are deja o valoare (ex: "2025-01-05T14:30")
+        // Deschide calendarul manual la click (pentru siguranță)
+        dateInput.addEventListener("click", function() {
+            fp.open();
+        });
+
+        // 3. LOGICA PENTRU RE-POPULARE
         if (finalInput.value && finalInput.value.includes('T')) {
             const parts = finalInput.value.split('T');
-            const datePart = parts[0];          // "2025-01-05"
-            const timePart = parts[1].substring(0, 5); // "14:30" (fără secunde)
+            const datePart = parts[0];
+            const timePart = parts[1].substring(0, 5);
 
-            // 1. Setăm data în calendarul vizual
             if (fp) {
                 fp.setDate(datePart);
                 selectedDate = datePart;
             }
 
-            // 2. Cerem orele de la server și selectăm automat ora veche
             fetchSlots(datePart).then(() => {
-                // Așteptăm puțin să se randeze butoanele
                 setTimeout(() => {
                     const buttons = document.querySelectorAll('.time-slot');
                     buttons.forEach(btn => {
                         if (btn.innerText === timePart) {
-                            btn.click(); // Simulăm click pe ora care era selectată
+                            btn.click();
                         }
                     });
                 }, 100);
@@ -452,16 +457,23 @@
 
         // 4. FUNCȚIA CARE CERE ORELE DISPONIBILE
         function fetchSlots(dateStr) {
+            console.log(`Cerem ore pentru: /api/appointments/slots?barberId=${barberId}&serviceId=${serviceId}&date=${dateStr}`);
+
             slotsContainer.innerHTML = '<p style="color:#888; text-align:center; width:100%;">Se caută ore...</p>';
             document.getElementById('slots-label').style.display = 'block';
             document.getElementById('no-slots-msg').style.display = 'none';
             submitBtn.disabled = true;
             submitBtn.style.opacity = '0.5';
 
-            // Returnăm fetch-ul ca să putem folosi .then() la re-populare
             return fetch(`/api/appointments/slots?barberId=${barberId}&serviceId=${serviceId}&date=${dateStr}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log("Ore primite:", data);
                     slotsContainer.innerHTML = '';
 
                     if (data.length === 0) {
@@ -478,29 +490,21 @@
                     });
                 })
                 .catch(err => {
-                    console.error('Eroare:', err);
-                    slotsContainer.innerHTML = '<p style="color:red; text-align:center;">Eroare conexiune.</p>';
+                    console.error('Eroare Fetch:', err);
+                    slotsContainer.innerHTML = '<p style="color:red; text-align:center;">Eroare conexiune server.</p>';
                 });
         }
 
         // 5. FUNCȚIA DE SELECTARE A OREI
         function selectTime(element, time) {
-            // Scoatem selecția de pe celelalte butoane
             document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
-
-            // Selectăm butonul curent
             element.classList.add('selected');
-
-            // Setăm valoarea finală pentru server: YYYY-MM-DDTHH:mm
             const finalDateTime = `${selectedDate}T${time}`;
             finalInput.value = finalDateTime;
-
-            // Activăm butonul de submit
             submitBtn.disabled = false;
             submitBtn.style.opacity = '1';
         }
     });
 </script>
-
 </body>
 </html>

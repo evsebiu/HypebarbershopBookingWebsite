@@ -66,4 +66,12 @@ public class AppointmentControllerAPI {
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/slots")
+    public ResponseEntity<List<String>> getAvailableSlots(
+            @RequestParam Long barberId,
+            @RequestParam Long serviceId,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
+
+        return ResponseEntity.ok(appointmentService.getAvailableSlots(barberId, serviceId, date));
+    }
 }

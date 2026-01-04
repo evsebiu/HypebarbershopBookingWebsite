@@ -51,4 +51,10 @@ public class Barber {
     @OneToMany(mappedBy = "barber", fetch = FetchType.LAZY)
     private List<ServiceDetails> serviceDetails;
 
+    @OneToMany(mappedBy = "barber", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BarberSchedule> weeklySchedule;
+
+    @OneToMany(mappedBy = "barber", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BarberDayOff> daysOff;
+
 }

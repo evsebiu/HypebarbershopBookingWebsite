@@ -4,21 +4,15 @@ package com.hype.barbershop.Service;
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
-import com.hype.barbershop.Model.DTO.BarberDTO;
-import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
-import com.hype.barbershop.Model.Entity.Appointment;
-import com.hype.barbershop.Model.Entity.Barber;
-import com.hype.barbershop.Model.Entity.ServiceDetails;
+import com.hype.barbershop.Model.Entity.*;
 import com.hype.barbershop.Model.Mapper.AppointmentMapper;
-import com.hype.barbershop.Repository.AppointmentRepository;
-import com.hype.barbershop.Repository.BarberRepository;
-import com.hype.barbershop.Repository.ServiceDetailsRepository;
+import com.hype.barbershop.Repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,14 +32,20 @@ public class AppointmentService {
     private final ServiceDetailsRepository serviceDetailsRepository;
     private final AppointmentRepository appointmentRepository;
     private final BarberRepository barberRepository;
+    private final BarberScheduleRepository scheduleRepository;
+    private final BarberDayOffRepository dayOffRepository;
 
     public AppointmentService(AppointmentMapper appointmentMapper, AppointmentRepository appointmentRepository,
                               ServiceDetailsRepository serviceDetailsRepository,
-                              BarberRepository barberRepository){
+                              BarberRepository barberRepository,
+                              BarberScheduleRepository scheduleRepository,
+                              BarberDayOffRepository dayOffRepository){
         this.appointmentMapper=appointmentMapper;
         this.appointmentRepository=appointmentRepository;
         this.serviceDetailsRepository=serviceDetailsRepository;
         this.barberRepository=barberRepository;
+        this.scheduleRepository=scheduleRepository;
+        this.dayOffRepository=dayOffRepository;
     }
 
 
@@ -280,61 +280,99 @@ public class AppointmentService {
     // CALENDAR BOOOKING AVAILABLE SLOTS
 
     public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date){
-            LocalTime workStart = LocalTime.of(10, 0); // opens at 10am
-            LocalTime workEnd = LocalTime.of(20, 0); // closes at 20pm
+        // 1. Verificăm dacă este o zi liberă specială (Concediu)
+        if (dayOffRepository.existsByBarberIdAndDate(barberId, date)){
+            return new ArrayList<>(); // Zi liberă -> nicio oră disponibilă
+        }
 
-        // find service duration
+        LocalTime workStart = null;
+        LocalTime workEnd = null;
+
+        // 2. Căutăm programul în baza de date pentru ziua respectivă (Luni, Marți...)
+        Optional<BarberSchedule> schedulOpt =
+                scheduleRepository.findByBarberIdAndDayOfWeek(barberId, date.getDayOfWeek());
+
+        if (schedulOpt.isPresent()){
+            BarberSchedule schedule = schedulOpt.get();
+
+            // Dacă ziua este marcată explicit ca nelucrătoare în setările frizerului
+            if (Boolean.FALSE.equals(schedule.getIsWorkingDay())){
+                return new ArrayList<>();
+            }
+
+            workStart = schedule.getStartTime();
+            workEnd = schedule.getEndTime();
+        }
+
+        // --- FIX CRITIC (FALLBACK) ---
+        // Dacă nu s-a găsit orar (frizerul nu a setat nimic)
+        // SAU dacă orele din bază sunt corupte (null), folosim orarul standard.
+        if (workStart == null || workEnd == null) {
+            // Regula default: Luni Închis
+            if (date.getDayOfWeek() == DayOfWeek.MONDAY){
+                return new ArrayList<>();
+            }
+            // Regula default: Marți-Duminică 10:00 - 20:00
+            workStart = LocalTime.of(10, 0);
+            workEnd = LocalTime.of(20, 0);
+        }
+        // -----------------------------
+
+        // 3. Găsim durata serviciului
         ServiceDetails service = serviceDetailsRepository.findById(serviceId)
-                .orElseThrow(()-> new BarbershopException("Serviciu inexistent"));
+                .orElseThrow(() -> new BarbershopException("Serviciul inexistent"));
 
         int durationMinutes = service.getDuration();
+        int stepMinutes = 15; // Intervalul dintre sloturi
 
-        int stepMinutes = 15;
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-        LocalDateTime startOfDay = date.atStartOfDay(); // 00:00:00
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59.9999
-
-        // collect all barber's appointments for required day
-        // for now we will use a simplified logic that filters in memory(it's not good for large databases)
+        // 4. Luăm programările existente pentru a nu ne suprapune
         List<Appointment> existingAppointment = appointmentRepository.findByBarberIdAndStartTimeBetween(barberId, startOfDay, endOfDay);
 
         List<String> slots = new ArrayList<>();
         LocalTime currentSlot = workStart;
 
-        //algorithm check
-        //how long start hour + durations doesn't exceed closing hour
-        while(!currentSlot.plusMinutes(durationMinutes).isAfter(workEnd)){
-
+        // 5. Algoritmul de generare a sloturilor
+        while (!currentSlot.plusMinutes(durationMinutes).isAfter(workEnd)) {
             LocalTime slotEnd = currentSlot.plusMinutes(durationMinutes);
 
-            // we build "Sliding Window" (every 15 mins to optimize barber program)
             LocalDateTime proposedStart = LocalDateTime.of(date, currentSlot);
             LocalDateTime proposedEnd = LocalDateTime.of(date, slotEnd);
 
             boolean isOccupied = false;
 
-            //verify collision with other existing appointment
-            for (Appointment app : existingAppointment){
-                LocalDateTime appStart = app.getStartTime();
-                // calculate end of existing appointment based on service duration
-                LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
+            // Nu permitem programări în trecut (dacă data selectată e azi)
+            if (date.equals(LocalDate.now()) && currentSlot.isBefore(LocalTime.now())) {
+                isOccupied = true;
+            }
 
-                if (proposedStart.isBefore(appEnd) && proposedEnd.isAfter(appStart)){
-                    isOccupied = true;
-                    break;
+            // Verificăm suprapunerea cu programările existente
+            if (!isOccupied) {
+                for (Appointment app : existingAppointment) {
+                    LocalDateTime appStart = app.getStartTime();
+                    // Calculăm finalul programării existente bazat pe durata serviciului ei
+                    LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
+
+                    // Logică de suprapunere: (StartA < EndB) și (EndA > StartB)
+                    if (proposedStart.isBefore(appEnd) && proposedEnd.isAfter(appStart)) {
+                        isOccupied = true;
+                        break;
+                    }
                 }
             }
 
-            if (!isOccupied){
-                slots.add(currentSlot.toString()); // format type : 10:00, 10:30, 11:00 etc
+            // Dacă e liber, adăugăm în listă
+            if (!isOccupied) {
+                slots.add(currentSlot.toString());
             }
-
-            // skip every 30 mins
 
             currentSlot = currentSlot.plusMinutes(stepMinutes);
         }
 
         return slots;
+
     }
 
     @Transactional(readOnly = true)

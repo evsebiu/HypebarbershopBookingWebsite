@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Programul Meu | Hype Barbershop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
+
+    <style>
+        .schedule-container {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Cardul Zilei */
+        .day-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .day-card.active {
+            border-color: var(--accent-gold);
+            background: linear-gradient(145deg, rgba(20,20,20,1) 0%, rgba(30,30,30,1) 100%);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .day-card.inactive {
+            opacity: 0.6;
+            filter: grayscale(100%);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .day-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Switch Buton ON/OFF */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider-switch:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider-switch { background-color: var(--accent-gold); }
+        input:checked + .slider-switch:before { transform: translateX(24px); }
+
+        /* Afișarea orei text (sus) */
+        .time-display {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .active .time-display {
+            color: var(--accent-gold);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        /* SLIDER STYLE */
+        .slider-container {
+            height: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+        .noUi-target {
+            background: #333;
+            border: none;
+            box-shadow: none;
+            height: 6px;
+        }
+        .noUi-connect {
+            background: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        .noUi-handle {
+            background: #fff;
+            border: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            width: 24px !important;
+            height: 24px !important;
+            right: -12px !important;
+            top: -9px !important;
+            cursor: grab;
+        }
+        .noUi-handle::before, .noUi-handle::after { display: none; }
+
+        .magic-btn {
+            background: linear-gradient(45deg, #1a1a1a, #333);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 2rem;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .magic-btn:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">MY SCHEDULE</div>
+    <nav><ul><li><a th:href="@{/dashboard}">Înapoi</a></li></ul></nav>
+</header>
+
+<main class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Programul <span style="color: var(--accent-gold);">Meu</span></h1>
+    </div>
+
+    <button type="button" class="magic-btn" onclick="copyMondayToAll()">
+        <span>✨</span> Aplică programul de Luni la toată săptămâna
+    </button>
+
+    <form th:action="@{/dashboard/schedule/save}" th:object="${scheduleForm}" method="post" id="scheduleForm">
+        <div class="schedule-container">
+
+            <div th:each="day, itemStat : *{dailySchedules}"
+                 class="day-card"
+                 th:id="'card-' + ${itemStat.index}"
+                 th:classappend="${day.isWorkingDay} ? 'active' : 'inactive'">
+
+                <input type="hidden" th:field="*{dailySchedules[__${itemStat.index}__].dayOfWeek}" />
+
+                <input type="hidden" class="hidden-start"
+                       th:field="*{dailySchedules[__${itemStat.index}__].startTime}"
+                       th:attr="data-start=${#temporals.format(day.startTime, 'HH:mm')}"
+                       th:id="'start-' + ${itemStat.index}" />
+
+                <input type="hidden" class="hidden-end"
+                       th:field="*{dailySchedules[__${itemStat.index}__].endTime}"
+                       th:attr="data-end=${#temporals.format(day.endTime, 'HH:mm')}"
+                       th:id="'end-' + ${itemStat.index}" />
+
+                <div class="card-header">
+                    <div class="day-title">
+                        <span th:text="${day.dayOfWeek}">LUNI</span>
+                    </div>
+
+                    <div class="time-display" th:id="'display-' + ${itemStat.index}">
+                        Liber
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox"
+                               th:field="*{dailySchedules[__${itemStat.index}__].isWorkingDay}"
+                               th:onchange="'toggleDay(' + ${itemStat.index} + ')'"
+                               th:id="'check-' + ${itemStat.index}">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+
+                <div th:id="'slider-' + ${itemStat.index}" class="slider-container"></div>
+            </div>
+
+            <button type="submit" class="btn-cta" style="margin-top: 20px; width: 100%; padding: 15px;">
+                💾 Salvează Modificările
+            </button>
+        </div>
+    </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+<script>
+    const sliders = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.day-card');
+
+        cards.forEach((card, index) => {
+            const sliderDiv = document.getElementById('slider-' + index);
+            const startInput = document.getElementById('start-' + index);
+            const endInput = document.getElementById('end-' + index);
+
+            // --- FIX-UL PENTRU PERSISTENȚĂ ---
+            // Citim valoarea din 'data-start' (pusă de Java) în loc de value
+            const savedStart = startInput.dataset.start;
+            const savedEnd = endInput.dataset.end;
+
+            // Dacă e 00:00 (zi salvată ca liberă), punem vizual 10-20 ca default
+            // Dacă e o oră reală, o folosim pe aia.
+            let startVal = (savedStart && savedStart !== '00:00') ? timeToDecimal(savedStart) : 10;
+            let endVal = (savedEnd && savedEnd !== '00:00') ? timeToDecimal(savedEnd) : 20;
+
+            noUiSlider.create(sliderDiv, {
+                start: [startVal, endVal],
+                connect: true,
+                range: { 'min': 0, 'max': 24 },
+                step: 0.5, // 30 min
+                tooltips: false
+            });
+
+            sliders[index] = sliderDiv.noUiSlider;
+
+            // Când mișcăm slider-ul, actualizăm input-ul ascuns (pentru Save)
+            sliderDiv.noUiSlider.on('update', function (values) {
+                const sVal = parseFloat(values[0]);
+                const eVal = parseFloat(values[1]);
+                startInput.value = decimalToTime(sVal);
+                endInput.value = decimalToTime(eVal);
+                updateDisplay(index, sVal, eVal);
+            });
+
+            // Inițializăm starea vizuală
+            toggleDay(index, true);
+        });
+    });
+
+    function decimalToTime(decimal) {
+        const hrs = Math.floor(decimal);
+        const mins = (decimal - hrs) * 60;
+        const hStr = hrs < 10 ? '0' + hrs : hrs;
+        const mStr = mins === 0 ? '00' : '30';
+        return `${hStr}:${mStr}`; // Returnează mereu HH:mm
+    }
+
+    function timeToDecimal(timeStr) {
+        if(!timeStr) return 10;
+        const [h, m] = timeStr.split(':');
+        return parseInt(h) + (parseInt(m) / 60);
+    }
+
+    function updateDisplay(index, startDec, endDec) {
+        const display = document.getElementById('display-' + index);
+        const check = document.getElementById('check-' + index);
+
+        if(check.checked) {
+            display.innerText = `${decimalToTime(startDec)} - ${decimalToTime(endDec)}`;
+            display.style.color = 'var(--accent-gold)';
+        } else {
+            display.innerText = "Zi Liberă";
+            display.style.color = '#666';
+        }
+    }
+
+    function toggleDay(index, isInit = false) {
+        const checkbox = document.getElementById('check-' + index);
+        const card = document.getElementById('card-' + index);
+        const sliderDiv = document.getElementById('slider-' + index);
+
+        // Dacă e unchecked, dezactivăm slider-ul
+        if (checkbox.checked) {
+            card.classList.remove('inactive');
+            card.classList.add('active');
+            sliderDiv.removeAttribute('disabled');
+        } else {
+            card.classList.remove('active');
+            card.classList.add('inactive');
+            sliderDiv.setAttribute('disabled', true);
+        }
+
+        // Refresh text
+        if (!isInit) {
+            const vals = sliders[index].get();
+            updateDisplay(index, parseFloat(vals[0]), parseFloat(vals[1]));
+        } else {
+             // La init, citim din inputurile ascunse pentru text
+             // Dar slider-ul e deja setat corect din data-start
+             const vals = sliders[index].get();
+             updateDisplay(index, parseFloat(vals[0]), parseFloat(vals[1]));
+        }
+    }
+
+    function copyMondayToAll() {
+        const mondayValues = sliders[0].get();
+        const mondayActive = document.getElementById('check-0').checked;
+
+        for(let i=1; i<5; i++) {
+            sliders[i].set(mondayValues);
+            const cb = document.getElementById('check-' + i);
+            cb.checked = mondayActive;
+            toggleDay(i);
+        }
+
+        const btn = document.querySelector('.magic-btn');
+        const oldText = btn.innerHTML;
+        btn.innerHTML = "✅ Copiat!";
+        setTimeout(() => btn.innerHTML = oldText, 2000);
+    }
+</script>
+
+</body>
+</html>

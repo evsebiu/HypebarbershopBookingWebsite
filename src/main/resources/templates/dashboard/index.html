@@ -28,7 +28,13 @@
 <main class="dashboard-container">
     <div class="dashboard-header">
         <h1>Salut, <span th:text="${currentUser}">User</span>!</h1>
-        <div>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+
+            <a th:href="@{/dashboard/schedule}" class="btn-cta"
+               style="padding: 8px 15px; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                🕒 Programul Meu
+            </a>
             <span th:if="${isAdminView}" class="badge" style="background: var(--accent-red); color: white;">ADMIN</span>
             <span th:unless="${isAdminView}" class="badge" style="border: 1px solid var(--accent-gold);">BARBER</span>
         </div>
