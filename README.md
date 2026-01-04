@@ -3,11 +3,6 @@
 > **A premium Full-Stack booking platform designed for a local barbershop.**
 > *Luxury Dark Design | Robust Architecture | GDPR & Consumer Rights Compliant*
 
-![Java](https://img.shields.io/badge/Java-17%2B-ed8b00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6db33f?style=for-the-badge&logo=springboot&logoColor=white)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-Frontend-005f0f?style=for-the-badge&logo=thymeleaf&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![Security](https://img.shields.io/badge/Spring_Security-RBAC-red?style=for-the-badge&logo=springsecurity&logoColor=white)
 
 ---
 
@@ -65,13 +60,9 @@ Powered by **Spring Security** with Role-Based Access Control (`ROLE_ADMIN` vs `
 
 ---
 
-## 📸 Preview (Screenshots)
 
 | Mobile Booking | Dashboard Calendar | Dynamic Schedule |
-|:---:|:---:|:---:|
-| <img src="src/main/resources/static/images/image.png" width="200" alt="Mobile Booking"> | *Interactive daily agenda* | *Visual slider for work hours* |
 
-*(Note: Images are demonstrative based on project assets)*
 
 ---
 
