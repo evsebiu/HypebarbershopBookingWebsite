@@ -240,6 +240,73 @@
         color: #000 !important;
         box-shadow: 0 0 20px rgba(212, 175, 55, 0.4) !important;
     }
+        /* --- STILURI CONSIMȚĂMÂNT LEGAL --- */
+        .legal-consent-wrapper {
+            margin-top: 25px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start; /* Aliniem sus dacă textul e lung */
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Checkbox Auriu Customizat */
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            min-width: 20px; /* Să nu se strivească pe mobil */
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            margin-top: 2px; /* Ajustare fină vizuală */
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background-color: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        /* Bifa din interior */
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            color: #000;
+            font-size: 14px;
+            left: 3px;
+            top: -1px;
+            font-weight: bold;
+        }
+
+        .checkbox-group label {
+            color: #aaa; /* Text mai stins */
+            font-size: 0.9rem;
+            line-height: 1.4;
+            cursor: pointer;
+            margin-bottom: 0; /* Resetăm marginea default de la label */
+        }
+
+        /* Link-urile (Auriu Luxury) */
+        .legal-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(212, 175, 55, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .legal-link:hover {
+            color: #fff;
+            border-bottom-style: solid;
+        }
     </style>
 </head>
 <body>
