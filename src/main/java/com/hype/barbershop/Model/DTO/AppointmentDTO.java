@@ -1,6 +1,7 @@
 package com.hype.barbershop.Model.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,7 @@ public class AppointmentDTO {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime startTime;
 
+    private AppointmentStatus status;
 
     private String barberName;
     private String serviceName;

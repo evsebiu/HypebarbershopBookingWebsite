@@ -2,6 +2,7 @@ package com.hype.barbershop.Model.Mapper;
 
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +32,7 @@ public class AppointmentMapper {
             dto.setDuration(appointment.getServiceDetails().getDuration());
         }
 
+        dto.setStatus(appointment.getStatus()   );
 
         return dto;
     }
@@ -45,7 +47,13 @@ public class AppointmentMapper {
         appointment.setClientName(dto.getClientName());
         appointment.setStartTime(dto.getStartTime());
         appointment.setAdditionalInfo(dto.getAdditionalInfo());
+        appointment.setStatus(dto.getStatus());
 
+        if (dto.getStatus() !=null){
+            appointment.setStatus(dto.getStatus());
+        } else {
+            appointment.setStatus(AppointmentStatus.PENDING);
+        }
         return appointment;
     }
 }

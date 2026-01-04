@@ -4,6 +4,7 @@ package com.hype.barbershop.Controller;
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.ServiceDetailsService;
 import jakarta.validation.Valid;
@@ -96,6 +97,25 @@ public class AppointmentWebController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/complete/{id}")
+    public String completeAppointment(@PathVariable Long id, Authentication authentication,
+                                      RedirectAttributes redirectAttributes){
+        try{
+            String currentEmail = authentication.getName();
+            boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
+            AppointmentDTO appointment = appointmentService.getAppointmentForEdit(id, currentEmail, isAdmin );
+            appointment.setStatus(AppointmentStatus.COMPLETED);
+
+            appointmentService.updateAppointment(id, appointment, currentEmail, isAdmin);
+
+            redirectAttributes.addFlashAttribute("successMessage", "Programare finalizata.");
+        } catch (BarbershopException e){
+            redirectAttributes.addFlashAttribute("errorMessage", "Eroare: " +  e.getMessage());
+        }
         return "redirect:/dashboard";
     }
 }

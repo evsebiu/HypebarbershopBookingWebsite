@@ -122,6 +122,7 @@
                     <th>Telefon</th>
                     <th>Serviciu</th>
                     <th>Preț</th>
+                    <th>Status</th>   <th>Acțiuni</th>  </tr>
                 </tr>
                 </thead>
                     <tbody>
@@ -131,7 +132,28 @@
                         <td><a th:href="'tel:' + ${app.phoneNumber}" style="color:inherit;" th:text="${app.phoneNumber}">Tel</a></td>
                         <td th:text="${app.serviceName}">Serviciu</td>
                         <td style="color: var(--accent-gold);" th:text="${app.price} + ' RON'">Preț</td>
+
+                        <td>
+                            <span th:if="${app.status != null and app.status.name() == 'PENDING'}" style="color: orange;">⏳ În Așteptare</span>
+                            <span th:if="${app.status != null and app.status.name() == 'CONFIRMED'}" style="color: #4CAF50;">✅ Confirmat</span>
+                            <span th:if="${app.status != null and app.status.name() == 'COMPLETED'}" style="color: var(--accent-gold); font-weight: bold;">💰 Finalizat</span>
+                            <span th:if="${app.status != null and app.status.name() == 'CANCELED'}" style="color: red;">❌ Anulat</span>
+                            <span th:if="${app.status != null and app.status.name() == 'NO_SHOW'}" style="color: gray;">⛔ Nu s-a prezentat</span>
+                            <span th:if="${app.status == null}" style="color: gray;">(Fără Status)</span>
+                        </td>
+
                         <td style="display: flex; gap: 15px; justify-content: center; align-items: center;">
+
+                            <form th:if="${app.status != null and app.status.name() != 'COMPLETED' and app.status.name() != 'CANCELED'}"
+                                  th:action="@{/dashboard/appointment/complete/{id}(id=${app.id})}"
+                                  method="post"
+                                  style="margin: 0;">
+                                <button type="submit" title="Finalizează Programarea"
+                                        style="background: none; border: none; cursor: pointer; font-size: 1.2rem; transition: transform 0.2s;">
+                                    ✅
+                                </button>
+                            </form>
+
                             <a th:href="@{/dashboard/appointment/edit/{id}(id=${app.id})}"
                                class="btn-edit"
                                style="color: var(--accent-gold); text-decoration: none; font-size: 1.2rem;"

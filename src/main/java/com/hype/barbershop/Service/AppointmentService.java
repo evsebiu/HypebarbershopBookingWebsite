@@ -440,6 +440,10 @@ public class AppointmentService {
         existingApp.setServiceDetails(service);
 
 
+        if (appointmentDTO.getStatus() != null) {
+            existingApp.setStatus(appointmentDTO.getStatus());
+        }
+
         Appointment saved = appointmentRepository.save(existingApp);
 
         log.info("Programarea {} a fost actualizata de {}", id, requesterEmail);
