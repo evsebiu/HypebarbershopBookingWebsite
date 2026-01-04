@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protecția Consumatorilor | Hype Barbershop</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+    <style>
+        /* Stiluri specifice pentru paginile legale */
+        .legal-container {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 20px;
+        }
+
+        .legal-card {
+            background: var(--bg-card);
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .legal-title {
+            font-family: var(--font-heading);
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: #fff;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+        }
+
+        p, li {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin-bottom: 1rem;
+        }
+
+        .highlight {
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .anpc-banners {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .anpc-banners img {
+            width: 250px;
+            height: auto;
+            border-radius: 4px;
+            background: white; /* Pentru a se vedea bine pe fundal negru */
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <span class="logo-text">HYPE BARBERSHOP</span>
+    </div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Înapoi la Site</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="legal-container">
+    <div class="legal-card">
+        <h1 class="legal-title">Informații privind Protecția Consumatorilor</h1>
+
+        <h3>1. Identitatea Profesionistului</h3>
+        <p>În conformitate cu prevederile legale, vă informăm datele de identificare ale furnizorului de servicii:</p>
+        <ul>
+            <li><strong>Denumire Comercială:</strong> CVL CONSTRUCTII IASI SRL </li>
+            <li><strong>Sediul Social:</strong> Șoseaua Arcu nr. 8, Iași, România</li>
+            <li><strong>Cod Unic de Înregistrare (CUI):</strong> RO12345678</li>
+            <li><strong>Număr Registrul Comerțului:</strong> J22/123/2024</li>
+            <li><strong>Capital Social:</strong> 200 RON</li>
+            <li><strong>Email:</strong> contact@hypebarbershop.ro</li>
+            <li><strong>Telefon:</strong> +40 700 000 000</li>
+        </ul>
+
+        <h3>2. Caracteristicile Esențiale ale Serviciilor</h3>
+        <p>Hype Barbershop prestează servicii de frizerie, bărbierit și îngrijire personală masculină. Descrierea detaliată a fiecărui serviciu, durata estimată și prețul final (cu toate taxele incluse) sunt afișate clar în pagina de programare înainte de confirmarea acesteia.</p>
+
+        <h3>3. Prețuri și Modalități de Plată</h3>
+        <p>Prețurile afișate pe site sunt exprimate în RON și includ toate taxele aplicabile. Plata serviciilor se efectuează la locație (cash sau card) după prestarea serviciului.</p>
+
+        <h3>4. Politica de Anulare și Neprezentare</h3>
+        <p>Pentru buna desfășurare a activității, aplicăm următoarele reguli:</p>
+        <ul>
+            <li>Anularea unei programări se poate face gratuit cu cel puțin <strong>24 de ore</strong> înainte de ora stabilită.</li>
+            <li>Neprezentarea la programare (No-Show) fără o notificare prealabilă poate duce la restricționarea accesului la viitoarele programări.</li>
+        </ul>
+
+        <h3>5. Dreptul de Retragere</h3>
+        <p>Conform <strong>OUG 34/2014</strong>, art. 16 lit. a), consumatorul <span class="highlight">nu beneficiază de dreptul de retragere</span> (retur) în cazul contractelor de prestări servicii, după prestarea completă a serviciilor, dacă executarea a început cu acordul prealabil expres al consumatorului.</p>
+        <p>Fiind vorba de servicii de îngrijire personală prestate fizic, acestea nu pot fi "returnate" odată ce au fost efectuate. Dacă sunteți nemulțumit de calitatea serviciului, vă rugăm să ne comunicați acest lucru pe loc, în salon, pentru a remedia situația.</p>
+
+        <h3>6. Garanția Legală de Conformitate</h3>
+        <p>Hype Barbershop se obligă să presteze serviciile în conformitate cu standardele profesionale din domeniu. Dacă serviciul prestat nu corespunde descrierii sau așteptărilor rezonabile, aveți dreptul de a solicita remedierea acestuia (retușare) fără costuri suplimentare.</p>
+
+        <h3>7. Reclamații și Litigii</h3>
+        <p>Orice nemulțumire poate fi adresată direct la adresa de email <strong>contact@hypebarbershop.ro</strong>. Vom încerca să soluționăm orice dispută pe cale amiabilă în termen de 30 de zile.</p>
+        <p>În cazul în care soluționarea amiabilă nu este posibilă, vă puteți adresa Autorității Naționale pentru Protecția Consumatorilor (ANPC).</p>
+
+        <div class="anpc-banners">
+            <a href="https://anpc.ro/ce-este-sal/" target="_blank" rel="nofollow">
+                <img src="https://etamade-com.github.io/anpc-sal-sol-logo/anpc-sal.svg" alt="Soluționarea Alternativă a Litigiilor">
+            </a>
+            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="nofollow">
+                <img src="https://etamade-com.github.io/anpc-sal-sol-logo/anpc-sol.svg" alt="Soluționarea Online a Litigiilor">
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer style="text-align: center; padding: 20px; color: #555; font-size: 0.8rem;">
+    &copy; 2026 Hype Barbershop. Toate drepturile rezervate.
+</footer>
+
+</body>
+</html>

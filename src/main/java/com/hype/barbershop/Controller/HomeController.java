@@ -1,7 +1,6 @@
 package com.hype.barbershop.Controller;
 
 import com.hype.barbershop.Model.DTO.BarberDTO;
-import com.hype.barbershop.Model.Enums.Role;
 import com.hype.barbershop.Service.BarberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -9,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/")
@@ -49,4 +47,11 @@ public class HomeController {
     public String cookiesPage() {
         return "legal/cookies";
     }
+
+    @GetMapping("/consumer-rights")
+    public String consumerRights(){
+        return "legal/consumer-rights";
+    }
+
+
 }

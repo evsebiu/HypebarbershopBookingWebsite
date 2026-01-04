@@ -301,7 +301,25 @@
                         Nu există locuri libere în această zi. Te rugăm să alegi altă dată.
                     </p>
                 </div>
+                <div class="legal-consent-wrapper">
 
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="termsConsent" name="termsConsent" required>
+                        <label for="termsConsent">
+                            Sunt de acord cu
+                            <a th:href="@{/terms}" target="_blank" class="legal-link">Termenii și Condițiile</a>
+                            și Politica de Anulare.
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="gdprConsent" name="gdprConsent" required>
+                        <label for="gdprConsent">
+                            Am luat la cunoștință
+                            <a th:href="@{/gdpr}" target="_blank" class="legal-link">Politica de Confidențialitate (GDPR)</a>.
+                        </label>
+                    </div>
+                </div>
                 <button type="submit" class="btn-cta" id="submitBtn" disabled>Confirmă Programarea</button>
             </form>
         </div>
