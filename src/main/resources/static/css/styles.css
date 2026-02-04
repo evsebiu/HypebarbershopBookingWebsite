@@ -669,6 +669,25 @@ label {
 /* --- MOBILE DASHBOARD OPTIMIZATION --- */
 @media (max-width: 768px) {
 
+/* --- FIX HEADER DASHBOARD (Salut + Buton) --- */
+    .dashboard-header {
+        flex-direction: column; /* Le pune unul sub altul */
+        align-items: flex-start; /* Le aliniază la stânga */
+        gap: 1.5rem; /* Spațiu între salut și butoane */
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.8rem; /* Micșorăm puțin textul ca să încapă emailul */
+        word-break: break-word; /* Dacă emailul e foarte lung, îl rupe pe rândul următor */
+        line-height: 1.2;
+    }
+
+    /* Containerul butoanelor (Programul Meu + Badge) */
+    .dashboard-header > div {
+        width: 100%;
+        flex-wrap: wrap; /* Permite butoanelor să cadă pe rânduri noi dacă e nevoie */
+    }
+
     /* 1. Header & Grid */
     header { flex-direction: column; gap: 15px; padding: 15px; }
     nav ul { gap: 15px; width: 100%; justify-content: center; }

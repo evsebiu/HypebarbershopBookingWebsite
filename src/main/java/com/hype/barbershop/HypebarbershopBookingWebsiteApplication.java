@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                         "NextGen Barbershop Management System This full-stack application is a streamlined booking solution" +
                         " engineered with Java Spring Boot, designed to modernize barbershop operations. It features a " +
                         "dual-interface architecture: a public landing page for frictionless client reservations and a secured " +
-                        "administrative dashboard for business management."
+                        "-administrative dashboard for business management."
         )
 )
 
