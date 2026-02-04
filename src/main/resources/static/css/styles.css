@@ -1004,3 +1004,141 @@ label {
         margin-bottom: 5px;
     }
 }
+/* --- LUXURY CARDS REMASTER --- */
+
+.appointments-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Stilul de bază al cardului */
+.appointment-card {
+    position: relative;
+    background: rgba(30, 30, 30, 0.6); /* Fundal semi-transparent */
+    backdrop-filter: blur(12px);         /* Efectul de sticlă mată */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.appointment-card:active {
+    transform: scale(0.98); /* Efect tactil la apăsare */
+}
+
+/* Banda de status din stânga */
+.status-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+}
+/* Culori status */
+.status-indicator.confirmed { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
+.status-indicator.pending { background: #FFC107; }
+.status-indicator.completed { background: var(--accent-gold); }
+.status-indicator.canceled { background: #F44336; }
+
+.card-content {
+    padding: 15px 15px 15px 20px; /* Padding mai mare stânga pt banda colorată */
+}
+
+/* Rândul 1: Ora și Preț */
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.time-badge {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.app-time {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    font-family: var(--font-heading);
+}
+
+.app-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.price-tag {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--accent-gold);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Rândul 2: Client */
+.client-info h4 {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    margin-bottom: 4px;
+}
+
+.service-name {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+/* Rândul 3: Butoane Acțiuni */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-icon {
+    flex: 1; /* Butoanele ocupă spațiu egal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-icon.whatsapp {
+    background: rgba(37, 211, 102, 0.1);
+    color: #25D366;
+    border: 1px solid rgba(37, 211, 102, 0.2);
+}
+
+.btn-icon.call {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon.complete {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.btn-icon.edit {
+    flex: 0 0 40px; /* Buton mic pătrat pentru edit */
+    background: transparent;
+    color: var(--accent-gold);
+    font-size: 1.1rem;
+}
