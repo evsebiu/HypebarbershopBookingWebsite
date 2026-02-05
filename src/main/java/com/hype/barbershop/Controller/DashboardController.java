@@ -108,6 +108,7 @@ public class DashboardController {
     public String moveAppointment(@PathVariable Long id, @RequestParam("newStart") String newStartStr){
         LocalDateTime newStart = LocalDateTime.parse(newStartStr);
 
+        appointmentService.moveAppointment(id, newStart);
         return "OK";
     }
 }

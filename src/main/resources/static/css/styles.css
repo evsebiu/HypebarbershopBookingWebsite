@@ -1713,4 +1713,23 @@ label {
 /* Ascunde ora curentă (linia roșie) dacă deranjează vizual */
 .fc-timegrid-now-indicator-line {
     border-color: var(--accent-gold) !important;
+
+/* --- FULLCALENDAR NUCLEAR DARK FIX --- */
+.fc-theme-standard .fc-scrollgrid { border: 1px solid #333 !important; }
+.fc-col-header-cell { background: #1a1a1a !important; }
+.fc-col-header-cell-cushion {
+    color: var(--accent-gold) !important;
+    text-decoration: none !important;
+    text-transform: capitalize;
+}
+.fc-timegrid-slot-label-cushion { color: #888 !important; }
+.fc-timegrid-axis-cushion { color: #888 !important; }
+
+/* Evenimentele din interiorul grilei */
+.fc-event {
+    border-radius: 4px !important;
+    padding: 2px 5px !important;
+    font-size: 0.75rem !important;
+    border: none !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }

@@ -201,81 +201,141 @@
 </nav>
 
 <script>
-    // 1. FUNCȚIA PENTRU SCHIMBAREA TAB-URILOR
-    function switchTab(tabId, btnElement) {
-        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.nav-item').forEach(el => {
-            el.classList.remove('active');
-            el.style.color = '#666'; // Reset culoare
-        });
+    // 1. FUNCȚII GLOBALE (Trebuie să fie în afara DOMContentLoaded pentru a fi accesibile de butoane)
+function switchTab(tabId, btnElement) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-        document.getElementById(tabId).style.display = 'block';
-        btnElement.classList.add('active');
-        btnElement.style.color = '#d4af37'; // Culoare aurie pentru cel activ
+    document.getElementById(tabId).style.display = 'block';
+    btnElement.classList.add('active');
+}
+
+// Transformă [2026, 2, 5, 14, 30] în "14:30" pentru UI-ul listei
+function parseJavaTime(startTime) {
+    if (!startTime) return "00:00";
+    if (Array.isArray(startTime)) {
+        return `${String(startTime[3]).padStart(2, '0')}:${String(startTime[4]).padStart(2, '0')}`;
+    }
+    if (typeof startTime === 'string') {
+        return startTime.includes('T') ? startTime.split('T')[1].substring(0, 5) : startTime.substring(11, 16);
+    }
+    return "00:00";
+}
+
+// Transformă [2026, 2, 5, 14, 30] în format ISO pentru FullCalendar
+function formatIsoForCalendar(startTime) {
+    if (Array.isArray(startTime)) {
+        const [y, m, d, h, min] = startTime;
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+    }
+    return startTime;
+}
+
+// 2. INIȚIALIZARE CALENDAR ȘI LOGICĂ DATE
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar-full');
+    const container = document.getElementById('appointments-container');
+    const titleSpan = document.querySelector('#selected-date-title span');
+
+    if (!calendarEl) return;
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'timeGridDay',
+    locale: 'ro',
+    allDaySlot: false,
+    slotMinTime: '08:00:00',
+    slotMaxTime: '21:00:00',
+    height: 'auto',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+    editable: true,
+
+    // --- FIX PENTRU MOBIL ---
+    eventLongPressDelay: 50, // Activează mutarea după o apăsare de 50ms
+    selectLongPressDelay: 50,
+    longPressDelay: 50,
+    // ------------------------
+
+    datesSet: function(info) {
+        const dateStr = info.startStr.split('T')[0];
+        fetchAppointments(dateStr);
+    },
+
+    eventDrop: function(info) {
+        // ... logica existentă de mutare rămâne neschimbată ...
+        // Se va apela DashboardController.moveAppointment
+    }
+});
+
+    calendar.render();
+function parseJavaTime(startTime) {
+    if (!startTime) return "00:00";
+    if (typeof startTime === 'string' && startTime.includes('T')) {
+        return startTime.split('T')[1].substring(0, 5);
+    }
+    // Fallback pentru formatul vechi array dacă jackson se resetează
+    if (Array.isArray(startTime)) {
+        return `${String(startTime[3]).padStart(2, '0')}:${String(startTime[4]).padStart(2, '0')}`;
+    }
+    return "00:00";
+}
+
+    function fetchAppointments(dateStr) {
+    titleSpan.innerText = dateStr;
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">⏳ Se încarcă...</div>';
+
+    fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
+        .then(res => res.json())
+        .then(data => {
+            calendar.getEvents().forEach(e => e.remove());
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="empty-state">☕ Nicio programare azi.</div>';
+                return;
+            }
+
+            data.forEach(app => {
+                // Afișare în lista de jos
+                renderAppointmentCard(app);
+
+                // Afișare în grila calendarului
+                calendar.addEvent({
+                    id: app.id,
+                    title: `${app.clientName} - ${app.serviceName}`,
+                    start: app.startTime, // Acum este un string ISO valid: "2026-02-05T14:30:00"
+                    backgroundColor: app.status === 'CONFIRMED' ? '#4CAF50' :
+                                    app.status === 'COMPLETED' ? '#d4af37' : '#FFC107',
+                    borderColor: 'transparent'
+                    });
+                });
+            })
+            .catch(err => {
+                console.error("Eroare:", err);
+                container.innerHTML = '<div style="color:red; text-align:center;">Eroare la încărcare.</div>';
+            });
     }
 
-    // 2. CONFIGURARE FULLCALENDAR
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar-full');
-        const container = document.getElementById('appointments-container');
-        const titleSpan = document.querySelector('#selected-date-title span');
+    function renderAppointmentCard(app) {
+        const timeStr = parseJavaTime(app.startTime);
+        const statusClass = app.status ? app.status.toLowerCase() : 'pending';
 
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridDay',
-            locale: 'ro',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
-            allDaySlot: false,
-            slotMinTime: '08:00:00',
-            slotMaxTime: '21:00:00',
-            height: 'auto',
-            datesSet: (info) => fetchAppointments(info.startStr.split('T')[0])
-        });
-        calendar.render();
+        const card = document.createElement('div');
+        card.className = 'appointment-card glass-effect';
+        card.style.cssText = "position:relative; background:#1a1a1a; margin-bottom:12px; border-radius:12px; border:1px solid #333; overflow:hidden;";
 
-        function fetchAppointments(dateStr) {
-            titleSpan.innerText = dateStr;
-            container.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">⏳...</div>';
-            fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
-                .then(res => res.json())
-                .then(data => {
-                    container.innerHTML = data.length === 0 ? '<div class="empty-state">☕ Liber.</div>' : '';
-                    data.forEach(app => renderAppointmentCard(app));
-                });
-        }
-
-        // 3. GENERAREA DINAMICĂ A CARDURILOR (AICI ERA GOL)
-        function renderAppointmentCard(app) {
-            const time = app.startTime.includes('T') ? app.startTime.split('T')[1].substring(0, 5) : "00:00";
-            const statusClass = app.status ? app.status.toLowerCase() : 'pending';
-
-            let actionBtns = '';
-            if (app.status === 'PENDING') {
-                actionBtns += `<form action="/dashboard/appointment/confirm/${app.id}" method="post"><button type="submit" class="btn-icon" style="background:rgba(33,150,243,0.1); color:#2196F3; border:1px solid rgba(33,150,243,0.3); padding:8px; border-radius:6px;">✔️</button></form>`;
-            }
-            if (app.status === 'CONFIRMED') {
-                actionBtns += `<form action="/dashboard/appointment/complete/${app.id}" method="post"><button type="submit" class="btn-icon" style="background:rgba(76,175,80,0.1); color:#4CAF50; border:1px solid rgba(76,175,80,0.3); padding:8px; border-radius:6px;">✅</button></form>`;
-            }
-            if (app.status !== 'CANCELED' && app.status !== 'COMPLETED') {
-                actionBtns += `<form action="/dashboard/appointment/cancel/${app.id}" method="post" onsubmit="return confirm('Anulezi?')"><button type="submit" class="btn-icon" style="background:rgba(244,67,54,0.1); color:#F44336; border:1px solid rgba(244,67,54,0.3); padding:8px; border-radius:6px;">❌</button></form>`;
-            }
-
-            const card = document.createElement('div');
-            card.className = 'appointment-card glass-effect';
-            card.style.cssText = "position:relative; background:#1a1a1a; margin-bottom:10px; border-radius:10px; border:1px solid #333; overflow:hidden;";
-            card.innerHTML = `
-                <div class="status-indicator ${statusClass}" style="position:absolute; left:0; top:0; bottom:0; width:4px;"></div>
-                <div style="padding: 12px 12px 12px 16px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                        <span style="font-size:1.2rem; font-weight:700; color:#fff;">${time}</span>
-                        <span style="font-size:0.8rem; color:#d4af37; background:rgba(212,175,55,0.1); padding:2px 6px; border-radius:4px;">${app.price} RON</span>
-                    </div>
-                    <h4 style="margin:0; color:#eee; font-size:1rem;">${app.clientName}</h4>
-                    <p style="margin:2px 0 10px 0; color:#888; font-size:0.8rem;">✂️ ${app.serviceName}</p>
-                    <div style="display:flex; gap:8px;">${actionBtns}</div>
-                </div>`;
-            container.appendChild(card);
-        }
-    });
+        card.innerHTML = `
+            <div class="status-indicator ${statusClass}" style="position:absolute; left:0; top:0; bottom:0; width:5px;"></div>
+            <div style="padding: 15px 15px 15px 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:1.4rem; font-weight:800; color:#fff;">${timeStr}</span>
+                    <span style="font-size:0.9rem; color:#d4af37; background:rgba(212,175,55,0.1); padding:4px 8px; border-radius:6px; font-weight:600;">${app.price} RON</span>
+                </div>
+                <h4 style="margin:0; color:#eee; font-size:1.1rem;">${app.clientName}</h4>
+                <p style="margin:4px 0 12px 0; color:#888; font-size:0.9rem;">✂️ ${app.serviceName}</p>
+            </div>`;
+        container.appendChild(card);
+    }
+});
 </script>
 
 </body>

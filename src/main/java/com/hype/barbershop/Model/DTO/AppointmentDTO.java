@@ -30,7 +30,7 @@ public class AppointmentDTO {
 
     // @Future(message = "Programarea trebuie sa fie in viitor.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startTime;
 
     private AppointmentStatus status;
