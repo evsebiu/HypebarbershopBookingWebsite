@@ -11,6 +11,7 @@ import java.util.List;
 public interface ServiceDetailsRepository extends JpaRepository<ServiceDetails, Long> {
 
 
+    List<ServiceDetails> findByBarberIdAndIsActiveTrue(Long barberId);
     List<ServiceDetails> findByBarberId(Long barberId);
     List<ServiceDetails> findByServiceNameContainingIgnoreCase(String serviceName);
     List<ServiceDetails> findByPrice(Double price);

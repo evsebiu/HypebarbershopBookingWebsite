@@ -666,8 +666,31 @@ label {
     font-size: 0.8rem;
 }
 
+
+
+
 /* --- MOBILE DASHBOARD OPTIMIZATION --- */
 @media (max-width: 768px) {
+
+/* Header mai compact pe mobil */
+    .logo-text {
+        font-size: 1.2rem; /* Mai mic decât 1.5rem */
+    }
+
+    header {
+        padding: 10px 15px; /* Mai puțin padding */
+        gap: 5px;
+    }
+
+    nav ul {
+        margin-top: 5px;
+        gap: 15px;
+    }
+
+    nav a {
+        font-size: 0.75rem; /* Link-uri mai discrete */
+        opacity: 0.8;
+    }
 
 /* --- FIX HEADER DASHBOARD (Salut + Buton) --- */
     .dashboard-header {
@@ -1026,6 +1049,67 @@ label {
 
 .appointment-card:active {
     transform: scale(0.98); /* Efect tactil la apăsare */
+}
+
+/* --- SERVICES CARDS REMASTER --- */
+
+.services-grid-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.service-card-modern {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 15px;
+    transition: transform 0.2s;
+}
+
+.service-info-left h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.duration-badge {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    display: block;
+}
+
+.service-info-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.price-badge-large {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    font-family: var(--font-heading);
+}
+
+.btn-icon.delete-icon {
+    background: rgba(138, 28, 28, 0.1); /* Roșu stins */
+    color: #ff6b6b;
+    border: 1px solid rgba(138, 28, 28, 0.3);
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Banda de status din stânga */

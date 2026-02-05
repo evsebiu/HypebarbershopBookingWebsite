@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
-    <link rel="stylesheet" th:href="@{/css/styles.css?v=3}">
+    <link rel="stylesheet" th:href="@{/css/styles.css?v=101}">
     <link rel="manifest" th:href="@{/manifest.json}">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -77,33 +77,30 @@
 
             <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
                 <div style="flex: 2; min-width: 300px;">
-                    <div class="table-responsive">
-                        <table class="services-list"> <thead>
-                        <tr>
-                            <th>Denumire</th>
-                            <th>Preț (RON)</th>
-                            <th>Durată (min)</th>
-                            <th>Acțiune</th>
-                        </tr>
-                        </thead>
-                            <tbody>
-                            <tr th:each="service : ${myServices}">
-                                <td th:text="${service.serviceName}" style="color: white; font-weight:bold;">Tuns</td>
-                                <td th:text="${service.price}" style="color: var(--accent-gold);">50</td>
-                                <td th:text="${service.duration} + ' min'">30 min</td>
-                                <td>
-                                    <form th:action="@{/dashboard/services/delete/{id}(id=${service.id})}" method="post">
-                                        <button type="submit" class="btn-delete" style="padding: 5px 10px; font-size: 0.8rem;">Șterge</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(myServices)}">
-                                <td colspan="4" style="text-align: center; color: var(--text-muted);">Nu ai niciun serviciu configurat.</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="services-grid-modern">
+
+                        <div th:if="${#lists.isEmpty(myServices)}" class="empty-state">
+                            Nu ai definit niciun serviciu.
+                        </div>
+
+                        <div th:each="service : ${myServices}" class="service-card-modern glass-effect">
+                            <div class="service-info-left">
+                                <h4 th:text="${service.serviceName}">Tuns Clasic</h4>
+                                <span class="duration-badge">
+                ⏱️ <span th:text="${service.duration}">30</span> min
+            </span>
+                            </div>
+
+                            <div class="service-info-right">
+                                <span class="price-badge-large" th:text="${service.price} + ' RON'">50 RON</span>
+
+                                <form th:action="@{/dashboard/services/delete/{id}(id=${service.id})}" method="post"
+                                      onsubmit="return confirm('Sigur ștergi acest serviciu?');">
+                                    <button type="submit" class="btn-icon delete-icon">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
                 <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
                     <h4 style="color: var(--accent-gold); margin-bottom: 1rem;">Adaugă Serviciu Nou</h4>
@@ -215,101 +212,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const container = document.getElementById('appointments-container');
-        const titleSpan = document.querySelector('#selected-date-title span');
-
-        flatpickr("#dashboard-calendar", {
-            inline: true,
-            dateFormat: "Y-m-d",
-            defaultDate: "today",
-            locale: { firstDayOfWeek: 1 },
-            onChange: function(selectedDates, dateStr) {
-                fetchAppointments(dateStr);
-            }
-        });
-
-        const today = new Date().toISOString().split('T')[0];
-        fetchAppointments(today);
-
-        function fetchAppointments(dateStr) {
-            // 1. Formatare dată pentru titlu (dd/mm/yyyy)
-            const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                titleSpan.innerText = `${parts[2]}/${parts[1]}/${parts[0]}`;
-            } else {
-                titleSpan.innerText = dateStr;
-            }
-
-            container.innerHTML = '<div class="empty-state">Se încarcă...</div>';
-
-            fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network error");
-                    return response.json();
-                })
-                .then(data => {
-                    container.innerHTML = '';
-
-                    if (data.length === 0) {
-                        container.innerHTML = `<div class="empty-state"><span style="font-size: 2rem; display:block;">☕</span>Nu ai programări azi.</div>`;
-                        return;
-                    }
-
-                    data.forEach(app => {
-                        // Extragem ora
-                        let time = "00:00";
-                        if (app.startTime.includes('T')) {
-                            time = app.startTime.split('T')[1].substring(0, 5);
-                        } else {
-                            time = app.startTime.split(' ')[1];
-                        }
-
-                        const card = document.createElement('div');
-                        card.className = 'app-card';
-
-                        // --- MODIFICARE AICI: Am adăugat butonul de Editare în partea dreaptă ---
-                        card.innerHTML = `
-                            <div class="app-time">${time}</div>
-
-                            <div class="app-details">
-                                <h4>${app.clientName}</h4>
-                                <p>📱 <a href="tel:${app.phoneNumber}" style="color:inherit;">${app.phoneNumber}</a></p>
-                                <p>✂️ ${app.serviceName}</p>
-                            </div>
-
-                            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                                <div class="app-price">${app.price} RON</div>
-
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <a href="/dashboard/appointment/edit/${app.id}"
-                                       title="Modifică"
-                                       style="color: var(--accent-gold); text-decoration: none; font-size: 1.2rem;">
-                                       ✏️
-                                    </a>
-
-                                    <form action="/dashboard/appointment/delete/${app.id}" method="post"
-                                          onsubmit="return confirm('Sigur anulezi programarea lui ${app.clientName}?');"
-                                          style="margin:0;">
-                                        <button type="submit" title="Anulează"
-                                                style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">
-                                            ❌
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-                })
-                .catch(err => {
-                    console.error(err);
-                    container.innerHTML = '<div class="empty-state" style="color:red;">Eroare la încărcarea datelor.</div>';
-                });
-        }
-    });
-</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('appointments-container');

@@ -47,7 +47,7 @@ public class DashboardController {
         // Presupunând că ai acces la BarberRepository sau ServiceService poate găsi după email:
         BarberDTO currentBarber = barberService.getByEmail(email).orElse(null);
         if(currentBarber != null) {
-            model.addAttribute("myServices", serviceDetailsService.getByBarberId(currentBarber.getId()));
+            model.addAttribute("myServices", serviceDetailsService.getAllActiveServices(currentBarber.getId()));
         }
 
 

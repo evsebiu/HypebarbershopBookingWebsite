@@ -26,5 +26,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "AND FUNCTION('TIMESTAMPADD', MINUTE, a.serviceDetails.duration, a.startTime) > :newStart")
     boolean existsOverlappingAppointment(Long barberId, LocalDateTime newStart, LocalDateTime newEnd, Long excludeId);
 
+    List<Appointment> findByBarberIdAndStartTimeAfterOrderByStartTime(Long barberId, LocalDateTime now);
+
 
 }

@@ -32,6 +32,9 @@ public class ServiceDetails {
     @Column(name = "duration")
     private Integer duration;
 
+    @Column(columnDefinition = "boolean default true")
+    private boolean isActive = true; // it's active by default
+
     @OneToMany(mappedBy = "serviceDetails")
     private List<Appointment> appointments;
 

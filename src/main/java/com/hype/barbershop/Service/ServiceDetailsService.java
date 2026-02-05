@@ -38,6 +38,10 @@ public class ServiceDetailsService {
                 .toList();
     }
 
+    public List<ServiceDetails> getAllActiveServices(Long barberId){
+        return serviceDetailsRepo.findByBarberIdAndIsActiveTrue(barberId);
+    }
+
     @Transactional(readOnly = true)
     public List<ServiceDetailsDTO> getAllServices() {
         return serviceDetailsRepo.findAll()
@@ -230,8 +234,10 @@ public class ServiceDetailsService {
             throw new IllegalBarbershopArgument("Nu ai permisiunea să ștergi acest serviciu.");
         }
 
+        service.setActive(false);
+        serviceDetailsRepo.save(service);
         // 3. Ștergem
-        serviceDetailsRepo.delete(service);
+        // serviceDetailsRepo.delete(service);
         log.info("Serviciu șters cu succes: {}", serviceId);
     }
 

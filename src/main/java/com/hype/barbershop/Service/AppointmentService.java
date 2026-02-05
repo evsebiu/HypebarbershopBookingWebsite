@@ -381,7 +381,10 @@ public class AppointmentService {
                 .orElseThrow(()-> new BarbershopException("Frizerul negasit."));
 
 
-        return appointmentRepository.findByBarberId(barber.getId())
+        return appointmentRepository.findByBarberIdAndStartTimeAfterOrderByStartTime(
+                barber.getId(),
+                LocalDateTime.now()
+        )
                 .stream()
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
