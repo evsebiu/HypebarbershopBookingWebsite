@@ -1226,3 +1226,491 @@ label {
     color: var(--accent-gold);
     font-size: 1.1rem;
 }
+/* --- APP STYLE NAVIGATION REMASTER --- */
+
+/* Header Compact */
+.dashboard-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: transparent;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 20px;
+}
+
+/* Titluri de secțiune mai discrete */
+.section-divider-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 20px 0 10px 5px;
+    letter-spacing: 1px;
+}
+
+/* BOTTOM NAVIGATION BAR */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: rgba(15, 15, 15, 0.9); /* Aproape negru */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(212, 175, 55, 0.2); /* Linie fină aurie sus */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* Pt iPhone X+ */
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    gap: 5px;
+    transition: all 0.3s ease;
+    width: 100%;
+    height: 100%;
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+    filter: grayscale(100%);
+    transition: all 0.3s;
+}
+
+/* Starea Activă (Când ești pe tab-ul respectiv) */
+.nav-item.active {
+    color: var(--accent-gold);
+}
+
+.nav-item.active .nav-icon {
+    filter: grayscale(0%);
+    transform: translateY(-3px);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* Ascundem tab-urile inactive */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* --- PREMIUM LOGOUT BUTTON --- */
+.btn-logout-premium {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    background: rgba(255, 255, 255, 0.05); /* Aproape transparent */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Margine fină albă */
+    color: rgba(255, 255, 255, 0.7); /* Text gri deschis */
+
+    border-radius: 12px; /* Colțuri ușor rotunjite, mai modern decât cerc perfect */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    text-decoration: none;
+    backdrop-filter: blur(4px);
+}
+
+.btn-logout-premium:hover {
+    background: rgba(220, 53, 69, 0.2); /* Roșu stins la hover */
+    border-color: #dc3545; /* Contur Roșu Aprins */
+    color: #fff; /* Simbolul devine alb pur */
+    transform: translateY(-2px); /* Se ridică puțin */
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3); /* Strălucire roșie */
+}
+
+.btn-logout-premium:active {
+    transform: scale(0.95); /* Efect de apăsare */
+}
+
+/* --- FIX FINAL PENTRU LAYOUT DESTABILIZAT --- */
+
+@media (max-width: 768px) {
+
+    /* 1. Resetăm containerul principal să nu mai fie Grid */
+    .dashboard-container {
+        display: block !important; /* Anulează grid-ul vechi */
+        width: 100% !important;
+        padding: 10px 15px !important;
+        margin: 0 !important;
+        overflow-x: hidden; /* Previne scroll orizontal */
+    }
+
+    /* 2. Reparăm Header-ul Compact (Salut + Buton) */
+    .dashboard-header-compact {
+        display: flex !important;
+        flex-direction: row !important; /* Le forțăm pe orizontală */
+        justify-content: space-between !important; /* Unul stânga, unul dreapta */
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Textul de salut să stea cuminte în stânga */
+    .user-welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* 3. Forțăm Cardurile să stea unul sub altul */
+    .tab-content {
+        display: block; /* Asigură că tab-ul ocupă tot spațiul */
+        width: 100%;
+    }
+
+    /* Ascundem explicit tab-urile inactive (fix vizual) */
+    .tab-content[style*="display: none"] {
+        display: none !important;
+    }
+
+    .dashboard-card {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+        display: block !important; /* Nu flex, nu grid */
+    }
+
+    /* 4. Calendarul să nu mai plutească ciudat */
+    .calendar-wrapper {
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+    }
+
+    .flatpickr-calendar {
+        margin: 0 auto !important; /* Centrat */
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+
+    /* 5. Header-ul vechi (dacă a rămas) îl ascundem ca să nu încurce */
+    header {
+        display: none !important;
+    }
+
+    /* 6. Butoanele de acțiune din carduri */
+    .card-actions {
+        display: flex !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    /* 7. Spațiu gol jos pentru a nu fi acoperit de meniu */
+    .spacer-bottom {
+        height: 100px !important;
+        display: block !important;
+    }
+}
+/* --- FULLCALENDAR DARK THEME --- */
+/* --- FIX FINAL MOBIL (Paste la final de styles.css) --- */
+
+@media (max-width: 768px) {
+
+    /* 1. STRUCTURA PRINCIPALĂ - VERTICALĂ */
+    body {
+        overflow-x: hidden;
+    }
+
+    .dashboard-container {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        padding: 15px !important;
+        margin: 0 auto !important;
+        max-width: 100vw !important;
+    }
+
+    /* 2. HEADER COMPACT */
+    .dashboard-header-compact {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+
+    .user-welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* 3. CARDURI ȘI TABURI STIVUITE */
+    .tab-content {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .tab-content[style*="display: none"] {
+        display: none !important;
+    }
+
+    .dashboard-card, .appointment-card {
+        width: 100% !important;
+        display: block !important;
+        margin-bottom: 15px !important;
+    }
+
+    .appointments-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    /* 4. CALENDAR FIX */
+    .calendar-wrapper {
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    #calendar {
+        width: 100% !important;
+        min-height: 500px !important;
+    }
+
+    /* Header-ul FullCalendar să nu fie strivit */
+    .fc-header-toolbar {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* 5. SPAȚIU JOS PENTRU BARA DE NAVIGARE */
+    .spacer-bottom {
+        display: block !important;
+        height: 100px !important;
+        width: 100%;
+    }
+}
+
+/* --- MOBILE LAYOUT HARD RESET (FIX FINAL) --- */
+
+@media (max-width: 768px) {
+
+    /* 1. RESETĂM CONTAINERUL PRINCIPAL */
+    body {
+        overflow-x: hidden; /* Oprește scroll-ul stânga-dreapta */
+    }
+
+    .dashboard-container {
+        display: flex !important;
+        flex-direction: column !important; /* Totul unul sub altul */
+        width: 100% !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. OPRIM ORICE GRID VECHI */
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 20px !important;
+    }
+
+    /* 3. HEADER-UL NOU (Compact) */
+    .dashboard-header-compact {
+        display: flex !important;
+        flex-direction: row !important; /* Rămâne orizontal: Salut stânga, Buton dreapta */
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 25px !important;
+    }
+
+    /* Ascundem Header-ul vechi (bara de sus a site-ului) ca să avem loc */
+    body > header {
+        display: none !important;
+    }
+
+    /* 4. CARDURILE ȘI TABURILE */
+    .tab-content {
+        width: 100% !important;
+        display: block !important;
+    }
+
+    .dashboard-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 20px 0 !important;
+        display: block !important;
+    }
+
+    /* 5. CALENDARUL (Să nu iasă din ecran și să nu plutească) */
+    .calendar-wrapper {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin-bottom: 20px !important;
+    }
+
+    .flatpickr-calendar {
+        width: 100% !important;
+        max-width: 320px !important; /* Lățimea standard de mobil */
+        margin: 0 auto !important;
+        position: static !important; /* CRITIC: Să nu plutească peste text */
+        box-shadow: none !important;
+        background: transparent !important;
+        transform: none !important; /* Resetează orice poziționare calculată */
+    }
+
+    /* 6. LISTA DE PROGRAMĂRI */
+    .appointments-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        width: 100% !important;
+    }
+
+    .appointment-card {
+        width: 100% !important;
+    }
+
+    /* 7. ASCUNDEM TABURILE INACTIVE */
+    /* Această regulă se asigură că tab-urile ascunse (display:none) rămân ascunse */
+    .tab-content[style*="display: none"] {
+        display: none !important;
+    }
+
+    /* 8. SPAȚIU JOS PENTRU MENIU */
+    .dashboard-container::after {
+        content: "";
+        display: block;
+        height: 80px; /* Loc pentru bara de jos */
+    }
+}
+/* --- FIX VIZIBILITATE REZULTATE CALENDAR --- */
+
+@media (max-width: 768px) {
+    /* 1. Punem Calendarul sus și Rezultatele jos */
+    .calendar-section-wrapper {
+        display: flex !important;
+        flex-direction: column !important; /* CRITIC: Unul sub altul */
+        gap: 20px !important;
+    }
+
+    /* 2. Ne asigurăm că zona de rezultate e vizibilă */
+    .results-wrapper {
+        width: 100% !important;
+        display: block !important;
+        min-height: 100px; /* Ca să se vadă și gol */
+        background: rgba(255, 255, 255, 0.02);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 3. Stilizăm titlul datei selectate */
+    #selected-date-title {
+        text-align: center;
+        margin-top: 0;
+        color: var(--accent-gold);
+    }
+}
+/* --- FIX FINAL: CALENDAR & BUTOANE --- */
+
+/* 1. REPARĂM CALENDARUL INVIZIBIL */
+.flatpickr-calendar {
+    background: #1a1a1a !important; /* Fundal gri-închis solid, nu transparent */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+    border: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+
+.flatpickr-day {
+    color: #e0e0e0 !important; /* Text alb-murdar vizibil */
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: #555 !important; /* Zilele din alte luni mai șterse */
+}
+
+/* 2. REPARĂM ALINIEREA BUTOANELOR DIN CARDURI */
+.card-actions {
+    display: flex !important;
+    gap: 10px !important;
+    width: 100% !important;
+    align-items: stretch !important; /* Toate la aceeași înălțime */
+}
+
+/* Formularele devin containere flexibile invizibile */
+.card-actions form {
+    flex: 1 !important; /* Ocupă spațiu egal cu celelalte butoane */
+    display: flex !important;
+    margin: 0 !important;
+}
+
+/* Butoanele din interiorul formularelor ocupă tot spațiul */
+.card-actions form button {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+}
+
+/* Asigurăm că și link-urile (WhatsApp/Sună) se comportă la fel */
+.card-actions .btn-icon {
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 40px !important; /* Înălțime minimă pentru atingere ușoară */
+}
+
+/* Stilizare mai frumoasă pentru butoanele noi */
+.btn-icon {
+    font-size: 1.2rem !important; /* Emoji-uri mai mari */
+    transition: transform 0.2s !important;
+}
+
+.btn-icon:active {
+    transform: scale(0.95) !important; /* Efect de apăsare */
+}
+/* --- FULLCALENDAR DARK MODE REPAIR --- */
+.fc-col-header-cell {
+    background: #1a1a1a !important; /* Face bara 'joi' neagră */
+    color: var(--accent-gold) !important;
+}
+
+.fc-timegrid-slot {
+    background: #0a0a0a !important;
+    border-color: #222 !important;
+}
+
+.fc-timegrid-slot-label {
+    color: #888 !important;
+    font-size: 0.8rem !important;
+}
+
+/* Ascunde ora curentă (linia roșie) dacă deranjează vizual */
+.fc-timegrid-now-indicator-line {
+    border-color: var(--accent-gold) !important;
+}

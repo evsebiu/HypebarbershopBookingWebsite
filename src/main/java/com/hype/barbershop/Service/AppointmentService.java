@@ -5,6 +5,7 @@ import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.Entity.*;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Model.Mapper.AppointmentMapper;
 import com.hype.barbershop.Repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -492,4 +493,60 @@ public class AppointmentService {
         return appointmentMapper.toDTO(saved);
     }
 
+    @Transactional
+    public void markAppointmentAsCompleted(Long id){
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+
+        // set status to completed
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+
+        appointmentRepository.save(appointment);
+        log.info("Programarea {} a fost marcata ca FINALIZATA ", id);
+    }
+
+    @Transactional
+    public void markAppointmentAsCancelled(Long id){
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+
+        appointment.setStatus(AppointmentStatus.CANCELED);
+
+        appointmentRepository.save(appointment);
+
+        log.info("Programarea {} a fost marcata ca ANULATA", id);
+    }
+
+    @Transactional
+    public void markAppointmentAsConfirmed(Long id){
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopException("Programarea nu a fost gasita"));
+
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        appointmentRepository.save(appointment);
+
+        log.info("Programarea {} a fost marcata ca CONFIRMATA", id);
+    }
+
+
+    @Transactional
+    public void moveAppointment(Long id, LocalDateTime newStart){
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+
+        ServiceDetails service  = appointment.getServiceDetails();
+        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+
+        checkForOverlaps(
+                appointmentRepository.findByBarberId(appointment.getBarber().getId()),
+                newStart,
+                newEnd,
+                id
+        );
+
+        appointment.setStartTime(newStart);
+        appointmentRepository.save(appointment);
+        log.info("Programarea {} a fost mutata la {}", id, newStart);
+    }
 }

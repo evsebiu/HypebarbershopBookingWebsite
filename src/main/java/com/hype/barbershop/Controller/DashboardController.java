@@ -12,13 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -77,5 +75,39 @@ public class DashboardController {
         // use method created in apppointment service class
 
         return appointmentService.getAppointmentsForBarberByDate(email, date);
+    }
+
+    @PostMapping("/appointment/complete/{id}")
+    public String completeAppointment(@PathVariable Long id){
+
+        // call service method
+        appointmentService.markAppointmentAsCompleted(id);
+
+        //reload dashboard
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/appointment/cancel/{id}")
+    public String cancelAppointment(@PathVariable Long id){
+
+        appointmentService.markAppointmentAsCancelled(id);
+
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/appointment/confirm/{id}")
+    public String confirmAppointment(@PathVariable Long id){
+
+        appointmentService.markAppointmentAsConfirmed(id);
+
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/appointment/move/{id}")
+    @ResponseBody
+    public String moveAppointment(@PathVariable Long id, @RequestParam("newStart") String newStartStr){
+        LocalDateTime newStart = LocalDateTime.parse(newStartStr);
+
+        return "OK";
     }
 }

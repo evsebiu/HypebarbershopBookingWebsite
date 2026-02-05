@@ -100,7 +100,7 @@ public class AppointmentWebController {
         return "redirect:/dashboard";
     }
 
-    @PostMapping("/complete/{id}")
+    /*@PostMapping("/complete/{id}")
     public String completeAppointment(@PathVariable Long id, Authentication authentication,
                                       RedirectAttributes redirectAttributes){
         try{
@@ -118,4 +118,6 @@ public class AppointmentWebController {
         }
         return "redirect:/dashboard";
     }
+
+     */
 }

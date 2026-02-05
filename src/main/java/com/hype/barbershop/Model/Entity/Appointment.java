@@ -38,7 +38,7 @@ public class Appointment {
     @Column(name = "client_email", nullable = false)
     private String clientEmail;
 
-    @Future(message = "Programarea trebuie sa fie in viitor.")
+
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     @Column(name = "start_time", nullable = false)

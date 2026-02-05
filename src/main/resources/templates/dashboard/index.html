@@ -2,204 +2,172 @@
 <html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard | HypeBarbershop</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css?v=125}">
 
-    <link rel="stylesheet" th:href="@{/css/styles.css?v=101}">
     <link rel="manifest" th:href="@{/manifest.json}">
-
+    <meta name="theme-color" content="#0a0a0a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HypeBarber">
-    <link rel="apple-touch-icon" th:href="@{/icons/icon-192x192.png}">
-    <meta name="theme-color" content="#0a0a0a">
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
 </head>
+
 <body>
 
-<header>
-    <div class="logo-container">
-        <span class="logo-text">MY DASHBOARD</span>
+<div class="dashboard-header-compact" style="padding: 20px; display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; position: sticky; top: 0; z-index: 50;">
+    <div class="user-welcome">
+        <span class="text-muted" style="font-size: 0.8rem;">Salut,</span>
+        <h2 th:text="${currentUser}" style="margin:0; font-size: 1.1rem; color: #fff; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</h2>
     </div>
-    <nav>
-        <ul>
-            <li><a th:href="@{/}">Înapoi la Site</a></li>
-            <li><a th:href="@{/logout}">Deconectare</a></li>
-        </ul>
-    </nav>
-</header>
 
-<main class="dashboard-container">
-    <div class="dashboard-header">
-        <h1>Salut, <span th:text="${currentUser}">User</span>!</h1>
+    <div style="display: flex; gap: 10px;">
+        <a th:href="@{/dashboard/schedule}" class="btn-icon" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.3); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; text-decoration: none;">
+            🕒
+        </a>
+        <a th:href="@{/logout}" class="btn-icon" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; text-decoration: none;">
+            ⏻
+        </a>
+    </div>
+</div>
 
-        <div class="display: flex; align-items: center; gap: 15px;">
+<main class="dashboard-container" style="padding: 0 15px;">
 
-            <a th:href="@{/dashboard/schedule}" class="btn-cta"
-               style="padding: 8px 15px; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 5px;">
-                🕒 Programul Meu
-            </a>
-            <span th:if="${isAdminView}" class="badge" style="background: var(--accent-red); color: white;">ADMIN</span>
-            <span th:unless="${isAdminView}" class="badge" style="border: 1px solid var(--accent-gold);">BARBER</span>
+    <div id="tab-appointments" class="tab-content active">
+        <div class="dashboard-card glass-effect" style="padding: 10px; border-radius: 15px; margin-bottom: 20px;">
+            <div id='calendar-full'></div>
         </div>
-    </div>
 
-    <div class="dashboard-card" style="margin-bottom: 3rem;">
-        <h3 class="dashboard-card-title">Calendar Programări</h3>
-        <p style="color: var(--text-muted);">Selectează o dată pentru a vedea programările din ziua respectivă.</p>
+        <h4 id="selected-date-title" style="text-align: center; margin: 15px 0; color: #d4af37; font-size: 0.9rem;">
+            Detalii zi: <span></span>
+        </h4>
+        <div id="appointments-container" class="appointments-grid"></div>
 
-        <div class="calendar-section-wrapper">
-            <div class="calendar-wrapper">
-                <input type="text" id="dashboard-calendar" style="display: none;">
+        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px; font-size: 0.75rem; color: #aaa;">
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #FFC107; border-radius: 50%;"></span> Pending</span>
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%;"></span> Confirmed</span>
+            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%;"></span> Completed</span>
+        </div>
+
+        <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Urmează</h3>
+
+        <div class="appointments-grid" style="display: flex; flex-direction: column; gap: 15px;">
+
+            <div th:if="${#lists.isEmpty(myAppointments)}" class="empty-state" style="text-align: center; padding: 30px; color: #666; border: 1px dashed #333; border-radius: 10px;">
+                ☕ Nu ai programări viitoare.
             </div>
 
-            <div class="results-wrapper">
-                <h4 id="selected-date-title" style="color: #fff; margin-bottom: 1.5rem; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                    Programări pentru: <span style="color: var(--accent-gold);">Astăzi</span>
-                </h4>
+            <div th:each="app : ${myAppointments}" class="appointment-card glass-effect" style="position: relative; background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #333;">
 
-                <div id="appointments-container">
-                    <div class="empty-state">Se încarcă...</div>
+                <div class="status-indicator" th:classappend="${app.status != null ? app.status.name().toLowerCase() : 'pending'}"
+                     style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px;"></div>
+
+                <div class="card-content" style="padding: 15px 15px 15px 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: baseline; gap: 5px;">
+                            <span class="app-time" th:text="${#temporals.format(app.startTime, 'HH:mm')}" style="font-size: 1.5rem; font-weight: 700; color: #fff;">14:00</span>
+                            <span class="app-date" th:text="${#temporals.format(app.startTime, 'dd MMM')}" style="font-size: 0.8rem; color: #888; text-transform: uppercase;">12 FEB</span>
+                        </div>
+                        <div class="price-tag" th:text="${app.price} + ' RON'" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">50 RON</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <h4 th:text="${app.clientName}" style="margin: 0 0 5px 0; color: #eee; font-size: 1.1rem;">Nume Client</h4>
+                        <p style="margin: 0; color: #888; font-size: 0.9rem;">✂️ <span th:text="${app.serviceName}">Tuns</span></p>
+                    </div>
+
+                    <div class="card-actions" style="display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333;">
+                        <a th:href="'https://wa.me/40' + ${#strings.replace(app.phoneNumber, ' ', '')}" class="btn-icon" target="_blank" style="flex: 1; background: #1e3a2a; color: #4CAF50; border: none; padding: 8px; border-radius: 6px; text-align: center;">📱</a>
+                        <a th:href="'tel:' + ${app.phoneNumber}" class="btn-icon" style="flex: 1; background: #333; color: #fff; border: none; padding: 8px; border-radius: 6px; text-align: center;">📞</a>
+
+                        <form th:if="${app.status != null and app.status.name() == 'PENDING'}"
+                              th:action="@{/dashboard/appointment/confirm/{id}(id=${app.id})}" method="post" style="flex: 1;">
+                            <button type="submit" style="width: 100%; background: rgba(33, 150, 243, 0.1); color: #2196F3; border: 1px solid rgba(33, 150, 243, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">✔️</button>
+                        </form>
+
+                        <form th:if="${app.status != null and app.status.name() == 'CONFIRMED'}"
+                              th:action="@{/dashboard/appointment/complete/{id}(id=${app.id})}" method="post" style="flex: 1;">
+                            <button type="submit" style="width: 100%; background: rgba(76, 175, 80, 0.1); color: #4CAF50; border: 1px solid rgba(76, 175, 80, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">✅</button>
+                        </form>
+
+                        <form th:if="${app.status != null and app.status.name() != 'CANCELED' and app.status.name() != 'COMPLETED'}"
+                              th:action="@{/dashboard/appointment/cancel/{id}(id=${app.id})}" method="post"
+                              onsubmit="return confirm('Sigur anulezi?');" style="flex: 1;">
+                            <button type="submit" style="width: 100%; background: rgba(244, 67, 54, 0.1); color: #F44336; border: 1px solid rgba(244, 67, 54, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">❌</button>
+                        </form>
+
+                        <a th:href="@{/dashboard/appointment/edit/{id}(id=${app.id})}" style="width: 30px; display: flex; align-items: center; justify-content: center; color: #d4af37;">✏️</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div id="tab-services" class="tab-content" style="display: none;">
+        <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">✂️ Servicii</h3>
 
-    <div class="dashboard-grid">
+        <div class="dashboard-card glass-effect" style="background: #1a1a1a; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333;">
+            <h4 style="color: #d4af37; margin: 0 0 15px 0;">Adaugă Serviciu</h4>
+            <form th:action="@{/dashboard/services/add}" method="post">
+                <input type="text" name="serviceName" placeholder="Nume Serviciu" required
+                       style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px; margin-bottom: 10px;">
 
-        <div class="dashboard-card" style="grid-column: 1 / -1;">
-            <h3 class="dashboard-card-title">Serviciile Mele</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1rem;">Gestionează lista de prețuri și durate.</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="number" name="price" placeholder="Preț (RON)" required
+                           style="flex: 1; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                    <input type="number" name="duration" placeholder="Min" required
+                           style="flex: 1; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                </div>
+                <button type="submit" class="btn-cta" style="width: 100%; padding: 12px; background: #d4af37; color: #000; font-weight: bold; border: none; border-radius: 6px;">SALVEAZĂ</button>
+            </form>
+        </div>
 
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                <div style="flex: 2; min-width: 300px;">
-                    <div class="services-grid-modern">
-
-                        <div th:if="${#lists.isEmpty(myServices)}" class="empty-state">
-                            Nu ai definit niciun serviciu.
-                        </div>
-
-                        <div th:each="service : ${myServices}" class="service-card-modern glass-effect">
-                            <div class="service-info-left">
-                                <h4 th:text="${service.serviceName}">Tuns Clasic</h4>
-                                <span class="duration-badge">
-                ⏱️ <span th:text="${service.duration}">30</span> min
-            </span>
-                            </div>
-
-                            <div class="service-info-right">
-                                <span class="price-badge-large" th:text="${service.price} + ' RON'">50 RON</span>
-
-                                <form th:action="@{/dashboard/services/delete/{id}(id=${service.id})}" method="post"
-                                      onsubmit="return confirm('Sigur ștergi acest serviciu?');">
-                                    <button type="submit" class="btn-icon delete-icon">🗑️</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-                    <h4 style="color: var(--accent-gold); margin-bottom: 1rem;">Adaugă Serviciu Nou</h4>
-                    <form th:action="@{/dashboard/services/add}" method="post">
-                        <label>Nume Serviciu</label>
-                        <input type="text" name="serviceName" placeholder="Ex: Tuns Barba" required>
-                        <div style="display: flex; gap: 1rem;">
-                            <div style="flex:1;">
-                                <label>Preț (RON)</label>
-                                <input type="number" step="0.1" name="price" placeholder="50" required>
-                            </div>
-                            <div style="flex:1;">
-                                <label>Durată (min)</label>
-                                <input type="number" name="duration" placeholder="30" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-cta btn-small" style="width: 100%; margin-top: 1rem;">Salvează Serviciu</button>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div th:each="service : ${myServices}" class="glass-effect" style="background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 th:text="${service.serviceName}" style="margin: 0; color: #eee;">Tuns</h4>
+                    <span style="font-size: 0.8rem; color: #888;">⏱️ <span th:text="${service.duration}">30</span> min</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="color: #d4af37; font-weight: bold; font-size: 1.1rem;" th:text="${service.price} + ' RON'">50</span>
+                    <form th:action="@{/dashboard/services/delete/{id}(id=${service.id})}" method="post" style="margin:0;">
+                        <button type="submit" style="background: rgba(244, 67, 54, 0.1); color: #F44336; border: 1px solid rgba(244, 67, 54, 0.3); width: 35px; height: 35px; border-radius: 8px; cursor: pointer;">🗑️</button>
                     </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="dashboard-card" style="grid-column: 1 / -1;">
-            <h3 class="dashboard-card-title">Toate Programările Viitoare</h3>
-            <div class="appointments-grid">
 
-                <div th:if="${#lists.isEmpty(myAppointments)}" class="empty-state">
-                    ☕ Nu ai programări viitoare.
-                </div>
+    <div th:if="${isAdminView}" id="tab-admin" class="tab-content" style="display: none;">
+        <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">👥 Echipa</h3>
 
-                <div th:each="app : ${myAppointments}" class="appointment-card glass-effect">
-
-                    <div class="status-indicator"
-                         th:classappend="${app.status != null ? app.status.name().toLowerCase() : 'pending'}">
-                    </div>
-
-                    <div class="card-content">
-                        <div class="card-header-row">
-                            <div class="time-badge">
-                                <span class="app-time" th:text="${#temporals.format(app.startTime, 'HH:mm')}">14:00</span>
-                                <span class="app-date" th:text="${#temporals.format(app.startTime, 'dd MMM')}">12 Feb</span>
-                            </div>
-                            <div class="price-tag" th:text="${app.price} + ' RON'">50 RON</div>
-                        </div>
-
-                        <div class="client-info">
-                            <h4 th:text="${app.clientName}">Nume Client</h4>
-                            <p class="service-name">✂️ <span th:text="${app.serviceName}">Tuns</span></p>
-                        </div>
-
-                        <div class="card-actions">
-                            <a th:href="'https://wa.me/40' + ${#strings.replace(app.phoneNumber, ' ', '')}"
-                               class="btn-icon whatsapp" target="_blank">
-                                📱 WhatsApp
-                            </a>
-
-                            <a th:href="'tel:' + ${app.phoneNumber}" class="btn-icon call">
-                                📞 Sună
-                            </a>
-
-                            <form th:if="${app.status != null and app.status.name() == 'CONFIRMED'}"
-                                  th:action="@{/dashboard/appointment/complete/{id}(id=${app.id})}" method="post">
-                                <button type="submit" class="btn-icon complete">✅ Gata</button>
-                            </form>
-
-                            <a th:href="@{/dashboard/appointment/edit/{id}(id=${app.id})}" class="btn-icon edit">✏️</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div th:if="${isAdminView}" class="dashboard-card" style="grid-column: 1 / -1; border-color: var(--accent-gold);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
-                <h3 class="dashboard-card-title" style="margin-bottom:0;">Gestionare Echipă (Admin)</h3>
-            </div>
+        <div class="dashboard-card glass-effect" style="background: #1a1a1a; padding: 10px; border-radius: 12px; border: 1px solid #333;">
             <div class="table-responsive">
-                <table class="barbers-table">
+                <table class="barbers-table" style="width: 100%; border-collapse: collapse; color: #ddd;">
                     <thead>
-                    <tr>
-                        <th>Nume</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Status</th>
-                        <th>Acțiuni</th>
+                    <tr style="border-bottom: 1px solid #333;">
+                        <th style="text-align: left; padding: 10px; color: #d4af37;">Nume</th>
+                        <th style="text-align: left; padding: 10px; color: #d4af37;">Status</th>
+                        <th style="text-align: right; padding: 10px; color: #d4af37;">Acțiune</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="barber : ${allBarbers}" class="barber-row">
-                        <td class="barber-name" th:text="${barber.firstName + ' ' + barber.lastName}">Nume</td>
-                        <td th:text="${barber.email}">email</td>
-                        <td th:text="${barber.role}">ROL</td>
-                        <td>
-                                <span th:class="${barber.isActive ? 'status-active' : 'status-inactive'}"
-                                      th:text="${barber.isActive ? 'Activ' : 'Inactiv'}"></span>
+                    <tr th:each="barber : ${allBarbers}" style="border-bottom: 1px solid #222;">
+                        <td th:text="${barber.firstName}" style="padding: 15px 10px;">Nume</td>
+                        <td style="padding: 15px 10px;">
+                                <span th:text="${barber.isActive ? 'Activ' : 'Inactiv'}"
+                                      th:style="${barber.isActive ? 'color:#4CAF50' : 'color:#F44336'}">Status</span>
                         </td>
-                        <td class="barber-actions">
-                            <form th:action="@{/admin/barbers/toggle/{id}(id=${barber.id})}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-cta btn-small" style="font-size: 0.7rem; padding: 5px 10px;">Switch</button>
+                        <td style="padding: 15px 10px; text-align: right;">
+                            <form th:action="@{/admin/barbers/toggle/{id}(id=${barber.id})}" method="post" style="margin:0;">
+                                <button style="background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; border-radius: 4px;">Switch</button>
                             </form>
                         </td>
                     </tr>
@@ -207,130 +175,108 @@
                 </table>
             </div>
         </div>
-
     </div>
+
+    <div style="height: 100px;"></div>
+
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<nav class="bottom-nav glass-effect" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(212, 175, 55, 0.2); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom);">
+
+    <button class="nav-item active" onclick="switchTab('tab-appointments', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
+        <span class="nav-icon" style="font-size: 1.4rem;">📅</span>
+        <span class="nav-label" style="font-size: 0.7rem;">Calendar</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('tab-services', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
+        <span class="nav-icon" style="font-size: 1.4rem;">✂️</span>
+        <span class="nav-label" style="font-size: 0.7rem;">Servicii</span>
+    </button>
+
+    <button th:if="${isAdminView}" class="nav-item" onclick="switchTab('tab-admin', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
+        <span class="nav-icon" style="font-size: 1.4rem;">👥</span>
+        <span class="nav-label" style="font-size: 0.7rem;">Echipă</span>
+    </button>
+</nav>
+
 <script>
+    // 1. FUNCȚIA PENTRU SCHIMBAREA TAB-URILOR
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active');
+            el.style.color = '#666'; // Reset culoare
+        });
+
+        document.getElementById(tabId).style.display = 'block';
+        btnElement.classList.add('active');
+        btnElement.style.color = '#d4af37'; // Culoare aurie pentru cel activ
+    }
+
+    // 2. CONFIGURARE FULLCALENDAR
     document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar-full');
         const container = document.getElementById('appointments-container');
         const titleSpan = document.querySelector('#selected-date-title span');
 
-        // Inițializare Calendar Flatpickr
-        flatpickr("#dashboard-calendar", {
-            inline: true,
-            dateFormat: "Y-m-d",
-            defaultDate: "today",
-            locale: { firstDayOfWeek: 1 }, // Luni prima zi
-            onChange: function(selectedDates, dateStr) {
-                fetchAppointments(dateStr);
-            }
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridDay',
+            locale: 'ro',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+            allDaySlot: false,
+            slotMinTime: '08:00:00',
+            slotMaxTime: '21:00:00',
+            height: 'auto',
+            datesSet: (info) => fetchAppointments(info.startStr.split('T')[0])
         });
-
-        // Încărcăm ziua curentă la start
-        const today = new Date().toISOString().split('T')[0];
-        fetchAppointments(today);
+        calendar.render();
 
         function fetchAppointments(dateStr) {
-            // 1. Formatare dată pentru titlu vizual (dd/mm/yyyy)
-            const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                titleSpan.innerText = `${parts[2]}/${parts[1]}/${parts[0]}`;
-            } else {
-                titleSpan.innerText = dateStr;
+            titleSpan.innerText = dateStr;
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">⏳...</div>';
+            fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = data.length === 0 ? '<div class="empty-state">☕ Liber.</div>' : '';
+                    data.forEach(app => renderAppointmentCard(app));
+                });
+        }
+
+        // 3. GENERAREA DINAMICĂ A CARDURILOR (AICI ERA GOL)
+        function renderAppointmentCard(app) {
+            const time = app.startTime.includes('T') ? app.startTime.split('T')[1].substring(0, 5) : "00:00";
+            const statusClass = app.status ? app.status.toLowerCase() : 'pending';
+
+            let actionBtns = '';
+            if (app.status === 'PENDING') {
+                actionBtns += `<form action="/dashboard/appointment/confirm/${app.id}" method="post"><button type="submit" class="btn-icon" style="background:rgba(33,150,243,0.1); color:#2196F3; border:1px solid rgba(33,150,243,0.3); padding:8px; border-radius:6px;">✔️</button></form>`;
+            }
+            if (app.status === 'CONFIRMED') {
+                actionBtns += `<form action="/dashboard/appointment/complete/${app.id}" method="post"><button type="submit" class="btn-icon" style="background:rgba(76,175,80,0.1); color:#4CAF50; border:1px solid rgba(76,175,80,0.3); padding:8px; border-radius:6px;">✅</button></form>`;
+            }
+            if (app.status !== 'CANCELED' && app.status !== 'COMPLETED') {
+                actionBtns += `<form action="/dashboard/appointment/cancel/${app.id}" method="post" onsubmit="return confirm('Anulezi?')"><button type="submit" class="btn-icon" style="background:rgba(244,67,54,0.1); color:#F44336; border:1px solid rgba(244,67,54,0.3); padding:8px; border-radius:6px;">❌</button></form>`;
             }
 
-            // Loader
-            container.innerHTML = '<div class="empty-state">Se încarcă...</div>';
-
-            fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network error");
-                    return response.json();
-                })
-                .then(data => {
-                    container.innerHTML = '';
-
-                    if (data.length === 0) {
-                        container.innerHTML = `<div class="empty-state"><span style="font-size: 2rem; display:block;">☕</span>Nu ai programări pe această dată.</div>`;
-                        return;
-                    }
-
-                    data.forEach(app => {
-                        // Extragem ora curată (HH:MM)
-                        let time = "00:00";
-                        if (app.startTime.includes('T')) {
-                            time = app.startTime.split('T')[1].substring(0, 5);
-                        } else {
-                            time = app.startTime.split(' ')[1];
-                        }
-
-                        // Determinăm clasa de status pentru banda colorată
-                        // Dacă API-ul nu returnează status, presupunem 'pending'
-                        let statusClass = 'pending';
-                        if (app.status) {
-                            statusClass = app.status.toLowerCase();
-                        }
-
-                        const card = document.createElement('div');
-                        // Folosim clasele noi (Glassmorphism)
-                        card.className = 'appointment-card glass-effect';
-                        card.style.marginBottom = '15px'; // Spațiu extra între ele dinamic
-
-                        // Construim HTML-ul identic cu cel din Thymeleaf
-                        card.innerHTML = `
-                            <div class="status-indicator ${statusClass}"></div>
-
-                            <div class="card-content">
-                                <div class="card-header-row">
-                                    <div class="time-badge">
-                                        <span class="app-time">${time}</span>
-                                    </div>
-                                    <div class="price-tag">${app.price} RON</div>
-                                </div>
-
-                                <div class="client-info">
-                                    <h4>${app.clientName}</h4>
-                                    <p class="service-name">✂️ ${app.serviceName}</p>
-                                </div>
-
-                                <div class="card-actions">
-                                    <a href="https://wa.me/40${app.phoneNumber.replace(/\s/g, '')}"
-                                       class="btn-icon whatsapp" target="_blank">
-                                       📱 WhatsApp
-                                    </a>
-
-                                    <a href="tel:${app.phoneNumber}" class="btn-icon call">
-                                       📞 Sună
-                                    </a>
-
-                                    <a href="/dashboard/appointment/edit/${app.id}" class="btn-icon edit">✏️</a>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-                })
-                .catch(err => {
-                    console.error(err);
-                    container.innerHTML = '<div class="empty-state" style="color: #ff6b6b;">Eroare la încărcarea datelor.</div>';
-                });
+            const card = document.createElement('div');
+            card.className = 'appointment-card glass-effect';
+            card.style.cssText = "position:relative; background:#1a1a1a; margin-bottom:10px; border-radius:10px; border:1px solid #333; overflow:hidden;";
+            card.innerHTML = `
+                <div class="status-indicator ${statusClass}" style="position:absolute; left:0; top:0; bottom:0; width:4px;"></div>
+                <div style="padding: 12px 12px 12px 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <span style="font-size:1.2rem; font-weight:700; color:#fff;">${time}</span>
+                        <span style="font-size:0.8rem; color:#d4af37; background:rgba(212,175,55,0.1); padding:2px 6px; border-radius:4px;">${app.price} RON</span>
+                    </div>
+                    <h4 style="margin:0; color:#eee; font-size:1rem;">${app.clientName}</h4>
+                    <p style="margin:2px 0 10px 0; color:#888; font-size:0.8rem;">✂️ ${app.serviceName}</p>
+                    <div style="display:flex; gap:8px;">${actionBtns}</div>
+                </div>`;
+            container.appendChild(card);
         }
     });
 </script>
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('Service Worker înregistrat cu succes:', registration.scope);
-                })
-                .catch(err => {
-                    console.log('Service Worker a eșuat:', err);
-                });
-        });
-    }
-</script>
+
 </body>
 </html>
