@@ -35,7 +35,7 @@ public class DashboardController {
         String email = authentication.getName();
 
         // 2. Îl trimitem către HTML ca să îl putem afișa
-        model.addAttribute("currentUser", email);
+        model.addAttribute("nextApp", appointmentService.getNextImmediateAppointment(email));
 
         // 3. Încărcăm programările proprii
         model.addAttribute("myAppointments", appointmentService.getAllAppointmentsForCurrentBarber(email));
@@ -78,21 +78,23 @@ public class DashboardController {
     }
 
     @PostMapping("/appointment/complete/{id}")
+    @ResponseBody
     public String completeAppointment(@PathVariable Long id){
 
         // call service method
         appointmentService.markAppointmentAsCompleted(id);
 
         //reload dashboard
-        return "redirect:/dashboard";
+        return "OK";
     }
 
     @PostMapping("/appointment/cancel/{id}")
+    @ResponseBody
     public String cancelAppointment(@PathVariable Long id){
 
         appointmentService.markAppointmentAsCancelled(id);
 
-        return "redirect:/dashboard";
+        return "OK";
     }
 
     @PostMapping("/appointment/confirm/{id}")
@@ -106,9 +108,26 @@ public class DashboardController {
     @PostMapping("/appointment/move/{id}")
     @ResponseBody
     public String moveAppointment(@PathVariable Long id, @RequestParam("newStart") String newStartStr){
-        LocalDateTime newStart = LocalDateTime.parse(newStartStr);
+
+        String cleanDate = newStartStr.contains("+") ? newStartStr.substring(0, newStartStr.indexOf("+")) : newStartStr;
+        cleanDate = cleanDate.endsWith("Z") ? cleanDate.substring(0, cleanDate.length() - 1) : cleanDate;
+
+        java.time.LocalDateTime newStart = java.time.LocalDateTime.parse(cleanDate);
 
         appointmentService.moveAppointment(id, newStart);
         return "OK";
+    }
+
+    @PostMapping("/appointment/delete/{id}")
+    @ResponseBody
+    public String deleteAppointment(@PathVariable Long id){
+        appointmentService.deleteAppointment(id);
+        return "OK";
+    }
+
+    @GetMapping("/next-appointment-data")
+    @ResponseBody
+    public AppointmentDTO getNextAppointmentData(Authentication authentication){
+        return appointmentService.getNextImmediateAppointment(authentication.getName());
     }
 }

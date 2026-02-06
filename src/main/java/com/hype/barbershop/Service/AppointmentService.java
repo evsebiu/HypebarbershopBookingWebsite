@@ -266,6 +266,10 @@ public class AppointmentService {
                 continue;
             }
 
+            if (existing.getStatus() == AppointmentStatus.CANCELED ){
+                continue;
+            }
+
             LocalDateTime existingStart = existing.getStartTime();
             LocalDateTime existingEnd = existingStart.plusMinutes(existing.getServiceDetails().getDuration());
 
@@ -285,6 +289,7 @@ public class AppointmentService {
         if (dayOffRepository.existsByBarberIdAndDate(barberId, date)){
             return new ArrayList<>(); // Zi liberă -> nicio oră disponibilă
         }
+
 
         LocalTime workStart = null;
         LocalTime workEnd = null;
@@ -324,7 +329,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new BarbershopException("Serviciul inexistent"));
 
         int durationMinutes = service.getDuration();
-        int stepMinutes = 15; // Intervalul dintre sloturi
+        int stepMinutes = 30; // Intervalul dintre sloturi
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -349,12 +354,21 @@ public class AppointmentService {
                 isOccupied = true;
             }
 
+
             // Verificăm suprapunerea cu programările existente
             if (!isOccupied) {
                 for (Appointment app : existingAppointment) {
                     LocalDateTime appStart = app.getStartTime();
                     // Calculăm finalul programării existente bazat pe durata serviciului ei
                     LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
+
+                    if (existingAppointment.equals(AppointmentStatus.CANCELED)){
+                        isOccupied = false;
+                    }
+
+                    if (app.getStatus() == AppointmentStatus.CANCELED){
+                        continue;
+                    }
 
                     // Logică de suprapunere: (StartA < EndB) și (EndA > StartB)
                     if (proposedStart.isBefore(appEnd) && proposedEnd.isAfter(appStart)) {
@@ -428,6 +442,7 @@ public class AppointmentService {
         );
 
         return appointments.stream()
+                .filter(app -> app.getStatus() != AppointmentStatus.CANCELED)
                 .sorted(Comparator.comparing(Appointment::getStartTime))
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
@@ -548,5 +563,21 @@ public class AppointmentService {
         appointment.setStartTime(newStart);
         appointmentRepository.save(appointment);
         log.info("Programarea {} a fost mutata la {}", id, newStart);
+    }
+
+    @Transactional
+    public AppointmentDTO getNextImmediateAppointment(String email){
+        Barber barber = barberRepository.findByEmail(email)
+                .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit !"));
+
+        return appointmentRepository.findByBarberIdAndStartTimeAfterOrderByStartTime(
+                barber.getId(),
+                LocalDateTime.now()
+        ).stream()
+                .filter(app -> app.getStatus() != AppointmentStatus.CANCELED)
+                .filter(app -> app.getStatus() != AppointmentStatus.COMPLETED)
+                .findFirst()
+                .map(appointmentMapper::toDTO)
+                .orElse(null);
     }
 }

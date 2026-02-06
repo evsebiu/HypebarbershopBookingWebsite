@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-    <link rel="stylesheet" th:href="@{/css/styles.css?v=125}">
+    <link rel="stylesheet" th:href="@{/css/styles.css?v=150}">
 
     <link rel="manifest" th:href="@{/manifest.json}">
     <meta name="theme-color" content="#0a0a0a">
@@ -40,75 +40,42 @@
 
 <main class="dashboard-container" style="padding: 0 15px;">
 
-    <div id="tab-appointments" class="tab-content active">
-        <div class="dashboard-card glass-effect" style="padding: 10px; border-radius: 15px; margin-bottom: 20px;">
-            <div id='calendar-full'></div>
-        </div>
-
-        <h4 id="selected-date-title" style="text-align: center; margin: 15px 0; color: #d4af37; font-size: 0.9rem;">
-            Detalii zi: <span></span>
-        </h4>
-        <div id="appointments-container" class="appointments-grid"></div>
-
-        <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px; font-size: 0.75rem; color: #aaa;">
-            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #FFC107; border-radius: 50%;"></span> Pending</span>
-            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #4CAF50; border-radius: 50%;"></span> Confirmed</span>
-            <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%;"></span> Completed</span>
-        </div>
-
-        <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Urmează</h3>
-
-        <div class="appointments-grid" style="display: flex; flex-direction: column; gap: 15px;">
-
-            <div th:if="${#lists.isEmpty(myAppointments)}" class="empty-state" style="text-align: center; padding: 30px; color: #666; border: 1px dashed #333; border-radius: 10px;">
-                ☕ Nu ai programări viitoare.
-            </div>
-
-            <div th:each="app : ${myAppointments}" class="appointment-card glass-effect" style="position: relative; background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #333;">
-
-                <div class="status-indicator" th:classappend="${app.status != null ? app.status.name().toLowerCase() : 'pending'}"
-                     style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px;"></div>
-
-                <div class="card-content" style="padding: 15px 15px 15px 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: baseline; gap: 5px;">
-                            <span class="app-time" th:text="${#temporals.format(app.startTime, 'HH:mm')}" style="font-size: 1.5rem; font-weight: 700; color: #fff;">14:00</span>
-                            <span class="app-date" th:text="${#temporals.format(app.startTime, 'dd MMM')}" style="font-size: 0.8rem; color: #888; text-transform: uppercase;">12 FEB</span>
-                        </div>
-                        <div class="price-tag" th:text="${app.price} + ' RON'" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">50 RON</div>
+    <div th:if="${nextApp != null}" id="next-app-focus-section" class="focus-card" style="margin-bottom: 25px;">
+        <span style="color: #d4af37; ...">Următorul Client</span>
+        <div class="appointment-card focus-highlight" ...>
+            <div class="card-content" style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 id="focus-client-name" th:text="${nextApp.clientName}" ...>Nume Client</h2>
+                        <p style="color: #d4af37; ...">
+                            🕒 <span id="focus-start-time" th:text="${#temporals.format(nextApp.startTime, 'HH:mm')}">14:00</span>
+                            - <span id="focus-service-name" th:text="${nextApp.serviceName}">Tuns</span>
+                        </p>
                     </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <h4 th:text="${app.clientName}" style="margin: 0 0 5px 0; color: #eee; font-size: 1.1rem;">Nume Client</h4>
-                        <p style="margin: 0; color: #888; font-size: 0.9rem;">✂️ <span th:text="${app.serviceName}">Tuns</span></p>
-                    </div>
-
-                    <div class="card-actions" style="display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333;">
-                        <a th:href="'https://wa.me/40' + ${#strings.replace(app.phoneNumber, ' ', '')}" class="btn-icon" target="_blank" style="flex: 1; background: #1e3a2a; color: #4CAF50; border: none; padding: 8px; border-radius: 6px; text-align: center;">📱</a>
-                        <a th:href="'tel:' + ${app.phoneNumber}" class="btn-icon" style="flex: 1; background: #333; color: #fff; border: none; padding: 8px; border-radius: 6px; text-align: center;">📞</a>
-
-                        <form th:if="${app.status != null and app.status.name() == 'PENDING'}"
-                              th:action="@{/dashboard/appointment/confirm/{id}(id=${app.id})}" method="post" style="flex: 1;">
-                            <button type="submit" style="width: 100%; background: rgba(33, 150, 243, 0.1); color: #2196F3; border: 1px solid rgba(33, 150, 243, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">✔️</button>
-                        </form>
-
-                        <form th:if="${app.status != null and app.status.name() == 'CONFIRMED'}"
-                              th:action="@{/dashboard/appointment/complete/{id}(id=${app.id})}" method="post" style="flex: 1;">
-                            <button type="submit" style="width: 100%; background: rgba(76, 175, 80, 0.1); color: #4CAF50; border: 1px solid rgba(76, 175, 80, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">✅</button>
-                        </form>
-
-                        <form th:if="${app.status != null and app.status.name() != 'CANCELED' and app.status.name() != 'COMPLETED'}"
-                              th:action="@{/dashboard/appointment/cancel/{id}(id=${app.id})}" method="post"
-                              onsubmit="return confirm('Sigur anulezi?');" style="flex: 1;">
-                            <button type="submit" style="width: 100%; background: rgba(244, 67, 54, 0.1); color: #F44336; border: 1px solid rgba(244, 67, 54, 0.3); padding: 8px; border-radius: 6px; cursor: pointer;">❌</button>
-                        </form>
-
-                        <a th:href="@{/dashboard/appointment/edit/{id}(id=${app.id})}" style="width: 30px; display: flex; align-items: center; justify-content: center; color: #d4af37;">✏️</a>
+                    <div id="focus-actions" style="display: flex; gap: 10px;">
+                        <a id="focus-tel" th:href="'tel:' + ${nextApp.phoneNumber}" class="btn-action-round">📞</a>
+                        <a id="focus-whatsapp" th:href="'https://wa.me/40' + ${nextApp.phoneNumber}" class="btn-action-round" style="background: #25D366;">📱</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div id="no-next-app-message" th:style="${nextApp == null ? 'display:block' : 'display:none'}" style="text-align:center; padding:20px; color:#666;">
+        ☕ Nu mai ai programări pentru azi.
+    </div>
+
+    <div class="dashboard-card glass-effect" style="padding: 10px; border-radius: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
+        <div id='calendar-full'></div>
+    </div>
+
+    <h4 id="selected-date-title" style="text-align: center; margin: 15px 0; color: #d4af37; font-size: 0.9rem;">
+        Programări pentru <span></span>
+    </h4>
+    <div id="appointments-container" class="appointments-grid">
+    </div>
+
+    </div>
+
     <div id="tab-services" class="tab-content" style="display: none;">
         <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">✂️ Servicii</h3>
 
@@ -189,6 +156,11 @@
         <span class="nav-label" style="font-size: 0.7rem;">Calendar</span>
     </button>
 
+    <button class="nav-item" onclick="switchTab('tab-list-view', this)">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Programări</span>
+    </button>
+
     <button class="nav-item" onclick="switchTab('tab-services', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
         <span class="nav-icon" style="font-size: 1.4rem;">✂️</span>
         <span class="nav-label" style="font-size: 0.7rem;">Servicii</span>
@@ -201,37 +173,83 @@
 </nav>
 
 <script>
-    // 1. FUNCȚII GLOBALE (Trebuie să fie în afara DOMContentLoaded pentru a fi accesibile de butoane)
+    // 1. FUNCȚII GLOBALE (Sunt în afara DOMContentLoaded ca să poată fi apelate de butoane)
 function switchTab(tabId, btnElement) {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
     document.getElementById(tabId).style.display = 'block';
     btnElement.classList.add('active');
 }
 
-// Transformă [2026, 2, 5, 14, 30] în "14:30" pentru UI-ul listei
+function deleteAppointmentPermanently(id) {
+    if(!confirm("Ești sigur că vrei să ȘTERGI DEFINITIV această programare? Nu poate fi recuperată.")) return;
+
+    fetch(`/dashboard/appointment/delete/${id}`, { method: 'POST' })
+        .then(res => {
+            if (res.ok) {
+                const activeDate = document.querySelector('#selected-date-title span').innerText;
+                // Reîncărcăm datele (această funcție este definită în interiorul DOMContentLoaded)
+                window.location.reload();
+            } else {
+                alert("Eroare la ștergere.");
+            }
+        });
+}
+
+function updateStatus(id, action) {
+    if(!confirm("Ești sigur?")) return;
+
+    fetch(`/dashboard/appointment/${action}/${id}`, { method: 'POST' })
+        .then(res => {
+            if (res.ok) {
+            // Aceasta este cheia: reîncărcăm datele zilei selectate
+            const activeDate = document.querySelector('#selected-date-title span').innerText;
+            window.fetchAppointments(activeDate);
+
+            updateFocusCard();
+
+        } else {
+            alert("Eroare la server.");
+        }
+        });
+}
+
 function parseJavaTime(startTime) {
     if (!startTime) return "00:00";
-    if (Array.isArray(startTime)) {
-        return `${String(startTime[3]).padStart(2, '0')}:${String(startTime[4]).padStart(2, '0')}`;
-    }
-    if (typeof startTime === 'string') {
-        return startTime.includes('T') ? startTime.split('T')[1].substring(0, 5) : startTime.substring(11, 16);
-    }
+    if (typeof startTime === 'string' && startTime.includes('T')) return startTime.split('T')[1].substring(0, 5);
+    if (Array.isArray(startTime)) return `${String(startTime[3]).padStart(2, '0')}:${String(startTime[4]).padStart(2, '0')}`;
     return "00:00";
 }
+function updateFocusCard() {
+    fetch('/dashboard/next-appointment-data')
+        .then(res => {
+            if (res.status === 204) return null;
+            return res.json();
+        })
+        .then(app => {
+            const section = document.getElementById('next-app-focus-section');
+            const emptyMsg = document.getElementById('no-next-app-message');
 
-// Transformă [2026, 2, 5, 14, 30] în format ISO pentru FullCalendar
-function formatIsoForCalendar(startTime) {
-    if (Array.isArray(startTime)) {
-        const [y, m, d, h, min] = startTime;
-        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
-    }
-    return startTime;
+            if (!app) {
+                if (section) section.style.display = 'none';
+                if (emptyMsg) emptyMsg.style.display = 'block';
+                return;
+            }
+
+            if (section) section.style.display = 'block';
+            if (emptyMsg) emptyMsg.style.display = 'none';
+
+            // Actualizăm elementele cu ID-uri
+            document.getElementById('focus-client-name').innerText = app.clientName;
+            document.getElementById('focus-start-time').innerText = parseJavaTime(app.startTime);
+            document.getElementById('focus-service-name').innerText = app.serviceName;
+            document.getElementById('focus-tel').href = 'tel:' + app.phoneNumber;
+            document.getElementById('focus-whatsapp').href = 'https://wa.me/40' + app.phoneNumber;
+        })
+        .catch(err => console.log("Nu sunt programări viitoare."));
 }
 
-// 2. INIȚIALIZARE CALENDAR ȘI LOGICĂ DATE
+// 2. LOGICA DE CALENDAR
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar-full');
     const container = document.getElementById('appointments-container');
@@ -239,102 +257,98 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!calendarEl) return;
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'timeGridDay',
-    locale: 'ro',
-    allDaySlot: false,
-    slotMinTime: '08:00:00',
-    slotMaxTime: '21:00:00',
-    height: 'auto',
-    headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
-    editable: true,
+    window.fetchAppointments = function(dateStr) {
+        titleSpan.innerText = dateStr;
+        container.innerHTML = '<div>⏳ Se încarcă...</div>';
 
-    // --- FIX PENTRU MOBIL ---
-    eventLongPressDelay: 50, // Activează mutarea după o apăsare de 50ms
-    selectLongPressDelay: 50,
-    longPressDelay: 50,
-    // ------------------------
+        fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
+            .then(res => res.json())
+            .then(data => {
+                calendar.getEvents().forEach(e => e.remove());
+                container.innerHTML = data.length === 0 ? '<div class="empty-state">☕ Nicio programare.</div>' : '';
 
-    datesSet: function(info) {
-        const dateStr = info.startStr.split('T')[0];
-        fetchAppointments(dateStr);
-    },
-
-    eventDrop: function(info) {
-        // ... logica existentă de mutare rămâne neschimbată ...
-        // Se va apela DashboardController.moveAppointment
-    }
-});
-
-    calendar.render();
-function parseJavaTime(startTime) {
-    if (!startTime) return "00:00";
-    if (typeof startTime === 'string' && startTime.includes('T')) {
-        return startTime.split('T')[1].substring(0, 5);
-    }
-    // Fallback pentru formatul vechi array dacă jackson se resetează
-    if (Array.isArray(startTime)) {
-        return `${String(startTime[3]).padStart(2, '0')}:${String(startTime[4]).padStart(2, '0')}`;
-    }
-    return "00:00";
-}
-
-    function fetchAppointments(dateStr) {
-    titleSpan.innerText = dateStr;
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">⏳ Se încarcă...</div>';
-
-    fetch(`/dashboard/appointments-by-date?date=${dateStr}`)
-        .then(res => res.json())
-        .then(data => {
-            calendar.getEvents().forEach(e => e.remove());
-            container.innerHTML = '';
-
-            if (data.length === 0) {
-                container.innerHTML = '<div class="empty-state">☕ Nicio programare azi.</div>';
-                return;
-            }
-
-            data.forEach(app => {
-                // Afișare în lista de jos
-                renderAppointmentCard(app);
-
-                // Afișare în grila calendarului
-                calendar.addEvent({
-                    id: app.id,
-                    title: `${app.clientName} - ${app.serviceName}`,
-                    start: app.startTime, // Acum este un string ISO valid: "2026-02-05T14:30:00"
-                    backgroundColor: app.status === 'CONFIRMED' ? '#4CAF50' :
-                                    app.status === 'COMPLETED' ? '#d4af37' : '#FFC107',
-                    borderColor: 'transparent'
+                data.forEach(app => {
+                    renderAppointmentCard(app);
+                    calendar.addEvent({
+                        id: app.id,
+                        title: `${app.clientName} - ${app.serviceName}`,
+                        start: app.startTime,
+                        backgroundColor: app.status === 'CONFIRMED' ? '#4CAF50' : app.status === 'COMPLETED' ? '#d4af37' : '#FFC107'
                     });
                 });
             })
             .catch(err => {
-                console.error("Eroare:", err);
-                container.innerHTML = '<div style="color:red; text-align:center;">Eroare la încărcare.</div>';
-            });
+            console.error("Eroare la încărcare:", err);
+            container.innerHTML = '<div style="color:red;">❌ Eroare la încărcarea datelor.</div>';
+        });
     }
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridDay',
+        locale: 'ro',
+        allDaySlot: false,
+        slotMinTime: '08:00:00',
+        slotMaxTime: '21:00:00',
+        slotDuration: '00:30:00',
+        slotLabelInterval: '00:30:00',
+        height: 'auto',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+        editable: true,
+        eventLongPressDelay: 50,
+
+        datesSet: (info) => {
+            const dateStr = info.startStr.split('T')[0];
+            window.fetchAppointments(dateStr);
+        },
+
+        eventDrop: (info) => {
+            // FIX TIMEZONE: Trimitem ora locală brută (fără conversie UTC)
+            const date = info.event.start;
+            const localTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 19);
+
+            const formData = new URLSearchParams();
+            formData.append('newStart', localTime);
+
+            fetch(`/dashboard/appointment/move/${info.event.id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            }).then(res => {
+                if (!res.ok) { alert("Conflict de programare!"); info.revert(); }
+                else window.fetchAppointments(localTime.split('T')[0]);
+            });
+        }
+    });
+
+    calendar.render();
 
     function renderAppointmentCard(app) {
         const timeStr = parseJavaTime(app.startTime);
         const statusClass = app.status ? app.status.toLowerCase() : 'pending';
-
         const card = document.createElement('div');
         card.className = 'appointment-card glass-effect';
         card.style.cssText = "position:relative; background:#1a1a1a; margin-bottom:12px; border-radius:12px; border:1px solid #333; overflow:hidden;";
 
         card.innerHTML = `
-            <div class="status-indicator ${statusClass}" style="position:absolute; left:0; top:0; bottom:0; width:5px;"></div>
-            <div style="padding: 15px 15px 15px 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:1.4rem; font-weight:800; color:#fff;">${timeStr}</span>
-                    <span style="font-size:0.9rem; color:#d4af37; background:rgba(212,175,55,0.1); padding:4px 8px; border-radius:6px; font-weight:600;">${app.price} RON</span>
-                </div>
-                <h4 style="margin:0; color:#eee; font-size:1.1rem;">${app.clientName}</h4>
-                <p style="margin:4px 0 12px 0; color:#888; font-size:0.9rem;">✂️ ${app.serviceName}</p>
-            </div>`;
+    <div class="status-indicator ${statusClass}" style="position:absolute; left:0; top:0; bottom:0; width:5px;"></div>
+    <div style="padding: 15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:1.4rem; font-weight:800; color:#fff;">${timeStr}</span>
+            <span style="color:#d4af37;">${app.price} RON</span>
+        </div>
+        <h4 style="margin:0; color:#eee;">${app.clientName}</h4>
+        <div class="card-actions" style="display:flex; gap:8px; margin-top:12px; border-top:1px solid #222; padding-top:12px;">
+            <a href="tel:${app.phoneNumber}" style="flex:1; text-align:center; background:#333; padding:8px; border-radius:6px; text-decoration:none;">📞</a>
+            <button onclick="updateStatus(${app.id}, 'complete')" style="flex:1; background:rgba(76,175,80,0.2); color:#4CAF50; border:1px solid #4CAF50; border-radius:6px; cursor:pointer;">✅</button>
+            <button onclick="updateStatus(${app.id}, 'cancel')" style="flex:1; background:rgba(244,67,54,0.1); color:#FFC107; border:1px solid #FFC107; border-radius:6px; cursor:pointer;">🚫</button>
+
+            <button onclick="deleteAppointmentPermanently(${app.id})" style="flex:1; background:rgba(244,67,54,0.2); color:#F44336; border:1px solid #F44336; border-radius:6px; cursor:pointer;">🗑️</button>
+        </div>
+    </div>`;
         container.appendChild(card);
     }
+
+    setInterval(updateFocusCard, 60000);
 });
 </script>
 

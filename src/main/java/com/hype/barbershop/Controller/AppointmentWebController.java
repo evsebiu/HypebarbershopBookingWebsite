@@ -78,7 +78,7 @@ public class AppointmentWebController {
         }
     }
 
-    @PostMapping("/delete/{id}")
+   /* @PostMapping("/delete/{id}")
     public String deleteAppointment (@PathVariable Long id,
                                      Authentication authentication,
                                      RedirectAttributes redirectAttributes) {
@@ -99,6 +99,8 @@ public class AppointmentWebController {
 
         return "redirect:/dashboard";
     }
+
+    */
 
     /*@PostMapping("/complete/{id}")
     public String completeAppointment(@PathVariable Long id, Authentication authentication,
