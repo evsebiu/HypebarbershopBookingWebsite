@@ -37,9 +37,9 @@ public class BarberDTO {
     private Boolean isActive;
 
 
-    private List<Appointment> appointments;
+    private List<AppointmentDTO> appointments;
 
-    private List<ServiceDetails> serviceDetails;
+    private List<ServiceDetailsDTO> serviceDetails;
 
 
 }

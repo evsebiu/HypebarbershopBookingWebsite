@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/barbers")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:5173")
 public class BarberControllerAPI {
 
     private final BarberService barberService;
@@ -26,7 +27,8 @@ public class BarberControllerAPI {
     // URL: /api/barbers/active
     @GetMapping("/active")
     public ResponseEntity<List<BarberDTO>> getActiveBarbers() {
-        return ResponseEntity.ok(barberService.getIfActive());
+        List<BarberDTO> barbers = barberService.getIfActive();
+        return ResponseEntity.ok(barbers);
     }
 
     // 2. SEARCH (Complex) - Caută după diverse criterii

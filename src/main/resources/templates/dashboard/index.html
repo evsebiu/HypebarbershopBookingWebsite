@@ -22,11 +22,12 @@
 
 <body>
 
-<div class="dashboard-header-compact" style="padding: 20px; display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; position: sticky; top: 0; z-index: 50;">
+<div class="dashboard-header-compact" style="padding: 25px 20px; background: #0a0a0a; border-bottom: 1px solid rgba(255,255,255,0.05);">
     <div class="user-welcome">
-        <span class="text-muted" style="font-size: 0.8rem;">Salut,</span>
-        <h2 th:text="${currentUser}" style="margin:0; font-size: 1.1rem; color: #fff; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</h2>
+        <span style="color: #888; font-size: 0.85rem; display: block; margin-bottom: 2px;">Salut,</span>
+        <h2 th:text="${currentUser}" style="margin:0; font-size: 1.3rem; color: #fff; font-weight: 600;">User</h2>
     </div>
+</div>
 
     <div style="display: flex; gap: 10px;">
         <a th:href="@{/dashboard/schedule}" class="btn-icon" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.3); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; text-decoration: none;">
@@ -64,14 +65,21 @@
         ☕ Nu mai ai programări pentru azi.
     </div>
 
-    <div class="dashboard-card glass-effect" style="padding: 10px; border-radius: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
-        <div id='calendar-full'></div>
+    <div id="tab-appointments" class="tab-content">
+        <div class="dashboard-card glass-effect" style="padding: 10px; border-radius: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
+            <div id='calendar-full'></div>
+        </div>
     </div>
 
-    <h4 id="selected-date-title" style="text-align: center; margin: 15px 0; color: #d4af37; font-size: 0.9rem;">
-        Programări pentru <span></span>
-    </h4>
-    <div id="appointments-container" class="appointments-grid">
+    <div id="tab-list-view" class="tab-content" style="display: none;">
+        <h3 class="section-divider-title" style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px;">📋 Agenda Zilei</h3>
+
+        <h4 id="selected-date-title" style="text-align: center; margin: 15px 0; color: #d4af37; font-size: 0.9rem;">
+            Programări pentru <span></span>
+        </h4>
+
+        <div id="appointments-container" class="appointments-grid">
+        </div>
     </div>
 
     </div>
@@ -151,25 +159,26 @@
 
 <nav class="bottom-nav glass-effect" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(212, 175, 55, 0.2); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom);">
 
-    <button class="nav-item active" onclick="switchTab('tab-appointments', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
-        <span class="nav-icon" style="font-size: 1.4rem;">📅</span>
-        <span class="nav-label" style="font-size: 0.7rem;">Calendar</span>
+    <button class="nav-item active" onclick="switchTab('tab-appointments', this)">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Calendar</span>
     </button>
 
     <button class="nav-item" onclick="switchTab('tab-list-view', this)">
         <span class="nav-icon">📋</span>
-        <span class="nav-label">Programări</span>
+        <span class="nav-label">Listă</span>
     </button>
 
-    <button class="nav-item" onclick="switchTab('tab-services', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
-        <span class="nav-icon" style="font-size: 1.4rem;">✂️</span>
-        <span class="nav-label" style="font-size: 0.7rem;">Servicii</span>
+    <button class="nav-item" onclick="switchTab('tab-services', this)">
+        <span class="nav-icon">✂️</span>
+        <span class="nav-label">Servicii</span>
     </button>
 
-    <button th:if="${isAdminView}" class="nav-item" onclick="switchTab('tab-admin', this)" style="background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1;">
-        <span class="nav-icon" style="font-size: 1.4rem;">👥</span>
-        <span class="nav-label" style="font-size: 0.7rem;">Echipă</span>
+    <button th:if="${isAdminView}" class="nav-item" onclick="switchTab('tab-admin', this)">
+        <span class="nav-icon">👥</span>
+        <span class="nav-label">Echipă</span>
     </button>
+
 </nav>
 
 <script>

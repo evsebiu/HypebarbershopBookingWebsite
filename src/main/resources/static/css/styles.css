@@ -1764,3 +1764,56 @@ label {
 .fc-view-harness {
     pointer-events: auto !important;
 }
+
+/* --- FIX SIMETRIE NAVIGARE --- */
+.bottom-nav {
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: stretch !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    height: 75px !important;
+}
+
+.nav-item {
+    flex: 1 !important; /* Forțează toate butoanele să fie EGALE ca lățime */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px 0 !important;
+    border: none !important;
+    background: transparent !important;
+    color: #666 !important;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active {
+    color: var(--accent-gold) !important;
+}
+
+.nav-label {
+    font-size: 0.7rem !important;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* --- SPAȚIERE SECȚIUNI (GAPS) --- */
+.tab-content {
+    padding-top: 10px;
+    margin-bottom: 30px; /* Spațiu între secțiuni */
+}
+
+.section-divider-title {
+    text-align: center;
+    margin: 25px 0 15px 0 !important;
+    font-size: 0.85rem !important;
+    display: block;
+    width: 100%;
+}
+
+/* Cardurile de programări să aibă spațiu între ele */
+.appointments-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important; /* Spațiu egal între clienți */
+}

@@ -1,6 +1,7 @@
 package com.hype.barbershop.Model.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -52,6 +53,7 @@ public class Appointment {
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "barber_id", nullable = false)
     private Barber barber;

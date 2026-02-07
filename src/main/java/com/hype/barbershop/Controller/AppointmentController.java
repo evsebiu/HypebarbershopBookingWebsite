@@ -3,6 +3,7 @@ package com.hype.barbershop.Controller;
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
+import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
 import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Model.Entity.ServiceDetails;
@@ -32,34 +33,30 @@ public class AppointmentController {
     public String showAppointmentForm(
             @RequestParam("barberId") Long barberId,
             @RequestParam("serviceId") Long serviceId,
-            Model model
-    ) {
-        // 1. Găsim frizerul (care vine ca DTO din service)
+            Model model) {
+
+        // 1. Găsim BarberDTO (nu mai convertim la Entitate!)
         BarberDTO barberDTO = barberService.findById(barberId)
                 .orElseThrow(() -> new RuntimeException("Frizer negăsit"));
 
-        // 2. Convertim Barber DTO -> Entity
-        // Avem nevoie de Entitate pentru a o seta pe obiectul Appointment
-        Barber barberEntity = barberMapper.toEntity(barberDTO);
-
-        // 3. Găsim serviciul
-        // În BarberDTO-ul tău, lista este List<ServiceDetails> (deci sunt deja Entități!)
-        ServiceDetails selectedService = barberDTO.getServiceDetails().stream()
+        // 2. Găsim ServiceDetailsDTO din lista din BarberDTO
+        ServiceDetailsDTO selectedService = barberDTO.getServiceDetails().stream()
                 .filter(s -> s.getId().equals(serviceId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Serviciu negăsit"));
 
-        // 4. Pregătim obiectul Appointment gol pentru formular
-        Appointment appointment = new Appointment();
+        // 3. Pregătim un AppointmentDTO gol pentru formular
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.setBarberId(barberId);
+        appointmentDTO.setServiceId(serviceId);
+        appointmentDTO.setBarberName(barberDTO.getFirstName());
+        appointmentDTO.setServiceName(selectedService.getServiceName());
+        appointmentDTO.setPrice(selectedService.getPrice());
 
-        // Aici setăm ENTITĂȚILE, nu DTO-urile. Acum funcționează corect.
-        appointment.setBarber(barberEntity);
-        appointment.setServiceDetails(selectedService);
-
-        // 5. Trimitem datele în HTML
-        model.addAttribute("appointment", appointment); // Obiectul care se va salva
-        model.addAttribute("barber", barberDTO);        // Pentru afișare text (Nume, etc)
-        model.addAttribute("service", selectedService); // Pentru afișare text (Preț, Nume)
+        // 4. Trimitem doar DTO-uri către HTML
+        model.addAttribute("appointment", appointmentDTO);
+        model.addAttribute("barber", barberDTO);
+        model.addAttribute("service", selectedService);
 
         return "appointment_form";
     }
@@ -69,38 +66,19 @@ public class AppointmentController {
     public String saveAppointment(@Valid @ModelAttribute("appointment") AppointmentDTO appointmentDTO,
                                   BindingResult bindingResult,
                                   Model model) {
-        // verify if exists validation errors
         if (bindingResult.hasErrors()){
-            // reload barber and service details to rend page again
-            // get DTO's id which came from form
-            Long barberId = appointmentDTO.getBarberId();
-            Long serviceId = appointmentDTO.getServiceId();
+            // Re-încărcăm datele necesare pentru afișarea erorilor folosind ID-urile din DTO
+            BarberDTO barberDTO = barberService.findById(appointmentDTO.getBarberId()).get();
+            ServiceDetailsDTO serviceDTO = barberDTO.getServiceDetails().stream()
+                    .filter(s -> s.getId().equals(appointmentDTO.getServiceId())).findFirst().get();
 
-            //find barber (from method @GetMapping("/new))
-            BarberDTO barberDTO = barberService.findById(barberId)
-                    .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit"));
-
-            // find service
-            ServiceDetails selectedService = barberDTO.getServiceDetails()
-                    .stream()
-                    .filter(s -> s.getId().equals(serviceId))
-                    .findFirst()
-                    .orElseThrow(()-> new BarbershopException("Serviciu inexistent"));
-
-            // gather data back in model to avoid display erros in HTML
             model.addAttribute("barber", barberDTO);
-            model.addAttribute("service", selectedService);
-
-            //return form page, which now contains erorrs
-            return"appointment_form";
-
+            model.addAttribute("service", serviceDTO);
+            return "appointment_form";
         }
 
-        // if there are no erros we continue save
-
-        AppointmentDTO savedAppointment = appointmentService.createAppointment(appointmentDTO);
-        return "redirect:/appointment/confirmed/" + savedAppointment.getId();
-
+        appointmentService.createAppointment(appointmentDTO);
+        return "redirect:/"; // Sau pagina de confirmare
     }
 
     @GetMapping("/confirmed/{id}")

@@ -36,7 +36,7 @@ public class BarberController {
             // add DTO
             model.addAttribute("barber", barberDTO);
 
-            List<ServiceDetails> services = barberDTO.getServiceDetails();
+            List<ServiceDetailsDTO> services = barberDTO.getServiceDetails();
             if (services == null) {
                 services = new ArrayList<>();
             }

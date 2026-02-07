@@ -35,7 +35,7 @@ public class DashboardController {
         String email = authentication.getName();
 
         // 2. Îl trimitem către HTML ca să îl putem afișa
-        model.addAttribute("nextApp", appointmentService.getNextImmediateAppointment(email));
+        model.addAttribute("currentUser", authentication.getName());
 
         // 3. Încărcăm programările proprii
         model.addAttribute("myAppointments", appointmentService.getAllAppointmentsForCurrentBarber(email));
