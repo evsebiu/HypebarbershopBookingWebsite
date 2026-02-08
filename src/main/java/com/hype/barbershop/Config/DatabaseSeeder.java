@@ -1,9 +1,11 @@
 package com.hype.barbershop.Config;
 
 import com.hype.barbershop.Model.Entity.Barber;
+import com.hype.barbershop.Model.Entity.BarberSchedule;
 import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Enums.Role;
 import com.hype.barbershop.Repository.BarberRepository;
+import com.hype.barbershop.Repository.BarberScheduleRepository;
 import com.hype.barbershop.Repository.ServiceDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +20,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ServiceDetailsRepository serviceRepo;
     private final BarberRepository barberRepo;
     private final PasswordEncoder passwordEncoder;
+    private final BarberScheduleRepository barberScheduleRepo;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -31,6 +35,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setRole(Role.ROLE_ADMIN);
             admin.setIsActive(true);
             barberRepo.save(admin);
+            initializeDefaultSchedule(admin);
             System.out.println("✅ Admin created");
         }
 
@@ -43,16 +48,32 @@ public class DatabaseSeeder implements CommandLineRunner {
             barber.setRole(Role.ROLE_BARBER);
             barber.setIsActive(true);
             barberRepo.save(barber);
+            initializeDefaultSchedule(barber);
             System.out.println("Barber created.");
         }
     }
 
-    private void createService(String name, Double price, Integer duration, Barber barber) {
-        ServiceDetails service = new ServiceDetails();
-        service.setServiceName(name);
-        service.setPrice(price);
-        service.setDuration(duration);
-        service.setBarber(barber); // Legam serviciul de frizer
-        serviceRepo.save(service);
+
+    private void initializeDefaultSchedule(Barber barber) {
+        for (java.time.DayOfWeek day : java.time.DayOfWeek.values()) {
+            BarberSchedule schedule = new BarberSchedule();
+            schedule.setBarber(barber);
+            schedule.setDayOfWeek(day);
+            schedule.setStartTime(java.time.LocalTime.of(9, 0));
+            schedule.setEndTime(java.time.LocalTime.of(18, 0));
+            schedule.setIsWorkingDay(true);
+            // barberScheduleRepository trebuie injectat în constructorul clasei
+            barberScheduleRepo.save(schedule);
+        }
     }
-}
+
+
+        private void createService (String name, Double price, Integer duration, Barber barber){
+            ServiceDetails service = new ServiceDetails();
+            service.setServiceName(name);
+            service.setPrice(price);
+            service.setDuration(duration);
+            service.setBarber(barber); // Legam serviciul de frizer
+            serviceRepo.save(service);
+        }
+    }

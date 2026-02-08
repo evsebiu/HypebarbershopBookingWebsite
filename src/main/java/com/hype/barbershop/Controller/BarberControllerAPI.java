@@ -2,6 +2,7 @@ package com.hype.barbershop.Controller;
 
 import com.hype.barbershop.Model.DTO.BarberDTO;
 import com.hype.barbershop.Model.DTO.BarberRegistrationDTO;
+import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Service.BarberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,5 +74,13 @@ public class BarberControllerAPI {
     public ResponseEntity<Void> deleteBarber(@PathVariable Long id) {
         barberService.deleteBarber(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BarberDTO> getBarberById(@PathVariable Long id){
+        log.info("Cerere API pentr frizerul cu ID {}", id);
+        return barberService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

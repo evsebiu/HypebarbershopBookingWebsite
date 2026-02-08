@@ -3,11 +3,13 @@ package com.hype.barbershop.Controller;
 
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.BarberDTO;
+import com.hype.barbershop.Model.DTO.WeeklyScheduleDTO;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.BarberService;
 import com.hype.barbershop.Service.ServiceDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
@@ -130,4 +132,18 @@ public class DashboardController {
     public AppointmentDTO getNextAppointmentData(Authentication authentication){
         return appointmentService.getNextImmediateAppointment(authentication.getName());
     }
+
+    @GetMapping("/api/dashboard/schedule")
+    @ResponseBody
+    public WeeklyScheduleDTO getMySchedule(Authentication auth) {
+        return barberService.getBarberSchedule(auth.getName());
+    }
+
+    @PostMapping("/api/dashboard/schedule/save")
+    @ResponseBody
+    public ResponseEntity<?> saveMySchedule(@RequestBody WeeklyScheduleDTO dto, Authentication auth) {
+        barberService.updateSchedule(auth.getName(), dto);
+        return ResponseEntity.ok().build();
+    }
+
 }

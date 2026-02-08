@@ -3,8 +3,10 @@ package com.hype.barbershop.Config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +27,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // 1. Resurse Statice (TREBUIE să fie publice ca să se încarce CSS-ul la login)
@@ -42,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/consumer-rights/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/manifest.json", "/sw.js", "/icons/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ("/api/barbers/**")).permitAll()
 
                         // 3. Pagina de Login - Trebuie să fie publică
                         .requestMatchers("/login").permitAll()
@@ -59,10 +63,19 @@ public class SecurityConfig {
                 )
                 // AICI ESTE SCHIMBAREA MAJORĂ:
                 .formLogin(form -> form
-                        .loginPage("/login")              // Ruta controller-ului (vezi pasul 2)
-                        .loginProcessingUrl("/login")     // Unde trimite formularul datele (POST)
-                        .defaultSuccessUrl("/dashboard", true) // Redirecționare după succes
-                        .failureUrl("/login?error=true")  // Unde te duce dacă greșești parola
+                        .loginProcessingUrl("/login")
+                        // Dacă logarea reușește, trimitem un JSON 200 OK
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Login succesful\"}");
+                        })
+                        // Dacă logarea eșuează, trimitem un JSON 401 Unauthorized
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Email sau parola incorecta\"}");
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -70,9 +83,9 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/")        // După logout te duce pe prima pagină
                         .permitAll()
                 );
-
         return http.build();
     }
+
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -98,9 +111,10 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry){
-                registry.addMapping("/api/**")
+                registry.addMapping("/**")
                         .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH");
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                        .allowCredentials(true);
             }
         };
     }
