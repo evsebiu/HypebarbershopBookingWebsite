@@ -55,11 +55,11 @@ public class Appointment {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "barber_id", nullable = false)
+    @JoinColumn(name = "barber_id", nullable = true)
     private Barber barber;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id", nullable = false)
+    @JoinColumn(name = "service_id", nullable = true)
     private ServiceDetails serviceDetails;
 
 

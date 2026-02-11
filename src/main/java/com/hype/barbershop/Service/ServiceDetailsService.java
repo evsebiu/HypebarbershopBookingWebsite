@@ -5,6 +5,7 @@ import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Model.DTO.ServiceDetailsDTO;
+import com.hype.barbershop.Model.Entity.Appointment;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Mapper.ServiceDetailsMapper;
@@ -184,14 +185,15 @@ public class ServiceDetailsService {
 
 
         //save
-        ServiceDetails serviceDetails = serviceDetailsMapper.toEntity(serviceDetailsDTO);
-        ServiceDetails savedService = serviceDetailsRepo.save(serviceDetails);
+        ServiceDetails savedService = serviceDetailsRepo.save(existingService);
 
         log.info("S-a actualizat cu succes serviciul solicitat cu ID {} ", savedService.getId());
 
         return serviceDetailsMapper.toDTO(savedService);
     }
 
+
+    @Transactional
     public void deleteService(Long id){
         log.info("Se solicita stergerea serviciului cu ID {} ", id);
         if (id == null ){
@@ -201,12 +203,19 @@ public class ServiceDetailsService {
         ServiceDetails serviceToDelete  = serviceDetailsRepo.findById(id)
                 .orElseThrow(()-> new BarbershopResourceNotFound("Serviciul solicitat nu exista"));
 
+
+        if (serviceToDelete.getAppointments() !=null){
+            for (Appointment app : serviceToDelete.getAppointments()){
+                app.setServiceDetails(null);
+            }
+        }
+
         serviceDetailsRepo.delete(serviceToDelete);
 
         log.info("S-a sters cu succes serviciul cu ID {} ", serviceToDelete.getId());
     }
     @Transactional
-    public void addServiceForBarber(String email, ServiceDetailsDTO dto) {
+    public ServiceDetailsDTO addServiceForBarber(String email, ServiceDetailsDTO dto) {
         // 1. Găsim frizerul logat
         Barber barber = barberRepo.findByEmail(email)
                 .orElseThrow(() -> new BarbershopResourceNotFound("Frizerul nu a fost găsit."));
@@ -216,11 +225,14 @@ public class ServiceDetailsService {
         service.setServiceName(dto.getServiceName());
         service.setPrice(dto.getPrice());
         service.setDuration(dto.getDuration());
-        service.setBarber(barber); // LEGAREA DE FRIZER ESTE CRITICĂ
+        service.setBarber(barber); // LEGAREA DE FRIZER ESTE CRITICĂ'
+        service.setActive(true);
 
+
+        ServiceDetails saved = serviceDetailsRepo.save(service);
         // 3. Salvăm
-        serviceDetailsRepo.save(service);
         log.info("Serviciu nou adăugat pentru {}: {}", email, dto.getServiceName());
+        return serviceDetailsMapper.toDTO(saved);
     }
 
     @Transactional
@@ -241,4 +253,18 @@ public class ServiceDetailsService {
         log.info("Serviciu șters cu succes: {}", serviceId);
     }
 
+
+    @Transactional
+    public List<ServiceDetailsDTO> getServiceByBarberEmail(String email){
+        if (email == null){
+            throw new IllegalBarbershopArgument("Email cannot be null.");
+        }
+
+        List<ServiceDetailsDTO> serviceDetails = serviceDetailsRepo.findByBarberEmail(email)
+                .stream()
+                .map(serviceDetailsMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return serviceDetails;
+    }
 }

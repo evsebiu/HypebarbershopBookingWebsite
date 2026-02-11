@@ -17,4 +17,5 @@ public interface ServiceDetailsRepository extends JpaRepository<ServiceDetails, 
     List<ServiceDetails> findByPrice(Double price);
     List<ServiceDetails> findByDuration(Integer duration);
     boolean existsByServiceNameAndIdNot(String serviceName, Long id);
+    List<ServiceDetails> findByBarberEmail(String email);
 }

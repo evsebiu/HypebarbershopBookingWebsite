@@ -18,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "http://localhost:5173")
+
 public class BarberControllerAPI {
 
     private final BarberService barberService;
