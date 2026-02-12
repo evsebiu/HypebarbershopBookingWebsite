@@ -41,7 +41,7 @@ public class Appointment {
 
 
     @DateTimeFormat(pattern = "dd/MM/yyyy HH:mm")
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 

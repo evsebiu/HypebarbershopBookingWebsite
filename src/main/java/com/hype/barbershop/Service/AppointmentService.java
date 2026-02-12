@@ -271,7 +271,11 @@ public class AppointmentService {
             }
 
             LocalDateTime existingStart = existing.getStartTime();
-            LocalDateTime existingEnd = existingStart.plusMinutes(existing.getServiceDetails().getDuration());
+
+            int duration = (existing.getServiceDetails() !=null ) ? existing.getServiceDetails().getDuration() : 30;
+
+
+            LocalDateTime existingEnd = existingStart.plusMinutes(duration);
 
             // Overlap logic : Start A < End B & Start B < End A
             if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
@@ -359,8 +363,13 @@ public class AppointmentService {
             if (!isOccupied) {
                 for (Appointment app : existingAppointment) {
                     LocalDateTime appStart = app.getStartTime();
+
+
+                    int appDuration = (app.getServiceDetails() != null) ?app.getServiceDetails().getDuration() : 30;
+
+
                     // Calculăm finalul programării existente bazat pe durata serviciului ei
-                    LocalDateTime appEnd = appStart.plusMinutes(app.getServiceDetails().getDuration());
+                    LocalDateTime appEnd = appStart.plusMinutes(appDuration);
 
                     if (existingAppointment.equals(AppointmentStatus.CANCELED)){
                         isOccupied = false;
@@ -550,8 +559,11 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
 
+        int duration = (appointment.getServiceDetails() !=null ) ? appointment.getServiceDetails().getDuration() : 30;
+
         ServiceDetails service  = appointment.getServiceDetails();
-        LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
+
+        LocalDateTime newEnd = newStart.plusMinutes(duration);
 
         checkForOverlaps(
                 appointmentRepository.findByBarberId(appointment.getBarber().getId()),

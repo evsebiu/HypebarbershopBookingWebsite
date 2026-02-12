@@ -24,15 +24,22 @@ public class AppointmentMapper {
             dto.setBarberId(appointment.getBarber().getId());
             dto.setBarberName(appointment.getBarber().getFirstName() + " " + appointment.getBarber().getLastName());
         }
-        if (appointment.getServiceDetails() !=null){
+        if (appointment.getServiceDetails() !=null) {
             dto.setServiceId(appointment.getServiceDetails().getId());
 
-            dto.setServiceName(appointment.getServiceDetails().getServiceName());
+
             dto.setPrice(appointment.getServiceDetails().getPrice());
-            dto.setDuration(appointment.getServiceDetails().getDuration());
+
+            if (appointment.getServiceDetails() != null) {
+                dto.setServiceName(appointment.getServiceDetails().getServiceName());
+                dto.setDuration(appointment.getServiceDetails().getDuration());
+            } else {
+                dto.setDuration(30);
+                dto.setServiceName("Serviciu sters");
+            }
         }
 
-        dto.setStatus(appointment.getStatus()   );
+        dto.setStatus(appointment.getStatus());
 
         return dto;
     }
