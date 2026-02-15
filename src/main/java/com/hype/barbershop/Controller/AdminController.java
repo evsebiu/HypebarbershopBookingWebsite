@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
     // Servicii necesare pentru dashboard
@@ -39,5 +38,10 @@ public class AdminController {
     public ResponseEntity<?> deleteBarber(@PathVariable Long id) {
         barberService.deleteBarber(id);
         return ResponseEntity.ok(Map.of("message", "Frizerul a fost sters!"));
+    }
+
+    @GetMapping("/barbers")
+    public ResponseEntity <?> getAllBarbers(){
+        return ResponseEntity.ok(barberService.getAll());
     }
 }
