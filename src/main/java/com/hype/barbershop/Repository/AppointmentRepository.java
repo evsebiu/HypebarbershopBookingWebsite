@@ -1,6 +1,7 @@
 package com.hype.barbershop.Repository;
 
 import com.hype.barbershop.Model.Entity.Appointment;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByBarberIdAndStartTimeAfterOrderByStartTime(Long barberId, LocalDateTime now);
 
-
+    List<Appointment> findByBarberAndStatus(Long barberId, AppointmentStatus status);
 }

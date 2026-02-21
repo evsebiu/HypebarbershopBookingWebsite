@@ -1,6 +1,8 @@
 package com.hype.barbershop.Controller;
 
+import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,12 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
 @Slf4j
+
+
 public class AppointmentControllerAPI {
 
     private final AppointmentService appointmentService;
@@ -66,6 +71,7 @@ public class AppointmentControllerAPI {
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/slots")
     public ResponseEntity<List<String>> getAvailableSlots(
             @RequestParam Long barberId,
@@ -73,5 +79,19 @@ public class AppointmentControllerAPI {
             @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
 
         return ResponseEntity.ok(appointmentService.getAvailableSlots(barberId, serviceId, date));
+    }
+
+    @GetMapping("/my-appointments/filter")
+    public ResponseEntity<List<AppointmentDTO>> filterAppointment(@RequestParam AppointmentStatus status,
+                                                                  Principal principal){
+
+        if (principal == null){
+            throw new IllegalBarbershopArgument("Acces nepermis. Trebuie sa te loghezi intai.");
+        }
+
+        String email = principal.getName();
+
+
+        return ResponseEntity.ok(appointmentService.getAppointmentByStatus(email, status));
     }
 }

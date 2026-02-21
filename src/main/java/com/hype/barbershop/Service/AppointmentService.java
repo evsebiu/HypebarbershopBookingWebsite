@@ -40,19 +40,19 @@ public class AppointmentService {
                               ServiceDetailsRepository serviceDetailsRepository,
                               BarberRepository barberRepository,
                               BarberScheduleRepository scheduleRepository,
-                              BarberDayOffRepository dayOffRepository){
-        this.appointmentMapper=appointmentMapper;
-        this.appointmentRepository=appointmentRepository;
-        this.serviceDetailsRepository=serviceDetailsRepository;
-        this.barberRepository=barberRepository;
-        this.scheduleRepository=scheduleRepository;
-        this.dayOffRepository=dayOffRepository;
+                              BarberDayOffRepository dayOffRepository) {
+        this.appointmentMapper = appointmentMapper;
+        this.appointmentRepository = appointmentRepository;
+        this.serviceDetailsRepository = serviceDetailsRepository;
+        this.barberRepository = barberRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.dayOffRepository = dayOffRepository;
     }
 
 
     //GET
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getAllAppointments(){
+    public List<AppointmentDTO> getAllAppointments() {
 
         log.debug("Se cer toate programarile....");
 
@@ -69,20 +69,20 @@ public class AppointmentService {
 
 
     @Transactional(readOnly = true)
-    public Optional<AppointmentDTO> getById(Long id){
+    public Optional<AppointmentDTO> getById(Long id) {
 
         log.debug("Se cauta programarea cu ID: {} ", id);
 
         return appointmentRepository.findById(id)
                 .map(appointmentMapper::toDTO)
-                .or(()-> {
-                    log.warn("Programarea cu ID {} a fost solicitata, dar nu exista in baza de date" , id);
+                .or(() -> {
+                    log.warn("Programarea cu ID {} a fost solicitata, dar nu exista in baza de date", id);
                     return Optional.empty();
                 });
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getByClientName(String clientName){
+    public List<AppointmentDTO> getByClientName(String clientName) {
 
         log.debug("Se cere programare cu numele clientului {} ", clientName);
 
@@ -91,7 +91,7 @@ public class AppointmentService {
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
 
-        if (appointments.isEmpty()){
+        if (appointments.isEmpty()) {
             log.info("Nu exista programari pentru clientul {}", clientName);
         } else {
             log.info("S-a returnat programarea clientului cu numele {}", clientName);
@@ -103,7 +103,7 @@ public class AppointmentService {
 
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getByPhoneNumber(String phoneNumber){
+    public List<AppointmentDTO> getByPhoneNumber(String phoneNumber) {
 
         log.debug("Se cauta clientul cu numarul de telefon {}", phoneNumber);
 
@@ -112,7 +112,7 @@ public class AppointmentService {
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
 
-        if (appointments.isEmpty()){
+        if (appointments.isEmpty()) {
             log.info("Nu exista niciun client cu numarul {} in baza de date", phoneNumber);
         } else {
             log.info("S-a returnat programarea clientului care are numarul de telefon {}", phoneNumber);
@@ -122,40 +122,40 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getByEmail(String clientEmail){
+    public List<AppointmentDTO> getByEmail(String clientEmail) {
 
         log.debug("Se solicita clientul cu emailul {} ", clientEmail);
 
 
-       List<AppointmentDTO> appointments = appointmentRepository.findByClientEmail(clientEmail)
-               .stream()
-               .map(appointmentMapper::toDTO)
-               .collect(Collectors.toList());
-       if (appointments.isEmpty()){
-           log.info("Nu exista nicio programare cu emailul {} ", clientEmail);
-       } else {
-           log.info("S-a returnat programarea cu emailul {}", clientEmail);
-       }
+        List<AppointmentDTO> appointments = appointmentRepository.findByClientEmail(clientEmail)
+                .stream()
+                .map(appointmentMapper::toDTO)
+                .collect(Collectors.toList());
+        if (appointments.isEmpty()) {
+            log.info("Nu exista nicio programare cu emailul {} ", clientEmail);
+        } else {
+            log.info("S-a returnat programarea cu emailul {}", clientEmail);
+        }
 
-       return appointments;
+        return appointments;
 
     }
 
 
     @Transactional
-    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO){
+    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
         log.info("Incercare de creare de programare: {} ", appointmentDTO.getClientName());
 
 
-        if (appointmentDTO.getStartTime().isBefore(LocalDateTime.now().minusMinutes(5))){
+        if (appointmentDTO.getStartTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
             throw new BarbershopException("Nu se pot efectua programari in trecut! ");
         }
 
         // 1. first step check if barber and service exists in database.
-       Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
-               .orElseThrow(()-> new BarbershopException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
+        Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
+                .orElseThrow(() -> new BarbershopException("Frizerul cu id " + appointmentDTO.getBarberId() + " nu exista."));
         ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new BarbershopException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
+                .orElseThrow(() -> new BarbershopException("Serviciul cu id " + appointmentDTO.getServiceId() + " nu exista"));
 
         // 2. calculate when appointment begins and when it finishes.
         // we got the start from the client and duration from service table
@@ -182,21 +182,21 @@ public class AppointmentService {
 
 
     //update method available only for administrator / barber
-    public AppointmentDTO updateAppointmentAPI (Long id, AppointmentDTO appointmentDTO){
+    public AppointmentDTO updateAppointmentAPI(Long id, AppointmentDTO appointmentDTO) {
 
         log.info("Incercare de actualizare a programarii cu id: {} ", id);
 
         //check if appointment exists
         Appointment existingAppointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopException("Programarea cautata nu exista " + id));
+                .orElseThrow(() -> new BarbershopException("Programarea cautata nu exista " + id));
 
         //validate if barber and service exists
 
         Barber barber = barberRepository.findById(appointmentDTO.getBarberId())
-                .orElseThrow(()-> new BarbershopException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
+                .orElseThrow(() -> new BarbershopException("Frizerul cautat nu exista. ID:" + appointmentDTO.getBarberId()));
 
         ServiceDetails serviceDetails = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new BarbershopException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
+                .orElseThrow(() -> new BarbershopException("Serviciul cautat nu exista. ID:" + appointmentDTO.getServiceId()));
 
         //calculate next time window
         LocalDateTime newStart = appointmentDTO.getStartTime();
@@ -204,7 +204,7 @@ public class AppointmentService {
 
 
         //check for appointment conflicts. filter by the target barber and ensure we don't compare appointments with itself
-        List<Appointment> barberAppointment  = appointmentRepository.findByBarberId(barber.getId());
+        List<Appointment> barberAppointment = appointmentRepository.findByBarberId(barber.getId());
 
         checkForOverlaps(barberAppointment, newStart, newEnd, id);
 
@@ -229,10 +229,10 @@ public class AppointmentService {
     }
 
 
-    public void deleteAppointment (Long id){
+    public void deleteAppointment(Long id) {
         log.info("Se solicita stergerea programarii cu ID {} ", id);
 
-        if (!appointmentRepository.existsById(id)){
+        if (!appointmentRepository.existsById(id)) {
             throw new BarbershopException("Programarea solicitata nu exista.");
         }
 
@@ -245,8 +245,9 @@ public class AppointmentService {
      * * Logic: Two time intervals (StartA, EndA) and (StartB, EndB) overlap if:
      * StartA < EndB AND EndA > StartB
      * * @param barberId The ID of the barber
-     * @param newStart The requested start time
-     * @param newEnd   The requested end time (calculated as start + duration)
+     *
+     * @param newStart  The requested start time
+     * @param newEnd    The requested end time (calculated as start + duration)
      * @param excludeId The ID of the appointment to ignore (used for updates). Pass -1 or null for creation.
      * @return true if an overlap exists
      */
@@ -260,25 +261,25 @@ public class AppointmentService {
 
     //helper method to check for overlaps ( changed initial createAppointment & updateAppointment to make them better)
     private void checkForOverlaps(List<Appointment> appointments, LocalDateTime newStart, LocalDateTime newEnd,
-                                  Long excludeId){
-        for (Appointment existing : appointments){
-            if (excludeId != null && existing.getId().equals(excludeId)){
+                                  Long excludeId) {
+        for (Appointment existing : appointments) {
+            if (excludeId != null && existing.getId().equals(excludeId)) {
                 continue;
             }
 
-            if (existing.getStatus() == AppointmentStatus.CANCELED ){
+            if (existing.getStatus() == AppointmentStatus.CANCELED) {
                 continue;
             }
 
             LocalDateTime existingStart = existing.getStartTime();
 
-            int duration = (existing.getServiceDetails() !=null ) ? existing.getServiceDetails().getDuration() : 30;
+            int duration = (existing.getServiceDetails() != null) ? existing.getServiceDetails().getDuration() : 30;
 
 
             LocalDateTime existingEnd = existingStart.plusMinutes(duration);
 
             // Overlap logic : Start A < End B & Start B < End A
-            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)){
+            if (newStart.isBefore(existingEnd) && existingStart.isBefore(newEnd)) {
                 log.warn("Conflict de programari pentru frizerul cu ID {} ", existing.getBarber().getId());
                 throw new BarbershopException("Intervalul orar este deja ocupat pentru acest frizer.");
             }
@@ -288,9 +289,9 @@ public class AppointmentService {
 
     // CALENDAR BOOOKING AVAILABLE SLOTS
 
-    public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date){
+    public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date) {
         // 1. Verificăm dacă este o zi liberă specială (Concediu)
-        if (dayOffRepository.existsByBarberIdAndDate(barberId, date)){
+        if (dayOffRepository.existsByBarberIdAndDate(barberId, date)) {
             return new ArrayList<>(); // Zi liberă -> nicio oră disponibilă
         }
 
@@ -302,11 +303,11 @@ public class AppointmentService {
         Optional<BarberSchedule> schedulOpt =
                 scheduleRepository.findByBarberIdAndDayOfWeek(barberId, date.getDayOfWeek());
 
-        if (schedulOpt.isPresent()){
+        if (schedulOpt.isPresent()) {
             BarberSchedule schedule = schedulOpt.get();
 
             // Dacă ziua este marcată explicit ca nelucrătoare în setările frizerului
-            if (Boolean.FALSE.equals(schedule.getIsWorkingDay())){
+            if (Boolean.FALSE.equals(schedule.getIsWorkingDay())) {
                 return new ArrayList<>();
             }
 
@@ -319,7 +320,7 @@ public class AppointmentService {
         // SAU dacă orele din bază sunt corupte (null), folosim orarul standard.
         if (workStart == null || workEnd == null) {
             // Regula default: Luni Închis
-            if (date.getDayOfWeek() == DayOfWeek.MONDAY){
+            if (date.getDayOfWeek() == DayOfWeek.MONDAY) {
                 return new ArrayList<>();
             }
             // Regula default: Marți-Duminică 10:00 - 20:00
@@ -365,17 +366,17 @@ public class AppointmentService {
                     LocalDateTime appStart = app.getStartTime();
 
 
-                    int appDuration = (app.getServiceDetails() != null) ?app.getServiceDetails().getDuration() : 30;
+                    int appDuration = (app.getServiceDetails() != null) ? app.getServiceDetails().getDuration() : 30;
 
 
                     // Calculăm finalul programării existente bazat pe durata serviciului ei
                     LocalDateTime appEnd = appStart.plusMinutes(appDuration);
 
-                    if (existingAppointment.equals(AppointmentStatus.CANCELED)){
+                    if (existingAppointment.equals(AppointmentStatus.CANCELED)) {
                         isOccupied = false;
                     }
 
-                    if (app.getStatus() == AppointmentStatus.CANCELED){
+                    if (app.getStatus() == AppointmentStatus.CANCELED) {
                         continue;
                     }
 
@@ -400,27 +401,27 @@ public class AppointmentService {
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getAllAppointmentsForCurrentBarber(String email){
-        Barber barber =  barberRepository.findByEmail(email)
-                .orElseThrow(()-> new BarbershopException("Frizerul negasit."));
+    public List<AppointmentDTO> getAllAppointmentsForCurrentBarber(String email) {
+        Barber barber = barberRepository.findByEmail(email)
+                .orElseThrow(() -> new BarbershopException("Frizerul negasit."));
 
 
         return appointmentRepository.findByBarberIdAndStartTimeAfterOrderByStartTime(
-                barber.getId(),
-                LocalDateTime.now()
-        )
+                        barber.getId(),
+                        LocalDateTime.now()
+                )
                 .stream()
                 .map(appointmentMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getAppointmentsForBarber(String email){
+    public List<AppointmentDTO> getAppointmentsForBarber(String email) {
 
         // find barber after email to get his ID
 
         Barber barber = barberRepository.findByEmail(email)
-                .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit."));
+                .orElseThrow(() -> new BarbershopException("Frizerul nu a fost gasit."));
 
         // use method from repo that filters after id
 
@@ -432,12 +433,12 @@ public class AppointmentService {
 
 
     @Transactional(readOnly = true)
-    public List<AppointmentDTO> getAppointmentsForBarberByDate(String email, LocalDate date){
+    public List<AppointmentDTO> getAppointmentsForBarberByDate(String email, LocalDate date) {
 
         // identify logged-in barber
 
         Barber barber = barberRepository.findByEmail(email)
-                .orElseThrow(()-> new BarbershopResourceNotFound("Frizerul nu a fost gasit"));
+                .orElseThrow(() -> new BarbershopResourceNotFound("Frizerul nu a fost gasit"));
 
         // calculate day time
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -459,12 +460,12 @@ public class AppointmentService {
 
     // helper method for security check
     @Transactional(readOnly = true)
-    public AppointmentDTO getAppointmentForEdit(Long id, String requesterEmail, boolean isAdmin){
+    public AppointmentDTO getAppointmentForEdit(Long id, String requesterEmail, boolean isAdmin) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
+                .orElseThrow(() -> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
 
         // first version of this method is to check only for admin
-        if (!isAdmin && !appointment.getBarber().getEmail().equals(requesterEmail)){
+        if (!isAdmin && !appointment.getBarber().getEmail().equals(requesterEmail)) {
             throw new BarbershopException("Nu ai permisiunea sa modifici aceasta programare");
         }
 
@@ -473,21 +474,21 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentDTO updateAppointment(Long id, AppointmentDTO appointmentDTO, String requesterEmail, boolean isAdmin){
+    public AppointmentDTO updateAppointment(Long id, AppointmentDTO appointmentDTO, String requesterEmail, boolean isAdmin) {
 
 
         // find original entity
         Appointment existingApp = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
+                .orElseThrow(() -> new BarbershopResourceNotFound("Programarea solicitata nu exista"));
 
         //permission check
-        if (!isAdmin && !existingApp.getBarber().getEmail().equals(requesterEmail)){
+        if (!isAdmin && !existingApp.getBarber().getEmail().equals(requesterEmail)) {
             throw new BarbershopException("ACCEZ INTERZIS! Nu aveti permisiunea pentru a modifica aceasta programare");
         }
 
         // verify logic, if duration changed, we check overlapping by calculating new period
         ServiceDetails service = serviceDetailsRepository.findById(appointmentDTO.getServiceId())
-                .orElseThrow(()-> new BarbershopException("Serviciul solicitat nu exista"));
+                .orElseThrow(() -> new BarbershopException("Serviciul solicitat nu exista"));
 
         LocalDateTime newStart = appointmentDTO.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(service.getDuration());
@@ -518,9 +519,9 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void markAppointmentAsCompleted(Long id){
+    public void markAppointmentAsCompleted(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+                .orElseThrow(() -> new BarbershopException("Programarea nu exista"));
 
         // set status to completed
         appointment.setStatus(AppointmentStatus.COMPLETED);
@@ -530,9 +531,9 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void markAppointmentAsCancelled(Long id){
+    public void markAppointmentAsCancelled(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+                .orElseThrow(() -> new BarbershopException("Programarea nu exista"));
 
         appointment.setStatus(AppointmentStatus.CANCELED);
 
@@ -542,9 +543,9 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void markAppointmentAsConfirmed(Long id){
+    public void markAppointmentAsConfirmed(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopException("Programarea nu a fost gasita"));
+                .orElseThrow(() -> new BarbershopException("Programarea nu a fost gasita"));
 
         appointment.setStatus(AppointmentStatus.CONFIRMED);
 
@@ -555,13 +556,13 @@ public class AppointmentService {
 
 
     @Transactional
-    public void moveAppointment(Long id, LocalDateTime newStart){
+    public void moveAppointment(Long id, LocalDateTime newStart) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(()-> new BarbershopException("Programarea nu exista"));
+                .orElseThrow(() -> new BarbershopException("Programarea nu exista"));
 
-        int duration = (appointment.getServiceDetails() !=null ) ? appointment.getServiceDetails().getDuration() : 30;
+        int duration = (appointment.getServiceDetails() != null) ? appointment.getServiceDetails().getDuration() : 30;
 
-        ServiceDetails service  = appointment.getServiceDetails();
+        ServiceDetails service = appointment.getServiceDetails();
 
         LocalDateTime newEnd = newStart.plusMinutes(duration);
 
@@ -578,18 +579,30 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentDTO getNextImmediateAppointment(String email){
+    public AppointmentDTO getNextImmediateAppointment(String email) {
         Barber barber = barberRepository.findByEmail(email)
-                .orElseThrow(()-> new BarbershopException("Frizerul nu a fost gasit !"));
+                .orElseThrow(() -> new BarbershopException("Frizerul nu a fost gasit !"));
 
         return appointmentRepository.findByBarberIdAndStartTimeAfterOrderByStartTime(
-                barber.getId(),
-                LocalDateTime.now()
-        ).stream()
+                        barber.getId(),
+                        LocalDateTime.now()
+                ).stream()
                 .filter(app -> app.getStatus() != AppointmentStatus.CANCELED)
                 .filter(app -> app.getStatus() != AppointmentStatus.COMPLETED)
                 .findFirst()
                 .map(appointmentMapper::toDTO)
                 .orElse(null);
     }
+
+    @Transactional
+    public List<AppointmentDTO> getAppointmentByStatus(String email, AppointmentStatus status) {
+        Barber barber = barberRepository.findByEmail(email)
+                .orElseThrow(() -> new BarbershopException("Frizerul nu a fost gasit!"));
+
+       return appointmentRepository.findByBarberAndStatus(barber.getId(), status)
+                .stream()
+                .map(appointmentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
