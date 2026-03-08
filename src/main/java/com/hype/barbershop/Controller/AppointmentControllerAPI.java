@@ -94,4 +94,16 @@ public class AppointmentControllerAPI {
 
         return ResponseEntity.ok(appointmentService.getAppointmentByStatus(email, status));
     }
+
+    @PostMapping("/manual-booking")
+    public ResponseEntity<AppointmentDTO> createManualAppointment(@RequestBody @Valid AppointmentDTO appointmentDTO,
+                                                                  Principal principal){
+        if (principal == null){
+            throw new IllegalBarbershopArgument("Acces nepermis. Trebuie sa te loghezi intai");
+        }
+
+        String email = principal.getName();
+        return  new ResponseEntity<>(appointmentService.createManualAppointment(appointmentDTO, email), HttpStatus.CREATED);
+    }
+
 }

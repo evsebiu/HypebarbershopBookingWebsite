@@ -605,4 +605,14 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public AppointmentDTO createManualAppointment(AppointmentDTO appointmentDTO, String barberEmail){
+        Barber barber = barberRepository.findByEmail(barberEmail)
+                .orElseThrow(()-> new BarbershopException("Frizerul nu a putut fi gasit."));
+
+        appointmentDTO.setBarberId(barber.getId());
+
+        return createAppointment(appointmentDTO);
+    }
+
 }
