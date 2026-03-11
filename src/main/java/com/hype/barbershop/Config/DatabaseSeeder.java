@@ -29,9 +29,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (barberRepo.findByEmail("catalin@hype.ro").isEmpty()) {
             Barber admin = new Barber();
             admin.setFirstName("Catalin");
-            admin.setLastName("Lc");
+            admin.setLastName("Costin");
             admin.setEmail("catalin@hype.ro");
-            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setPassword(passwordEncoder.encode("catalinbarberhype69"));
             admin.setRole(Role.ROLE_ADMIN);
             admin.setIsActive(true);
             barberRepo.save(admin);
@@ -44,7 +44,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             barber.setFirstName("Ovidiu");
             barber.setLastName("Ciobanu");
             barber.setEmail("ovidiu@hype.ro");
-            barber.setPassword(passwordEncoder.encode("ovidiu123"));
+            barber.setPassword(passwordEncoder.encode("ovidiuhypebarber99"));
             barber.setRole(Role.ROLE_BARBER);
             barber.setIsActive(true);
             barberRepo.save(barber);

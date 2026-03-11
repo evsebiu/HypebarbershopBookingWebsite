@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -79,6 +80,16 @@ public class BarberControllerAPI {
     public ResponseEntity<BarberDTO> getBarberById(@PathVariable Long id){
         log.info("Cerere API pentr frizerul cu ID {}", id);
         return barberService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<BarberDTO> getCurrentUser(Principal principal){
+        if (principal == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return barberService.getByEmail(principal.getName())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

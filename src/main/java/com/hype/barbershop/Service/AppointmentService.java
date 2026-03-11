@@ -4,6 +4,7 @@ package com.hype.barbershop.Service;
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.ManualAppointmentDTO;
 import com.hype.barbershop.Model.Entity.*;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Model.Mapper.AppointmentMapper;
@@ -606,13 +607,49 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentDTO createManualAppointment(AppointmentDTO appointmentDTO, String barberEmail){
+    public AppointmentDTO createManualAppointment(ManualAppointmentDTO manualAppointmentDTO, String barberEmail){
+// 1. Găsim frizerul (cel care e logat și face programarea)
         Barber barber = barberRepository.findByEmail(barberEmail)
-                .orElseThrow(()-> new BarbershopException("Frizerul nu a putut fi gasit."));
+                .orElseThrow(() -> new BarbershopException("Frizerul nu a putut fi gasit."));
 
-        appointmentDTO.setBarberId(barber.getId());
+        // 2. Găsim serviciul
+        ServiceDetails serviceDetails = serviceDetailsRepository.findById(manualAppointmentDTO.getServiceId())
+                .orElseThrow(() -> new BarbershopException("Serviciul cu id " + manualAppointmentDTO.getServiceId() + " nu exista"));
 
-        return createAppointment(appointmentDTO);
+        // 3. Verificări de timp
+        if (manualAppointmentDTO.getStartTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
+            throw new BarbershopException("Nu se pot efectua programari in trecut!");
+        }
+
+        LocalDateTime newStart = manualAppointmentDTO.getStartTime();
+        LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
+
+        // 4. Verificăm conflictele de orar
+        List<Appointment> barberAppointments = appointmentRepository.findByBarberId(barber.getId());
+        checkForOverlaps(barberAppointments, newStart, newEnd, null);
+
+        // 5. Creăm entitatea direct
+        Appointment appointment = new Appointment();
+        appointment.setClientName(manualAppointmentDTO.getClientName());
+        appointment.setPhoneNumber(manualAppointmentDTO.getPhoneNumber());
+
+        // Fiindcă e programare manuală, e posibil să nu avem un email de la client.
+        // Dacă baza ta de date cere ca email-ul să nu fie NULL, îi putem pune un fallback:
+        appointment.setClientEmail("lipsa-email-" + System.currentTimeMillis() + "@barbershop.ro");
+
+        appointment.setStartTime(manualAppointmentDTO.getStartTime());
+        appointment.setBarber(barber);
+        appointment.setServiceDetails(serviceDetails);
+
+        // Opțional: O programare adăugată manual de frizer ar trebui să fie direct confirmată
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        // 6. Salvăm și transformăm în DTO complet pentru a-l trimite înapoi
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        log.info("Programare manuala facuta cu succes de catre frizerul {}, ID: {}", barber.getFirstName(), savedAppointment.getId());
+
+        return appointmentMapper.toDTO(savedAppointment);
     }
 
 }

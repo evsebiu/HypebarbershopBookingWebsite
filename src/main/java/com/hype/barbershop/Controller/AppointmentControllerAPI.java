@@ -2,6 +2,7 @@ package com.hype.barbershop.Controller;
 
 import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.ManualAppointmentDTO;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Service.AppointmentService;
 import jakarta.validation.Valid;
@@ -96,14 +97,17 @@ public class AppointmentControllerAPI {
     }
 
     @PostMapping("/manual-booking")
-    public ResponseEntity<AppointmentDTO> createManualAppointment(@RequestBody @Valid AppointmentDTO appointmentDTO,
+    public ResponseEntity<AppointmentDTO> createManualAppointment(@RequestBody @Valid ManualAppointmentDTO manualAppointmentDTO,
                                                                   Principal principal){
         if (principal == null){
             throw new IllegalBarbershopArgument("Acces nepermis. Trebuie sa te loghezi intai");
         }
 
         String email = principal.getName();
-        return  new ResponseEntity<>(appointmentService.createManualAppointment(appointmentDTO, email), HttpStatus.CREATED);
+
+        AppointmentDTO savedAppointment = appointmentService.createManualAppointment(manualAppointmentDTO, email);
+
+        return new ResponseEntity<>(savedAppointment, HttpStatus.CREATED);
     }
 
 }
