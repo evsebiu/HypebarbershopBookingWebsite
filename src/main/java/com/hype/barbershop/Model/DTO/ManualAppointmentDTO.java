@@ -13,9 +13,7 @@ public class ManualAppointmentDTO {
     @NotBlank(message = "Numele este necesar")
     private String clientName;
 
-    @NotBlank(message = "Numarul de telefon este necesar")
-    @Pattern(regexp = "^(\\+4|0)7[0-9]{8}$", message = "Formatul numărului de telefon " +
-            "este invalid (ex: 0722123456 sau +40722123456)")
+
     private String phoneNumber;
 
     @NotNull(message = "Data este obligatorie")

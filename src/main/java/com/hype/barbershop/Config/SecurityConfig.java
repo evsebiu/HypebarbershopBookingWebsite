@@ -68,7 +68,8 @@ public class SecurityConfig {
                 )
                 // AICI ESTE SCHIMBAREA MAJORĂ:
                 .formLogin(form -> form
-                        .loginProcessingUrl("/login")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/api/login")
                         // Dacă logarea reușește, trimitem un JSON 200 OK
                         .successHandler((request, response, authentication) -> {
                             response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_OK);
@@ -83,6 +84,14 @@ public class SecurityConfig {
                         })
                         .permitAll()
                 )
+
+                .rememberMe(remember -> remember
+                        .key("Hq8#mP2$vL5xnR8@qW1!yZ4^tC7&bN0k") // O parolă internă a serverului
+                        .userDetailsService(userDetailsService)
+                        .tokenValiditySeconds(31536000) // Fix 365 de zile (1 an) în secunde
+                        .alwaysRemember(true) // Forțează reținerea fără ca userul să bifeze un checkbox!
+                )
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")        // După logout te duce pe prima pagină
@@ -110,31 +119,25 @@ public class SecurityConfig {
     }
 
 
-    // metoda pentru migrare
-    @Bean
-    public WebMvcConfigurer corsConfigurer(){
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry){
-                registry.addMapping("/**")
-                        .allowedOriginPatterns(
-                                "http://localhost:5173",
-                                "http://127.0.0.1:5173",
-                                "http://192.168.*.*:5173" // Permite orice IP din rețeaua locală
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .allowCredentials(true);
-            }
-        };
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://hypebarbershop.ro", "https://www.hypebarbershop.ro"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+
+        // Permitem și frontend-ul local (Vite) și domeniile de pe VPS
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "https://hypebarbershop.ro",
+                "https://www.hypebarbershop.ro"
+        ));
+
+        // Permitem toate metodele HTTP
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        // Permitem headerele necesare
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

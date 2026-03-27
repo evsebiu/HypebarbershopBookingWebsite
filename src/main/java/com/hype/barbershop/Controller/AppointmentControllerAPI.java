@@ -5,6 +5,8 @@ import com.hype.barbershop.Model.DTO.AppointmentDTO;
 import com.hype.barbershop.Model.DTO.ManualAppointmentDTO;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Service.AppointmentService;
+import com.hype.barbershop.Service.BarberService;
+import com.hype.barbershop.Service.EmailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +26,10 @@ import java.util.List;
 public class AppointmentControllerAPI {
 
     private final AppointmentService appointmentService;
+    private final EmailService emailService;
+    private final BarberService barberService;
 
-    // 1. CREATE (Public - Booking)
-    @PostMapping
-    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody @Valid AppointmentDTO appointmentDTO) {
-        return new ResponseEntity<>(appointmentService.createAppointment(appointmentDTO), HttpStatus.CREATED);
-    }
+
 
     // 2. GET ALL (Dashboard)
     @GetMapping
@@ -107,6 +107,45 @@ public class AppointmentControllerAPI {
 
         AppointmentDTO savedAppointment = appointmentService.createManualAppointment(manualAppointmentDTO, email);
 
+        return new ResponseEntity<>(savedAppointment, HttpStatus.CREATED);
+    }
+
+
+
+    // EMAIL SENDER
+
+    @PostMapping
+    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody @Valid AppointmentDTO appointmentDTO) {
+
+        // 1. Salvam programarea in baza de date PRIMA DATA
+        // Este important sa preluam obiectul returnat, deoarece poate contine ID-ul nou generat
+        // sau detalii adaugate de AppointmentService.
+        AppointmentDTO savedAppointment = appointmentService.createAppointment(appointmentDTO);
+
+        // 2. Generam sabloanele HTML folosind datele salvate
+        String clientEmailBody = emailService.generateClientTemplate(savedAppointment);
+        String barberEmailBody = emailService.generateBarberTemplate(savedAppointment);
+
+        // 3. Trimitem emailurile
+        emailService.sendHtmlEmail(
+                savedAppointment.getClientEmail(),
+                "Confirmare Programare - Hype Barbershop",
+                clientEmailBody
+        );
+
+       // find barber email
+        String barberEmail = barberService.findById(savedAppointment.getBarberId())
+                .orElseThrow(()-> new RuntimeException("Frizerul nu a fost gasit"))
+                .getEmail();
+
+        // send email to barber
+        emailService.sendHtmlEmail(
+                barberEmail,
+                "Programare Noua: " + savedAppointment.getClientName(),
+                barberEmailBody
+        );
+
+        // 4. Returnam raspunsul JSON catre React
         return new ResponseEntity<>(savedAppointment, HttpStatus.CREATED);
     }
 

@@ -26,11 +26,11 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // verify if already exists an admin to avoid duplicate create
-        if (barberRepo.findByEmail("catalin@hype.ro").isEmpty()) {
+        if (barberRepo.findByEmail("costincatalin199@gmail.com").isEmpty()) {
             Barber admin = new Barber();
             admin.setFirstName("Catalin");
             admin.setLastName("Costin");
-            admin.setEmail("catalin@hype.ro");
+            admin.setEmail("costincatalin199@gmail.com");
             admin.setPassword(passwordEncoder.encode("catalinbarberhype69"));
             admin.setRole(Role.ROLE_ADMIN);
             admin.setIsActive(true);

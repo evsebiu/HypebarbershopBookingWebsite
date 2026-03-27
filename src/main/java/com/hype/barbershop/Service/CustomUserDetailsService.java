@@ -2,7 +2,6 @@ package com.hype.barbershop.Service;
 
 
 import com.hype.barbershop.Exceptions.BarbershopException;
-import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.Entity.Barber;
 import com.hype.barbershop.Repository.BarberRepository;
 import lombok.RequiredArgsConstructor;

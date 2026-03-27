@@ -10,7 +10,11 @@ import com.hype.barbershop.Model.Entity.ServiceDetails;
 import com.hype.barbershop.Model.Mapper.BarberMapper;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.BarberService;
+import com.hype.barbershop.Service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +30,9 @@ public class AppointmentController {
     private final BarberService barberService;
     private final AppointmentService appointmentService;
     private final BarberMapper barberMapper;
+
+
+
 
     // Nu ai nevoie de ServiceDetailsMapper aici, pentru că BarberDTO conține deja lista de Entități ServiceDetails
 
