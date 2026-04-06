@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/dashboard/**").hasAnyRole("ADMIN", "BARBER")
 
                         // Zone strict pentru Admin (dacă mai ai API-uri specifice)
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/barbers/register").hasRole("ADMIN")
 
                         // Orice altceva necesită autentificare

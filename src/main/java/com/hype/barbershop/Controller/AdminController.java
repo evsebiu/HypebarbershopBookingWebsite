@@ -3,10 +3,6 @@ package com.hype.barbershop.Controller;
 import com.hype.barbershop.Service.AppointmentService;
 import com.hype.barbershop.Service.BarberService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
