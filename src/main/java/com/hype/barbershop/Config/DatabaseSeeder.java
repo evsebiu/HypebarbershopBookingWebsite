@@ -23,8 +23,36 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final BarberScheduleRepository barberScheduleRepo;
 
 
+
+
     @Override
     public void run(String... args) throws Exception {
+
+        // =======================================================
+        // SCRIPT DE REPARARE AUTOMATĂ (Va rula o singură dată)
+        // =======================================================
+        Barber oldProfile = barberRepo.findByEmail("catalin@hype.ro").orElse(null);
+        Barber newEmptyProfile = barberRepo.findByEmail("costincatalin199@gmail.com").orElse(null);
+
+        // Dacă găsește AMBELE conturi, înseamnă că trebuie să facem "rocada"
+        if (oldProfile != null && newEmptyProfile != null) {
+
+            // 1. Schimbăm email-ul contului gol ca să "eliberăm" adresa de Gmail
+            newEmptyProfile.setEmail("de_sters@hype.ro");
+            newEmptyProfile.setIsActive(false); // Îl și dezactivăm să nu te încurce vizual
+            barberRepo.save(newEmptyProfile);
+
+            // 2. Acum că adresa e liberă, o punem pe profilul VECHI (cel care are toate programările)
+            oldProfile.setEmail("costincatalin199@gmail.com");
+            oldProfile.setPassword(passwordEncoder.encode("catalinbarberhype69"));
+            barberRepo.save(oldProfile);
+
+            System.out.println("✅ REPARAT: Profilul cu programări folosește acum noul email!");
+        }
+        // =======================================================
+
+
+
         // verify if already exists an admin to avoid duplicate create
         if (barberRepo.findByEmail("costincatalin199@gmail.com").isEmpty()) {
             Barber admin = new Barber();

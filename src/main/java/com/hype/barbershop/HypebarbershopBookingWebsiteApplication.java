@@ -2,10 +2,13 @@ package com.hype.barbershop;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
+
+import java.util.TimeZone;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -22,10 +25,15 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 
+
 public class HypebarbershopBookingWebsiteApplication{
 
 	public static void main(String[] args) {
 		SpringApplication.run(HypebarbershopBookingWebsiteApplication.class, args);
 	}
 
+    @PostConstruct
+    public void init (){
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+    }
 }

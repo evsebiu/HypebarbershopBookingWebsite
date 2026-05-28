@@ -2,6 +2,7 @@ package com.hype.barbershop.Controller;
 
 import com.hype.barbershop.Exceptions.IllegalBarbershopArgument;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.DailyAvailabilityResponse;
 import com.hype.barbershop.Model.DTO.ManualAppointmentDTO;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
 import com.hype.barbershop.Service.AppointmentService;
@@ -74,12 +75,13 @@ public class AppointmentControllerAPI {
     }
 
     @GetMapping("/slots")
-    public ResponseEntity<List<String>> getAvailableSlots(
+    public ResponseEntity<DailyAvailabilityResponse> getAvailableSlots(
             @RequestParam Long barberId,
             @RequestParam Long serviceId,
             @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
 
-        return ResponseEntity.ok(appointmentService.getAvailableSlots(barberId, serviceId, date));
+        // Apelăm noua metodă inteligentă din Service care ne returnează DTO-ul complet
+        return ResponseEntity.ok(appointmentService.getAvailableSlotsWithNextDayFallback(barberId, serviceId, date));
     }
 
     @GetMapping("/my-appointments/filter")

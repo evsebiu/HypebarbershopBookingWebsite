@@ -4,6 +4,7 @@ package com.hype.barbershop.Service;
 import com.hype.barbershop.Exceptions.BarbershopException;
 import com.hype.barbershop.Exceptions.BarbershopResourceNotFound;
 import com.hype.barbershop.Model.DTO.AppointmentDTO;
+import com.hype.barbershop.Model.DTO.DailyAvailabilityResponse;
 import com.hype.barbershop.Model.DTO.ManualAppointmentDTO;
 import com.hype.barbershop.Model.Entity.*;
 import com.hype.barbershop.Model.Enums.AppointmentStatus;
@@ -14,12 +15,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.ArrayList;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -148,7 +146,7 @@ public class AppointmentService {
         log.info("Incercare de creare de programare: {} ", appointmentDTO.getClientName());
 
 
-        if (appointmentDTO.getStartTime().isBefore(LocalDateTime.now().minusMinutes(5))) {
+        if (appointmentDTO.getStartTime().isBefore(LocalDateTime.now(ZoneId.of("Europe/Bucharest")).minusMinutes(5))) {
             throw new BarbershopException("Nu se pot efectua programari in trecut! ");
         }
 
@@ -162,6 +160,22 @@ public class AppointmentService {
         // we got the start from the client and duration from service table
         LocalDateTime newStart = appointmentDTO.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(serviceDetails.getDuration());
+        LocalDate appointmentDate = newStart.toLocalDate();
+
+
+        // FIX: validare pt tentativa de programare intr-o zi libera.
+        if (dayOffRepository.existsByBarberIdAndDate(barber.getId(), appointmentDate)){
+            log.warn("Tentativă de programare într-o zi închisă pentru frizerul ID: {}", barber.getId());
+            throw new BarbershopException("Ne pare rău, dar frizerul nu este disponibil");
+        }
+
+        Optional<BarberSchedule> scheduleOpt= scheduleRepository.findByBarberIdAndDayOfWeek(barber.getId(), appointmentDate.getDayOfWeek());
+            if (scheduleOpt.isPresent() && Boolean.FALSE.equals(scheduleOpt.get().getIsWorkingDay())){
+                log.warn("Tentativă de programare într-o zi a săptămânii nelucrătoare pentru frizerul ID: {}", barber.getId());
+                throw new BarbershopException("Ne pare rău, frizerul nu lucrează în această zi a săptămânii.");
+            }
+
+
 
         // 3. check for conflicts (optimized : only fetch appointments for this barber)
         List<Appointment> barberAppointments = appointmentRepository.findByBarberId(barber.getId());
@@ -290,7 +304,7 @@ public class AppointmentService {
 
     // CALENDAR BOOOKING AVAILABLE SLOTS
 
-    public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date) {
+   /* public List<String> getAvailableSlots(Long barberId, Long serviceId, LocalDate date) {
         // 1. Verificăm dacă este o zi liberă specială (Concediu)
         if (dayOffRepository.existsByBarberIdAndDate(barberId, date)) {
             return new ArrayList<>(); // Zi liberă -> nicio oră disponibilă
@@ -355,6 +369,9 @@ public class AppointmentService {
 
             boolean isOccupied = false;
 
+
+            ZoneId zoneId = ZoneId.of("Europe/Bucharest");
+
             // Nu permitem programări în trecut (dacă data selectată e azi)
             if (date.equals(LocalDate.now()) && currentSlot.isBefore(LocalTime.now())) {
                 isOccupied = true;
@@ -398,7 +415,134 @@ public class AppointmentService {
         }
 
         return slots;
+    }
 
+    */
+
+    public DailyAvailabilityResponse getAvailableSlotsWithNextDayFallback(Long barberId, Long serviceId, LocalDate date){
+
+        DailyAvailabilityResponse response = new DailyAvailabilityResponse();
+
+        List<String> currentDaySlots = calculateSlotsForSingleDay(barberId, serviceId, date);
+
+        if (!currentDaySlots.isEmpty()){
+            response.setIsAvailable(true);
+            response.setAvailableSlots(currentDaySlots);
+            return response;
+        }
+
+        response.setIsAvailable(false);
+        response.setAvailableSlots(new ArrayList<>());
+        response.setMessage("Nu exista locuri disponibile in ziua selectată");
+
+        LocalDate nextDate = date.plusDays(1);
+        int maxDaysToScan = 30;
+
+        for (int i = 0; i< maxDaysToScan; i++){
+            List<String> futureSlots = calculateSlotsForSingleDay(barberId, serviceId, nextDate);
+
+            if (!futureSlots.isEmpty()){
+                response.setNextAvailableDate(nextDate);
+                response.setNextAvailableDayName(translateDayName(nextDate.getDayOfWeek()));
+                return response;
+            }
+            nextDate = nextDate.plusDays(1);
+        }
+
+        response.setMessage("Frizerul este complet ocuapat pentru urmatoarele 30 zile.");
+        return response;
+
+    }
+
+
+    private List<String> calculateSlotsForSingleDay(Long barberId, Long serviceId, LocalDate date){
+
+        if (dayOffRepository.existsByBarberIdAndDate(barberId, date)){
+            return new ArrayList<>();
+        }
+
+        LocalTime workStart = null;
+        LocalTime workEnd = null;
+
+        Optional<BarberSchedule> scheduleOpt = scheduleRepository.findByBarberIdAndDayOfWeek(barberId, date.getDayOfWeek());
+
+            if (scheduleOpt.isPresent()) {
+                BarberSchedule schedule = scheduleOpt.get();
+                if (Boolean.FALSE.equals(schedule.getIsWorkingDay())){
+                return new ArrayList<>();
+            }
+                workStart=schedule.getStartTime();
+                workEnd=schedule.getEndTime();
+
+        }
+        if (workStart == null || workEnd == null) {
+            if (date.getDayOfWeek() == DayOfWeek.MONDAY) {
+                return new ArrayList<>();
+            }
+            workStart = LocalTime.of(10, 0);
+            workEnd = LocalTime.of(20, 0);
+        }
+
+        // service duration
+
+        ServiceDetails service = serviceDetailsRepository.findById(serviceId)
+                .orElseThrow(()-> new BarbershopException("Serviciu inexistent"));
+
+        int durationMinutes = service.getDuration();
+        int stepMinutes = 30;
+
+        // appointments which already exists
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        List<Appointment> existingAppointment = appointmentRepository.findByBarberIdAndStartTimeBetween(barberId, startOfDay, endOfDay);
+
+        List<String> slots = new ArrayList<>();
+        LocalTime currentSlot = workStart;
+
+        // slots generation
+        while (!currentSlot.plusMinutes(durationMinutes).isAfter(workEnd)) {
+            LocalTime slotEnd = currentSlot.plusMinutes(durationMinutes);
+            LocalDateTime proposedStart = LocalDateTime.of(date, currentSlot);
+            LocalDateTime proposedEnd = LocalDateTime.of(date, slotEnd);
+
+            boolean isOcuppied = false;
+
+            if (date.equals(LocalDate.now()) && currentSlot.isBefore(LocalTime.now())) {
+                isOcuppied = true;
+            }
+
+            if (!isOcuppied) {
+                for (Appointment app : existingAppointment) {
+                    if (app.getStatus() == AppointmentStatus.CANCELED) {
+                        continue;
+                    }
+                    LocalDateTime appStart = app.getStartTime();
+                    int appDuration = (app.getServiceDetails() != null) ? app.getServiceDetails().getDuration() : 30;
+                    LocalDateTime appEnd = appStart.plusMinutes(appDuration);
+
+                    if (proposedStart.isBefore(appEnd) && proposedEnd.isAfter(appStart))
+                        isOcuppied = true;
+                    break;
+                }
+            }
+            if (!isOcuppied){
+                slots.add(currentSlot.toString());
+            }
+            currentSlot = currentSlot.plusMinutes(stepMinutes);
+        }
+        return slots;
+    }
+
+    private String translateDayName(DayOfWeek dayOfWeek){
+        return switch (dayOfWeek){
+            case MONDAY -> "Luni";
+            case TUESDAY -> "Marti";
+            case WEDNESDAY -> "Miercuri";
+            case THURSDAY -> "Joi";
+            case FRIDAY -> "Vineri";
+            case SATURDAY -> "Sambata";
+            case SUNDAY -> "Duminica";
+        };
     }
 
     @Transactional(readOnly = true)

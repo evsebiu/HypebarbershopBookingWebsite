@@ -127,7 +127,10 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
+                "http://192.168.1.210:5173",
                 "https://hypebarbershop.ro",
+                "http://192.168.1.137:5173/",
+                "http://192.168.1.132:5173/",
                 "https://www.hypebarbershop.ro"
         ));
 

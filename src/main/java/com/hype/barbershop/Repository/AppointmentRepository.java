@@ -31,4 +31,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByBarberIdAndStartTimeAfterOrderByStartTime(Long barberId, LocalDateTime now);
 
     List<Appointment> findByBarberAndStatus(Long barberId, AppointmentStatus status);
+
+
 }
